@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>District Deck — Online play</title>
+  <meta name="description" content="Invite a friend or connect an AI opponent to your District Deck city. Private plans, shared settlement, forty quarters.">
+  <link rel="stylesheet" href="./src/ui/online-lobby.css">
+</head>
+<body>
+  <header class="lobby-masthead"><a href="./index.html" class="lobby-brand">District Deck</a><a href="./index.html">Back to the city desk</a></header>
+  <main class="lobby">
+    <div class="lobby-intro"><p class="eyebrow">MELBOURNE · ONLINE</p><h1>Bring a rival<br>to your city.</h1><p>Forty quarters. A shared board.<br>Keep your plan private until both seats commit.</p></div>
+    <section class="lobby-sheet" aria-labelledby="lobby-title">
+      <h2 id="lobby-title">Start a room</h2>
+      <p id="online-status" role="status" aria-live="polite"></p>
+      <form id="retry-opening" hidden><p>A room connection was interrupted. Recover that exact attempt before opening another room.</p><button type="submit" class="primary">Recover room connection</button></form>
+      <form id="create-room">
+        <label>Opponent<select name="opponent"><option value="human">Invite a friend</option><option value="policy">Roman Petridis · built-in AI</option><option value="external-ai">Connect an external AI player</option></select></label>
+        <label>City seed<input name="seed" inputmode="numeric" type="text" value="0" required pattern="[0-9]+" maxlength="10"></label>
+        <label>Opening operator<select name="operatorId" id="online-operator"></select></label>
+        <label id="policy-field" hidden>Petridis’s approach<select name="policyId"><option value="value">Value · rent and yield</option><option value="momentum">Momentum · forecast growth</option><option value="civic">Civic · linked districts</option></select></label>
+        <button type="submit" class="primary">Create room</button>
+      </form>
+      <details class="lobby-join" id="join-details"><summary>Have an invitation?</summary><form id="join-room"><label>Invitation link<input type="text" name="invite" autocomplete="off" spellcheck="false" required></label><button type="submit" class="primary">Join room</button><button type="button" id="create-instead" hidden>Create a different room</button></form></details>
+      <details class="lobby-join"><summary>Reconnect on this device</summary><form id="resume-room"><label>Room ID<input type="text" name="roomId" autocomplete="off" required></label><label>Seat access token<input type="password" name="token" autocomplete="off" spellcheck="false"><small>Leave blank to use this tab’s saved access.</small></label><button type="submit">Reconnect</button></form></details>
+      <section id="room-ready" class="room-ready" hidden aria-labelledby="room-ready-title">
+        <p class="eyebrow">YOUR ROOM</p><h2 id="room-ready-title"></h2><p id="room-summary"></p>
+        <a id="enter-online-city" class="primary" href="./play.html">Enter city</a>
+        <button type="button" id="refresh-room">Refresh room status</button>
+        <div id="room-invitation" hidden><label>Invite the other seat<input id="invite-link" type="text" readonly></label><button type="button" id="copy-invite">Copy invitation</button><p id="invite-help"></p></div>
+        <details><summary>Keep your access</summary><p>This tab remembers your seat. Keep the access token to reconnect from another device. Treat it like a password.</p><label>Seat access token<input id="seat-token" type="password" readonly></label><button id="copy-access" type="button">Copy my access token</button></details>
+        <details id="ai-access" hidden><summary>AI connection</summary><p>The AI joins with the invitation token, reads its own seat and submits a complete quarter plan. The server validates every move.</p><p><a href="./credits.html#online-api">Protocol and release notes</a></p><pre id="ai-instructions"></pre></details>
+      </section>
+    </section>
+    <aside class="lobby-notes"><p><strong>A shared outcome.</strong> Make your moves in the Three.js city, review your plan and commit. The quarter resolves when both seats are ready.</p><p><strong>Your seat stays yours.</strong> Invitations grant the other seat. Reconnection restores your last confirmed plan.</p><p><strong>City rooms.</strong> Online city play and your solo campaign use separate saves. World trade and local arcade scores remain in the solo campaign while their shared-room integration is being tested.</p></aside>
+  </main>
+  <footer class="lobby-footer"><span>District Deck · V4 development review</span><a href="./credits.html">Credits & release notes</a></footer>
+  <script type="module" src="./src/ui/online-lobby.js"></script>
+</body>
+</html>

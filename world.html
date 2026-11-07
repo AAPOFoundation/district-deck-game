@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>District Deck — World globe</title>
+<meta name="description" content="Spin the head-office globe. Pay to open a supply line, harvest crates, and raise MILITARY in the Yard.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%231a1712'/><circle cx='16' cy='16' r='7' fill='%23c8763f'/></svg>">
+<link rel="stylesheet" href="./src/ui/world-map/world-map.css">
+<link rel="stylesheet" href="./src/ui/v4-shell.css">
+<link rel="stylesheet" href="./src/ui/world-map/world-v4.css">
+<link rel="stylesheet" href="./src/ui/world-map/world-phone.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three/three.module.js",
+    "three/addons/": "./vendor/three/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body class="province-body" data-world-phase="loading">
+  <section class="world-loading" id="world-loading" aria-labelledby="world-loading-title">
+    <div class="world-loading-card">
+      <p class="world-loading-kicker">District Deck · Head office</p>
+      <div class="world-loading-globe" aria-hidden="true"><i></i><i></i></div>
+      <h1 id="world-loading-title">Preparing your world</h1>
+      <p id="world-loading-status" role="status">Restoring your trading books and preparing the globe.</p>
+      <div class="world-loading-actions">
+        <button type="button" id="world-loading-retry" hidden>Reload globe</button>
+        <a href="./index.html" id="world-loading-return">Return to city</a>
+      </div>
+      <noscript>The world globe needs JavaScript enabled in your browser.</noscript>
+    </div>
+  </section>
+  <main class="province" id="province" inert aria-busy="true">
+    <div class="province-land" id="province-land">
+      <canvas id="province-canvas" tabindex="0"
+              aria-label="Voxel world globe. Drag to spin. Click a cargo to read its supplier card."></canvas>
+      <div class="province-labels" id="province-labels" aria-label="City names"></div>
+      <div class="province-route-labels" id="province-route-labels" aria-label="Shipping books"></div>
+    </div>
+
+    <header class="province-mast">
+      <span class="chrome-rivets" aria-hidden="true"></span>
+      <p class="province-kicker">Head office</p>
+      <h1>World globe</h1>
+      <div class="province-key" aria-label="Cargo key">
+        <span><i data-role="home"></i>Your city</span>
+        <span><i data-role="openable"></i>Can open</span>
+        <span><i data-role="working"></i>Shipping</span>
+        <span><i data-role="locked"></i>Sealed</span>
+      </div>
+    </header>
+
+    <aside class="province-yard" id="province-yard" aria-labelledby="province-yard-title">
+      <span class="chrome-rivets" aria-hidden="true"></span>
+      <div class="province-yard-heading">
+        <div>
+          <p class="province-yard-kicker">Melbourne stores</p>
+          <h2 id="province-yard-title">The Yard</h2>
+        </div>
+        <span class="province-yard-beat" id="province-yard-beat">Beat 0</span>
+      </div>
+      <p class="province-yard-sub" id="province-yard-lead">Goods in the port warehouse — and the supply lines that feed them.</p>
+      <section class="province-yard-section" aria-labelledby="province-yard-title">
+        <div class="province-crates" id="province-crates"></div>
+      </section>
+      <section class="province-yard-section" aria-labelledby="province-ambition-title">
+        <h3 id="province-ambition-title">Ambition</h3>
+        <p class="province-yard-sub">Five ways to win. Tap a card, then a part.</p>
+        <div class="province-ambition-actions" id="province-ambition-actions"></div>
+      </section>
+      <p class="province-yard-notice" id="province-yard-notice" role="status" hidden></p>
+    </aside>
+
+    <aside class="province-dossier" id="province-dossier" aria-live="polite"></aside>
+
+    <footer class="province-foot">
+      <span class="chrome-rivets" aria-hidden="true"></span>
+      <div class="province-treasury" id="province-treasury"></div>
+      <div class="province-goods" id="province-goods" aria-label="Melbourne goods pressure"></div>
+    </footer>
+  </main>
+  <script id="world-boot" type="module" src="./src/ui/world-map/world-boot.js"></script>
+  <script>
+    // Fetch failure of the small boot module (or its dependency) happens before
+    // it can install its own recovery handlers. Keep this fallback self-contained.
+    document.getElementById('world-boot').addEventListener('error', () => {
+      document.body.dataset.worldPhase = 'failed';
+      document.getElementById('province').setAttribute('aria-busy', 'false');
+      document.getElementById('world-loading-title').textContent = 'The globe could not start';
+      document.getElementById('world-loading-status').textContent = 'Reload the globe to try again, or return to your city.';
+      const retry = document.getElementById('world-loading-retry');
+      retry.hidden = false;
+      retry.addEventListener('click', () => location.reload());
+      document.getElementById('world-loading-return').addEventListener('click', (event) => {
+        if (parent === window) return;
+        event.preventDefault();
+        parent.postMessage('district-deck:world-city-return', location.origin);
+      });
+    });
+  </script>
+</body>
+</html>

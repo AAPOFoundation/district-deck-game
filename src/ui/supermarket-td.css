@@ -1,0 +1,305 @@
+/* Zombie Shopper — toy first. Chrome is tokens. Does not restyle the city HUD. */
+
+.zstd {
+  --z-ink: #23160e;
+  --z-cream: #fff4d4;
+  --z-banana: #ffd23a;
+  --z-fresh: #3f9a28;
+  --z-house: #b36a00;
+  --z-liquor: #c42838;
+  position: absolute;
+  inset: 8px 8px 118px 8px;
+  z-index: 42;
+  pointer-events: auto;
+  overflow: hidden;
+  color: var(--z-ink);
+  font-family: "Arial Rounded MT Bold", "Trebuchet MS", "Avenir Next", sans-serif;
+}
+.zstd[hidden] { display: none !important; }
+.zstd.is-boot .zstd__dock,
+.zstd.is-boot .zstd__hud,
+.zstd.is-night .zstd__dock,
+.zstd.is-boot .zstd__tillpop { display: none; }
+
+.zstd__x {
+  appearance: none;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 9;
+  width: 32px;
+  height: 32px;
+  border: 3px solid #2a1c12;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ff9ab8, #ef3d6e);
+  color: #fff8e8;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #7a1838, inset 0 2px 0 #fff6;
+}
+.zstd__pin {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 8;
+  padding: 4px 10px;
+  border: 2px solid #2a1c12;
+  border-radius: 999px;
+  background: #fff4d4;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 2px 0 #2a1c12;
+}
+
+.zstd__stage {
+  position: absolute;
+  inset: 0;
+  background: #1a120e;
+}
+.zstd__stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.zstd__hud {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  display: flex;
+  gap: 8px;
+  pointer-events: none;
+}
+.zstd__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: min(28vw, 160px);
+  padding: 4px 10px;
+  border: 2px solid #2a1c12;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fffaf0, #f0cc7a);
+  box-shadow: 0 3px 0 #8a6230, inset 0 2px 0 #fff8;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+}
+.zstd__chip b {
+  font-size: 16px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.zstd__chip img { width: 22px; height: 22px; object-fit: contain; }
+.zstd__chip[data-sku="fresh"] b { color: var(--z-fresh); }
+.zstd__chip[data-sku="household"] b { color: var(--z-house); }
+.zstd__chip[data-sku="liquor"] b { color: var(--z-liquor); }
+
+.zstd__place {
+  position: absolute;
+  left: 50%;
+  bottom: 88px;
+  transform: translateX(-50%);
+  z-index: 5;
+  padding: 8px 14px;
+  border: 3px solid #2a1c12;
+  border-radius: 999px;
+  background: var(--z-cream);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 13px;
+  box-shadow: 0 3px 0 #2a1c12;
+  pointer-events: none;
+}
+.zstd__place[hidden] { display: none !important; }
+
+.zstd__dock {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  z-index: 8;
+  display: flex;
+  gap: 10px;
+}
+.zstd__dock .verb {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 72px;
+  min-height: 72px;
+  padding: 6px 8px 8px;
+  border: 3px solid #2a1c12;
+  border-radius: 18px;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--z-ink);
+  box-shadow: 0 4px 0 #2a1c12, inset 0 2px 0 #fff8;
+}
+.zstd__dock .verb img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+.zstd .verb[data-zstd-place="magazine"] {
+  background: linear-gradient(180deg, #ff8ec8, #7ed34a);
+}
+.zstd .verb[data-zstd-place="specials"] {
+  background: linear-gradient(180deg, #ffe14a, #e0a400);
+}
+.zstd .verb.is-on { outline: 3px solid #5ec8ff; outline-offset: 2px; }
+.zstd .verb:disabled {
+  opacity: 0.42;
+  cursor: default;
+  box-shadow: 0 2px 0 #2a1c12;
+}
+
+.zstd .verb {
+  appearance: none;
+  font-family: inherit;
+  font-weight: 900;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 3px solid #2a1c12;
+}
+.zstd .verb--primary,
+.zstd .verb[data-zstd-play],
+.zstd .verb[data-zstd-dawn] {
+  min-height: 48px;
+  padding: 8px 20px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #c8f86a, #4cb828);
+  box-shadow: 0 4px 0 #245418, inset 0 2px 0 #fff8;
+  font-size: 16px;
+}
+.zstd .verb:disabled { opacity: 0.45; cursor: not-allowed; }
+.zstd .verb[data-zstd-lease] {
+  min-height: 40px;
+  padding: 6px 14px;
+  border-radius: 10px;
+  border-style: dashed;
+  background: #fff4d2;
+}
+.zstd .verb[data-zstd-lease]:disabled {
+  opacity: 1;
+  border-style: solid;
+  box-shadow: inset 0 0 0 3px #c42838;
+}
+.zstd .verb[data-zstd-bank],
+.zstd .verb[data-zstd-up] {
+  min-height: 40px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fff3a0, #f0b400);
+  box-shadow: 0 3px 0 #8a5a10;
+}
+
+.zstd__boot,
+.zstd__night {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 16px 100px;
+  pointer-events: none;
+}
+.zstd__boot { background: transparent; }
+.zstd__night {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 24px 24px 108px;
+  background: #1a120e88;
+  pointer-events: auto;
+}
+.zstd__boot[hidden],
+.zstd__night[hidden] { display: none !important; }
+
+.zstd__stamp {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(520px, calc(100% - 24px));
+  padding: 10px 12px;
+  border: 3px solid #2a1c12;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fffaf0, #f3d9a2);
+  box-shadow: 0 6px 0 #2a1c12, 0 12px 24px #0007;
+  overflow: hidden;
+}
+.zstd__stamp-mark {
+  font-size: 12px;
+  font-weight: 800;
+  max-width: 110px;
+  line-height: 1.2;
+  overflow: hidden;
+}
+.zstd__stamp .verb { flex: 0 0 auto; }
+.zstd__stamp-mark.is-paid { color: #2f6a2a; }
+
+.zstd__tillpop {
+  position: absolute;
+  right: 14px;
+  bottom: 96px;
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: min(168px, calc(100% - 28px));
+  box-sizing: border-box;
+  padding: 10px;
+  border: 3px solid #2a1c12;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #fffaf0, #f0cc7a);
+  box-shadow: 0 5px 0 #2a1c12;
+  overflow: hidden;
+}
+.zstd__tillpop .verb {
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.zstd__tillpop[hidden] { display: none !important; }
+.zstd__tillpop span { font-weight: 900; font-size: 13px; }
+
+.zstd__crates { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 0; }
+.zstd__crate {
+  appearance: none;
+  width: 132px;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 3px solid #2a1c12;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fff4d2, #e8c878);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #2a1c12;
+  overflow: hidden;
+}
+.zstd__crate img { width: 100%; height: 64px; object-fit: contain; display: block; }
+.zstd__crate span {
+  display: block;
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.zstd__night p {
+  margin: 0;
+  color: #fff4d2;
+  font-weight: 800;
+  text-shadow: 0 2px 0 #0008;
+}
+.zstd__row { display: flex; gap: 8px; justify-content: center; }

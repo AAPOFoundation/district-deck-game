@@ -1,0 +1,16 @@
+{
+  "frame-gauge-brass": { "file": "mvp/assets/img/ui-plates/frame-gauge-brass.png", "surface": "person dossier: condition gauge face" },
+  "mood-scowl": { "file": "mvp/assets/img/ui-icons/mood-scowl.png", "surface": "person dossier: mood track low endpoint" },
+  "mood-grin": { "file": "mvp/assets/img/ui-icons/mood-grin.png", "surface": "person dossier: mood track high endpoint" },
+  "icon-nav": { "file": "mvp/assets/img/ui-icons/icon-nav.png", "surface": "statusbar: NAV counter glyph" },
+  "icon-debt": { "file": "mvp/assets/img/ui-icons/icon-debt.png", "surface": "statusbar: debt counter glyph" },
+  "stat-site": { "file": "mvp/assets/img/ui-icons/stat-site.png", "surface": "person dossier: site pictogram gutter" },
+  "stat-tenure": { "file": "mvp/assets/img/ui-icons/stat-tenure.png", "surface": "person dossier: tenure pictogram gutter" },
+  "stat-fee": { "file": "mvp/assets/img/ui-icons/stat-fee.png", "surface": "person dossier: fee pictogram gutter" },
+  "stat-loyalty": { "file": "mvp/assets/img/ui-icons/stat-loyalty.png", "surface": "person dossier: loyalty pictogram gutter" },
+  "stat-risk": { "file": "mvp/assets/img/ui-icons/stat-risk.png", "surface": "person dossier: risk pictogram gutter" },
+  "stat-acts": { "file": "mvp/assets/img/ui-icons/stat-acts.png", "surface": "person dossier: acts pictogram gutter" },
+  "frame-verb-tile": { "file": "mvp/assets/img/ui-plates/frame-verb-tile.png", "surface": "right rail: permanent verb wall tile" },
+  "plate-cta-open-the-ledger": { "file": "mvp/assets/img/ui-plates/plate-cta-open-the-ledger.png", "surface": "landing desktop and mobile CTA" },
+  "tile-footprint-grid": { "file": "mvp/assets/img/ui-plates/tile-footprint-grid.png", "surface": "redevelop picker: footprint diagram ground" }
+}

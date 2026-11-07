@@ -1,0 +1,406 @@
+/* Veggie Patch — allotment overlay. Scoped to .vgp; restyles nothing in the city HUD. */
+
+.vgp {
+  --vgp-ink: #1f2a17;
+  --vgp-soil: #3b2a1c;
+  --vgp-leaf: #4f7a34;
+  --vgp-leaf-lt: #7fae56;
+  --vgp-cream: #f2ecd9;
+  --vgp-tin: #d8a24a;
+  --vgp-rust: #b4552f;
+  position: absolute;
+  inset: 10px 10px 118px 10px;
+  z-index: 43;
+  display: grid;
+  grid-template-rows: 46px minmax(0, 1fr);
+  /* Neutral shell. r1 painted the whole overlay green, which is half of why an unplanted
+     patch measured 94.2 % one hue: the chrome was the same hue as the only content. The
+     garden itself now carries the colour, and the frame is stone and timber. */
+  background:
+    linear-gradient(180deg, #59626a 0 12px, #3a4046 12px);
+  border: 5px solid var(--vgp-cream);
+  border-radius: 22px;
+  box-shadow: 0 0 0 3px #16210f, 0 22px 50px #000a, inset 0 -10px 0 #2f4720;
+  color: var(--vgp-ink);
+  font-family: "Trebuchet MS", "Avenir Next", "Nunito", "Helvetica Neue", sans-serif;
+  pointer-events: auto;
+  overflow: hidden;
+}
+.vgp[hidden] { display: none !important; }
+
+.vgp__bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 12px 0 10px;
+  /* Narrow panes scroll the chip rail rather than amputating the close button. */
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: linear-gradient(180deg, #f0dfa8, #d8b45a);
+  border-bottom: 3px solid #8a6a24;
+  box-shadow: inset 0 2px 0 #fff6;
+}
+.vgp__seasons {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex: 0 0 auto;
+}
+.vgp__season {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 2px 6px;
+  border-radius: 999px;
+  border: 1px solid #8a6a24;
+  background: #fff8e8;
+  color: #5a4a22;
+  opacity: 0.5;
+}
+.vgp__season.is-now {
+  opacity: 1;
+  background: #2a3d1a;
+  color: #f0dfa8;
+  font-weight: 900;
+  box-shadow: 0 0 0 2px #e8c06966;
+}
+.vgp__leaf {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  border-radius: 0 60% 0 60%;
+  background: linear-gradient(140deg, var(--vgp-leaf-lt), var(--vgp-leaf));
+  box-shadow: 0 1px 0 #fff8, 0 2px 0 #2a3d1a;
+}
+.vgp__brand {
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 13px;
+  text-shadow: 0 1px 0 #fff6;
+}
+.vgp__spacer { flex: 1 1 auto; }
+.vgp__chip {
+  background: #fff8e8;
+  border: 2px solid #8a6a24;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.vgp__chip b { font-weight: 900; }
+.vgp [data-tip] { cursor: help; }
+.vgp__chip--tin { background: var(--vgp-tin); color: #2a2110; }
+.vgp__x {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #8a6a24;
+  background: #fff8e8;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.vgp__stage {
+  position: relative;
+  display: block;
+  padding: 10px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* The yard is the model. The pins float over it and carry only what geometry cannot say. */
+.vgp__yard {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 3px solid #2f3439;
+  box-shadow: inset 0 0 0 1px #ffffff14, 0 6px 18px #0006;
+}
+.vgp__yard.is-held,
+.vgp__yard.is-held .vgp__pin { cursor: none; }
+.vgp__yard canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.vgp__pins {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.vgp__pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  min-width: 20px;
+  min-height: 20px;
+  padding: 1px 4px;
+  border-radius: 999px;
+  border: 1px solid #0000004d;
+  background: #0f1a0acc;
+  color: #f2ecd9;
+  font: inherit;
+  font-size: 10px;
+  line-height: 1.1;
+  cursor: pointer;
+  pointer-events: auto;
+  opacity: 0.72;
+}
+.vgp__pin:hover { border-color: var(--vgp-tin); opacity: 1; }
+.vgp__pin.is-empty { background: #0f1a0a66; color: #d8cfb6; opacity: 0.5; }
+.vgp__pin.is-ripe, .vgp__pin.is-thirsty, .vgp__pin.is-weedy { opacity: 1; }
+.vgp__pin.is-cursor {
+  background: #1d2a12ee;
+  border-color: var(--vgp-tin);
+  border-radius: 8px;
+  box-shadow: 0 0 0 2px #e8c06955;
+  font-weight: 800;
+  opacity: 1;
+  padding: 2px 7px;
+  z-index: 3;
+}
+.vgp__pin.is-ripe { border-color: #cfe6a8; }
+.vgp__pin.is-thirsty { border-color: var(--vgp-rust); }
+.vgp__pin.is-quiet {
+  opacity: 0;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.vgp__pin.is-quiet:hover { opacity: 0.35; }
+.vgp__pin-name { white-space: nowrap; }
+
+/* Flex, not grid rows. The seed drawer is `hidden`, so it leaves the grid entirely when it
+   closes and every explicit row index shifts by one — which is why r1's sell button grew to
+   fill the column. A flex column with one growing child cannot drift. */
+.vgp__side {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 280px;
+  max-height: calc(100% - 20px);
+  overflow: auto;
+  background: #f7f1deee;
+  border: 3px solid #8a6a24;
+  border-radius: 14px;
+  padding: 8px;
+  box-shadow: 0 10px 24px #0007;
+}
+
+.vgp__kit { display: block; }
+.vgp__kit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 2px solid #b09a5f;
+  background: #fffaea;
+  cursor: pointer;
+  font: inherit;
+  color: var(--vgp-ink);
+}
+.vgp__kit-btn b { font-size: 11px; }
+.vgp__kit-btn span { font-size: 11px; font-weight: 800; color: #6a5a32; }
+
+.vgp__tools { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+.vgp__tool {
+  display: grid;
+  gap: 1px;
+  padding: 6px 2px;
+  border-radius: 8px;
+  border: 2px solid #b09a5f;
+  background: #fffaea;
+  cursor: pointer;
+  font: inherit;
+  color: var(--vgp-ink);
+}
+.vgp__tool b { font-size: 10px; letter-spacing: 0; }
+.vgp__tool span { font-size: 10px; opacity: 0.6; }
+.vgp__tool.is-on { background: var(--vgp-leaf); color: #fff; border-color: #2f4720; }
+
+.vgp__seeds {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  overflow-y: auto;
+  min-height: 0;
+  max-height: 52vh;
+}
+.vgp__seed img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #efe6c8;
+  flex: 0 0 auto;
+}
+/* An explicit `display` beats the hidden attribute's UA rule. Without this the seed
+   drawer stays open under every other tool, which is how it shipped in r1's first
+   browser pass. Same guard on the two toast elements, which are also `hidden`-driven. */
+.vgp__seeds[hidden],
+.vgp__kit[hidden],
+.vgp__flash[hidden] { display: none !important; }
+.vgp__seed {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-align: left;
+  padding: 4px 6px;
+  border-radius: 8px;
+  border: 2px solid #cbb887;
+  background: #fffaea;
+  cursor: pointer;
+  font: inherit;
+  color: var(--vgp-ink);
+  min-width: 0;
+  overflow: hidden;
+}
+.vgp__seed-copy {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.vgp__seed b {
+  font-size: 11px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.vgp__seed-copy span { font-size: 10px; font-weight: 700; opacity: 0.8; }
+.vgp__seed.is-fit { border-color: #9bb86a; }
+.vgp__seed.is-on { border-color: var(--vgp-leaf); box-shadow: 0 0 0 2px #cfe6a8; }
+.vgp__seed:disabled { opacity: 0.42; cursor: not-allowed; }
+
+.vgp__row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.vgp__btn {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 2px solid #2f4720;
+  background: #fffaea;
+  font: inherit;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--vgp-ink);
+}
+.vgp__btn--sell { background: var(--vgp-tin); }
+.vgp__btn--week { background: #cfe6a8; }
+.vgp__btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.vgp__eqtip {
+  position: absolute;
+  z-index: 8;
+  max-width: 260px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #1f2a17;
+  color: #f2ecd9;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.35;
+  pointer-events: none;
+  box-shadow: 0 8px 18px #0008;
+  white-space: normal;
+}
+.vgp__eqtip[hidden] { display: none !important; }
+.vgp__eqtip b { display: block; margin-bottom: 3px; font-size: 12px; }
+.vgp__eqtip span { display: block; opacity: 0.92; font-weight: 500; }
+
+.vgp__shop {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  z-index: 7;
+  width: min(320px, 42%);
+  max-height: calc(100% - 32px);
+  overflow: auto;
+  background: #f7f1deee;
+  border: 3px solid #8a6a24;
+  border-radius: 14px;
+  padding: 10px;
+  box-shadow: 0 12px 28px #0008;
+}
+.vgp__shop[hidden] { display: none !important; }
+.vgp__shop-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.vgp__shop-lede {
+  margin: 0 0 8px;
+  font-size: 11px;
+  color: #5a4a22;
+}
+.vgp__shop-list { display: grid; gap: 5px; }
+.vgp__shop-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 7px 8px;
+  border-radius: 8px;
+  border: 2px solid #b09a5f;
+  background: #fffaea;
+  cursor: pointer;
+  font: inherit;
+  color: var(--vgp-ink);
+  min-width: 0;
+  overflow: hidden;
+}
+.vgp__shop-item b {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.vgp__shop-item span { flex: 0 0 auto; }
+.vgp__shop-item.is-owned,
+.vgp__shop-item:disabled { opacity: 0.55; cursor: default; }
+
+.vgp__flash {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  background: #2a3d1a;
+  color: #f0dfa8;
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 6px 18px #0007;
+  pointer-events: none;
+  max-width: 70%;
+  text-align: center;
+}
+.vgp__flash.is-bad { background: var(--vgp-rust); color: #fff2e6; }
+.vgp__flash.is-go { animation: vgp-pop 0.28s ease-out; }
+@keyframes vgp-pop {
+  from { transform: translateX(-50%) translateY(8px); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vgp__flash.is-go { animation: none; }
+}

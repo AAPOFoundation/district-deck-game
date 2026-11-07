@@ -1,0 +1,37 @@
+/* Phone round P1, lane L1: the band variables (docs/art-direction/PHONE-CONTRACT-2026-10-20.md, section 2).
+   What the phone HUD reserves at each edge of the window, in px, the safe-area inset of that side included. The camera fit (src/ui/phone-fit.js)
+   and Game.visibleBoardRect() read them through src/ui/bands.js, on a layout change and on a resize, never from a panel's live rectangle and never
+   when a sheet opens or closes; L2a and L2b size their panels to the same variables.
+
+   Every rule below is scoped under :root[data-phone-hud="1"] (the head script in play.html sets it; ?phoneHud=0 and the wide class leave it 0).
+   The eleven names are deliberately not registered with @property: a registered property has a computed value (0px) with the switch at 0 too, which
+   would make them read as defined there. Unregistered they exist only under the switch; bands.js reads the calc() and min() text through its var() probe.
+
+   tall:  --sheet-peek is the peeking card measured from the bottom edge with the inset added (ruling 3); --sheet-full is the full card, the inset inside it;
+          --seat-w is 0px (n/a).
+   short: --seat-w is the card's seat on the right, inside --band-right; --sheet-peek and --sheet-full are 0px (n/a). The n/a names are written out as 0px so
+          that the probe in bands.js reads a number for them too.
+   The top plate is 52 px at most and the bottom bar 56 px at most, both inside the bands. While a card is open its surface replaces the bar on tall;
+   on short the bar stays and the card seats right. */
+:root[data-phone-hud="1"] {
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --band-top: calc(52px + var(--sat));
+  --band-bottom: calc(56px + var(--sab));
+  --band-left: var(--sal);
+  --band-right: var(--sar);
+}
+
+:root[data-phone-hud="1"][data-layout="tall"] {
+  --sheet-peek: calc(210px + var(--sab));
+  --sheet-full: min(60dvh, 520px);
+  --seat-w: 0px;
+}
+
+:root[data-phone-hud="1"][data-layout="short"] {
+  --seat-w: min(30vw, 300px);
+  --sheet-peek: 0px;
+  --sheet-full: 0px;
+}

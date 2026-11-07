@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "recordedAt": "2026-09-15",
+  "purpose": "Promote five already-loaded project textures from private review paths into the public runtime asset tree.",
+  "sourceGroups": {
+    "foam": {
+      "kind": "project-generated images with retained final hashes",
+      "prompt": {
+        "path": "mvp/_reviews/aaa-loop/IMAGEN-LACE-PROMPT.md",
+        "lines": "1-16",
+        "bytes": 1131,
+        "sha256": "24d34b54a7d3353a9275a1d8682a2838f0c5e3c99b24d7ded80eda29cc3860ce"
+      },
+      "generationLog": {
+        "path": "mvp/_reviews/aaa-loop/IMAGEN-LACE.log",
+        "lines": "4-5, 298-333",
+        "bytes": 24917,
+        "sha256": "3c95b4178e4510a9b3edc73f6c516247f5ddfb8aebe71c9b51913f0b669da4a7"
+      },
+      "integrationRecord": {
+        "path": "mvp/_reviews/aaa-loop/P10-R15-REPORT.md",
+        "lines": "19-44",
+        "bytes": 9901,
+        "sha256": "bb9cb2ab331634eaede61f74bb3fa88f512b2c0db6b7b87e1c5c152254ea6185"
+      },
+      "providerRecorded": "OpenAI; authoring session model gpt-5.6-sol. A specific image-generator model is not independently established by this record.",
+      "inputs": "Text descriptions of foam masks; no external source image named by the retained prompt.",
+      "hashJoin": "All three retained final hashes at log lines331-333 equal the promoted PNGs."
+    },
+    "sand": {
+      "kind": "project-generated images with retained final hashes",
+      "prompt": {
+        "path": "mvp/_reviews/imagen/r3/sand/PROMPT-P23.md",
+        "lines": "1-2",
+        "bytes": 850,
+        "sha256": "88b92b77dd19354fa10b37ec64c4b754838ff53ca6c3ee590dea441f0a09689a"
+      },
+      "generationLog": {
+        "path": "mvp/_reviews/aaa-loop/P23-IMAGEN-sand.log",
+        "lines": "4-5, 289-312",
+        "bytes": 23789,
+        "sha256": "3165bc5785412c9b1fc006ea7f7d8804b26ce9e8ebdeeee66ed46d07e38fd213"
+      },
+      "integrationRecord": {
+        "path": "mvp/_reviews/aaa-loop/P23-BEACH-PHOTO-REPORT.md",
+        "lines": "36-39",
+        "bytes": 6102,
+        "sha256": "0ecfc2a3c06949df9c836aea70192247caded23a215739f806a989f744d1d104"
+      },
+      "providerRecorded": "OpenAI; authoring session model gpt-5.6-sol. Imagen in the historical directory name is not treated as independent model identification.",
+      "inputs": "Text descriptions of sand tiles; no external source image named by the retained prompt.",
+      "hashJoin": "Both retained final hashes at log lines311-312 and integration report equal the promoted PNGs."
+    }
+  },
+  "images": [
+    {
+      "path": "assets/water/foam/foam-lace-a.png",
+      "originalRepositoryPath": "mvp/_reviews/aaa-loop/ocean-refs/foam-lace-a.png",
+      "sha256": "760ea7be16a3c09b65d5b3035a0732b59e03c1d6fbbc545e81cef46918c3c47b",
+      "bytes": 1185918,
+      "width": 1536,
+      "height": 1024,
+      "sourceRecordGroup": "foam",
+      "historicalPreparation": "format=gray; curves=all: 0/0 0.25/0 0.55/0.08 0.85/0.78 1/1",
+      "promotion": "Exact final PNG byte copy; no image processing in this promotion."
+    },
+    {
+      "path": "assets/water/foam/foam-lace-b.png",
+      "originalRepositoryPath": "mvp/_reviews/aaa-loop/ocean-refs/foam-lace-b.png",
+      "sha256": "9b2e4eb0fb7b7aa1d180f7c991ca6c89f1f5d5b8f9476ca2a5b30d18916d2bbe",
+      "bytes": 541394,
+      "width": 1536,
+      "height": 1024,
+      "sourceRecordGroup": "foam",
+      "historicalPreparation": "format=gray; curves=all: 0/0 0.76/0.01 0.90/0.68 1/1",
+      "promotion": "Exact final PNG byte copy; no image processing in this promotion."
+    },
+    {
+      "path": "assets/water/foam/foam-crest-c.png",
+      "originalRepositoryPath": "mvp/_reviews/aaa-loop/ocean-refs/foam-crest-c.png",
+      "sha256": "01420c6ec8fbc0d5f69d55e2125449ad800b50dfc0528954b658f64ed7f41177",
+      "bytes": 404637,
+      "width": 1536,
+      "height": 1024,
+      "sourceRecordGroup": "foam",
+      "historicalPreparation": "format=gray; curves=all: 0/0 0.74/0.01 0.88/0.62 1/1",
+      "promotion": "Exact final PNG byte copy; no image processing in this promotion."
+    },
+    {
+      "path": "assets/water/sand/tile-sand-dry.png",
+      "originalRepositoryPath": "mvp/_reviews/imagen/r3/sand/tile-sand-dry.png",
+      "sha256": "be64a76a1f934d880cc3cd8c93b7ca3add59f520aa1beef9867683d6a0cda278",
+      "bytes": 2133293,
+      "width": 1024,
+      "height": 1024,
+      "sourceRecordGroup": "sand",
+      "historicalPreparation": "generated source copied; sips -z 1024 1024",
+      "promotion": "Exact final PNG byte copy; no image processing in this promotion."
+    },
+    {
+      "path": "assets/water/sand/tile-sand-wet.png",
+      "originalRepositoryPath": "mvp/_reviews/imagen/r3/sand/tile-sand-wet.png",
+      "sha256": "6f73fd25416d1fe678f53debe88f749fff4a920cf034ccc7796a3baf2e7e2312",
+      "bytes": 2055829,
+      "width": 1024,
+      "height": 1024,
+      "sourceRecordGroup": "sand",
+      "historicalPreparation": "generated source copied; sips -z 1024 1024",
+      "promotion": "Exact final PNG byte copy; no image processing in this promotion."
+    }
+  ],
+  "totalBytes": 6321071,
+  "permissionRecord": {
+    "file": "licenses/generated-water-textures.txt",
+    "localReview": "Authorized reversible promotion of existing project runtime assets.",
+    "publicDistribution": "HOLD for review: no separate asset licence or verified service/account terms-at-creation record is retained here. No rights grant is invented.",
+    "recordsStillMissing": [
+      "Verified service/account permission terms applicable to creation",
+      "Independent public-distribution clearance"
+    ]
+  },
+  "preservation": "Original review PNGs, prompts and logs stay unchanged and private; no unrelated review image is promoted."
+}

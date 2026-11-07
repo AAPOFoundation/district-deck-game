@@ -1,0 +1,97 @@
+{
+  "batch": "imagen-t4-aido-bulletin",
+  "generated_at": "2026-08-16",
+  "generator": "GPT Image 2.0 via Codex built-in image tool",
+  "iterations_per_asset": 1,
+  "register": "District Deck painted tabletop-miniature photography for characters and city vignettes; typed carbon-paper office ephemera for the masthead; aged-brass black-ink etching for verb pictograms.",
+  "files": [
+    {
+      "file": "../../people/aido-portrait.png",
+      "brief": "Courteous android chief of staff in charcoal wool waistcoat holding a blank clipboard; warm tungsten key, dark felt backdrop.",
+      "width": 1086,
+      "height": 1448,
+      "bytes": 2084586,
+      "sha256": "277f32aca8bdc9640bba479b47d232b94adfeb05918a27ce92dfb9c489ec4319"
+    },
+    {
+      "file": "bulletin-masthead.png",
+      "brief": "Worn typed-memo carbon-paper plate with exact letterpress text QUARTERLY MINUTE and no other copy.",
+      "width": 1774,
+      "height": 887,
+      "bytes": 2544348,
+      "sha256": "99e601ce34a853ed9992941d97e21bc8dcfa72c5cd9a8460d16a80ebaf9780cb"
+    },
+    {
+      "file": "plate-news-auction.png",
+      "brief": "Painted miniature auction crowd on the lawn of a brick terrace; no text.",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 2591560,
+      "sha256": "80af4f7fdf64105c5836139b9ea519ac4dcc53b8e35b34de4458c907de9d3f93"
+    },
+    {
+      "file": "plate-news-works.png",
+      "brief": "Painted miniature tower crane lifting steel over a scaffolded brick worksite; no text.",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 2588622,
+      "sha256": "7c07e547ea8aee41d252871220d8d59f1f8223c946da58426a3b365e0a88d602"
+    },
+    {
+      "file": "plate-news-flood.png",
+      "brief": "Painted miniature Victorian terrace street with sandbagged doors, shallow floodwater, and one hi-vis worker; no text.",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 2871013,
+      "sha256": "fb163a63932e4a661488c20220373c97ca3261b9dc648e330abe52866ab0468d"
+    },
+    {
+      "file": "plate-news-tenancy.png",
+      "brief": "Painted miniature tenant reading a blank pinned notice at a warm-lit Victorian front door; no text.",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 2374281,
+      "sha256": "1a0352957ec2456353e911811f6350282ec84e6210d31dbb2c79255da122ce42"
+    },
+    {
+      "file": "plate-news-market.png",
+      "brief": "Painted miniature 1990s trading desk with two figures, blank CRTs and paper, and ticker tape; no text.",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 2441526,
+      "sha256": "3599f0a0857e0ce801750364127520eb3cdd1bee39724686979a9781d801aa49"
+    },
+    {
+      "file": "plate-desk-minute.png",
+      "brief": "Painted miniature family-office desk at night with a warm brass banker's lamp, cream QUARTERLY MINUTE document, fountain pen, red rubber stamp, and wax-sealed envelope.",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 2221059,
+      "sha256": "b1bc3c2c08e385fb985b5099bea4b7ada10297891469b08dc01fb38c6e8facd7"
+    },
+    {
+      "file": "plate-news-permit.png",
+      "brief": "Painted miniature council counter with a clerk stamping a plan for a waiting hard-hat figure; no text.",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 2808564,
+      "sha256": "de262156ede4adb203bbf728937dfd02e43daf4a340168104936696a072e2055"
+    },
+    {
+      "file": "../../ui-icons/verb-wire.png",
+      "brief": "Antique telegraph key in the brass-and-black inked-etching verb register.",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1748550,
+      "sha256": "7f6c521603627e914a24211b488482e35d2f803e9c24f62ce4acd7f7b3495a3f"
+    },
+    {
+      "file": "../../ui-icons/verb-earn.png",
+      "brief": "Antique mechanical till in the brass-and-black inked-etching verb register.",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1914927,
+      "sha256": "9247cc44e93fac5a30a640a224f1be71dc8fdd5720038a28c74f338c0b215b10"
+    }
+  ]
+}

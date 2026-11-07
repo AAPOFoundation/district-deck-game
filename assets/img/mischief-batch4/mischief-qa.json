@@ -1,0 +1,224 @@
+{
+  "key": "prop:6:city-blackwood-bench:66:150",
+  "selected": "p1020",
+  "serializationEqual": true,
+  "selectionUnchanged": true,
+  "repaired": {
+    "key": "prop:6:city-blackwood-bench:66:150",
+    "kind": "prop",
+    "model": "city-blackwood-bench",
+    "hits": 0,
+    "stage": 0,
+    "repairing": false,
+    "variant": "bench:spotted-gum"
+  },
+  "baselineDraw": {
+    "frame": 8,
+    "calls": 423,
+    "triangles": 3219640,
+    "points": 0,
+    "lines": 0
+  },
+  "repairedDraw": {
+    "frame": 43,
+    "calls": 423,
+    "triangles": 3219640,
+    "points": 160,
+    "lines": 0
+  },
+  "cost": {
+    "drawCalls": 2,
+    "trianglesAtCapacity": 1284,
+    "trianglesNow": 0
+  },
+  "reduced": {
+    "item": {
+      "key": "prop:6:city-blackwood-bench:66:150",
+      "kind": "prop",
+      "model": "city-blackwood-bench",
+      "hits": 8,
+      "stage": 2,
+      "repairing": false,
+      "variant": "bench:spotted-gum"
+    },
+    "activeMotes": 0
+  },
+  "cap": {
+    "damaged": 6,
+    "oldestHits": 0
+  },
+  "guards": {
+    "modal": {
+      "accepted": false,
+      "reason": "guarded"
+    },
+    "focus": {
+      "accepted": false,
+      "reason": "guarded"
+    },
+    "settlement": {
+      "accepted": false,
+      "reason": "guarded"
+    }
+  },
+  "tree": {
+    "key": "tree:0:plane-tree-london:14.5:24",
+    "kind": "tree",
+    "model": "plane-tree-london",
+    "hits": 13,
+    "stage": 3,
+    "repairing": false,
+    "variant": "australian-jacaranda"
+  },
+  "tram": {
+    "item": {
+      "key": "tram:0:v",
+      "kind": "tram",
+      "model": "w-class-tram",
+      "hits": 13,
+      "stage": 3,
+      "repairing": false,
+      "variant": "w-class-tram:livery-red-cream"
+    },
+    "stopped": true,
+    "bodyComponents": 20,
+    "hazardLights": 2,
+    "baselineDraw": {
+      "frame": 45,
+      "calls": 478,
+      "triangles": 3379864,
+      "points": 160,
+      "lines": 0
+    },
+    "draw": {
+      "frame": 46,
+      "calls": 460,
+      "triangles": 3224908,
+      "points": 160,
+      "lines": 0
+    }
+  },
+  "errors": [],
+  "stageMetrics": [
+    {
+      "name": "pristine",
+      "item": {
+        "key": "prop:6:city-blackwood-bench:66:150",
+        "kind": "prop",
+        "model": "city-blackwood-bench",
+        "hits": 0,
+        "stage": 0,
+        "repairing": false,
+        "variant": "bench:blackwood"
+      },
+      "draw": {
+        "frame": 15,
+        "calls": 423,
+        "triangles": 3219640,
+        "points": 0,
+        "lines": 0
+      },
+      "cost": {
+        "drawCalls": 2,
+        "trianglesAtCapacity": 1284,
+        "trianglesNow": 0
+      }
+    },
+    {
+      "name": "knocked",
+      "item": {
+        "key": "prop:6:city-blackwood-bench:66:150",
+        "kind": "prop",
+        "model": "city-blackwood-bench",
+        "hits": 4,
+        "stage": 1,
+        "repairing": false,
+        "variant": "bench:blackwood"
+      },
+      "draw": {
+        "frame": 22,
+        "calls": 425,
+        "triangles": 3219808,
+        "points": 160,
+        "lines": 0
+      },
+      "cost": {
+        "drawCalls": 2,
+        "trianglesAtCapacity": 1284,
+        "trianglesNow": 84
+      }
+    },
+    {
+      "name": "bent",
+      "item": {
+        "key": "prop:6:city-blackwood-bench:66:150",
+        "kind": "prop",
+        "model": "city-blackwood-bench",
+        "hits": 8,
+        "stage": 2,
+        "repairing": false,
+        "variant": "bench:blackwood"
+      },
+      "draw": {
+        "frame": 29,
+        "calls": 425,
+        "triangles": 3219808,
+        "points": 160,
+        "lines": 0
+      },
+      "cost": {
+        "drawCalls": 2,
+        "trianglesAtCapacity": 1284,
+        "trianglesNow": 84
+      }
+    },
+    {
+      "name": "broken",
+      "item": {
+        "key": "prop:6:city-blackwood-bench:66:150",
+        "kind": "prop",
+        "model": "city-blackwood-bench",
+        "hits": 13,
+        "stage": 3,
+        "repairing": false,
+        "variant": "bench:blackwood"
+      },
+      "draw": {
+        "frame": 36,
+        "calls": 425,
+        "triangles": 3219808,
+        "points": 160,
+        "lines": 0
+      },
+      "cost": {
+        "drawCalls": 2,
+        "trianglesAtCapacity": 1284,
+        "trianglesNow": 84
+      }
+    },
+    {
+      "name": "replacement",
+      "item": {
+        "key": "prop:6:city-blackwood-bench:66:150",
+        "kind": "prop",
+        "model": "city-blackwood-bench",
+        "hits": 0,
+        "stage": 0,
+        "repairing": false,
+        "variant": "bench:spotted-gum"
+      },
+      "draw": {
+        "frame": 43,
+        "calls": 423,
+        "triangles": 3219640,
+        "points": 160,
+        "lines": 0
+      },
+      "cost": {
+        "drawCalls": 2,
+        "trianglesAtCapacity": 1284,
+        "trianglesNow": 0
+      }
+    }
+  ]
+}

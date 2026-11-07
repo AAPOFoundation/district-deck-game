@@ -1,0 +1,83 @@
+/* Phone round P1, lane L2a: the glass and text tokens (contract section 5, rulings 9 and 10 of section 8). Every rule is scoped under :root[data-phone-hud="1"].
+   The names and values are the contract's, so L2b can use them with these values as var() fallbacks. The knobs ?glassAlpha= (0 to 1) and ?glassBlur= (px)
+   are read in hud-phone.js and written on <html> as --glass-alpha and --glass-blur, which beats this file (an inline style outranks a rule).
+   --ph-surface is direction B's charcoal (16 25 32), the lowest alpha at which every text box clears 4.5:1 over the board is 0.72 with the lifted text tokens
+   (style-w0/ui-sheet/notes.md finding 2). text-3 is for opaque surfaces only: on glass it falls under 4.5:1 over a bright board.
+   No backdrop-filter nests inside another: the glass panels (plate, bar, menu) never contain a blurred child, and the popovers that open from them
+   (the camera popover, the pills' sheet) are siblings, not descendants. A sticky footer is --ph-opaque. */
+
+:root[data-phone-hud="1"] {
+  /* glass: the contract's four numbers */
+  --glass-alpha: 0.72;
+  --glass-blur: 16px;
+  --glass-sat: 1.2;
+  --glass-popover: 0.94;
+
+  /* surfaces */
+  --ph-surface: rgb(16 25 32 / var(--glass-alpha));
+  --ph-popover: rgb(16 25 32 / var(--glass-popover));
+  --ph-opaque: #18232b;
+  --ph-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+
+  /* text, lifted (ui-sheet/tokens-b.css) */
+  --ph-text: #edf0ec;
+  --ph-text-2: #c6d1d5;
+  --ph-text-3: #8fa1a9;
+  --ph-on-brass: #15232b;
+
+  /* semantic */
+  --ph-gain: #72bd8c;
+  --ph-loss: #e08a74;
+  --ph-warn: #d98e4a;
+  --ph-info: #8fb1d0;
+
+  /* brass and line */
+  --ph-brass: #d3b37c;
+  --ph-brass-hi: #e9cf9f;
+  --ph-brass-lo: #9b7f4c;
+  --ph-line: rgb(237 240 236 / 0.18);
+  --ph-line-strong: rgb(237 240 236 / 0.42);
+  --ph-keyline: rgb(211 179 124 / 0.55);
+  --ph-keyline-2: rgb(211 179 124 / 0.3);
+  --ph-keyline-chip: var(--ph-keyline);
+  --ph-bracket: rgb(233 207 159 / 0.9);
+
+  /* shape: radii from 3 to 12, corner brackets 5 px inside the edge, a 44 px target with a 36 px glyph */
+  --ph-r-1: 3px;
+  --ph-r-2: 6px;
+  --ph-r-3: 12px;
+  --ph-inset: 5px;
+  --ph-gutter: 8px;
+  --ph-tap: 44px;
+  --ph-glyph: 36px;
+  --ph-shadow: 0 6px 18px rgb(2 8 14 / 0.38);
+
+  /* type: the game's own two faces */
+  --ph-font: var(--body, "DD Body", system-ui, sans-serif);
+  --ph-display: var(--display, "DD Display", "Arial Narrow", sans-serif);
+
+  /* the bands and insets L1 writes (phone-bands.css), read with the contract's value as the fallback so this lane builds without it */
+  --ph-sat: var(--sat, env(safe-area-inset-top, 0px));
+  --ph-sab: var(--sab, env(safe-area-inset-bottom, 0px));
+  --ph-sal: var(--sal, env(safe-area-inset-left, 0px));
+  --ph-sar: var(--sar, env(safe-area-inset-right, 0px));
+  --ph-band-top: var(--band-top, calc(52px + var(--ph-sat)));
+  --ph-band-bottom: var(--band-bottom, calc(56px + var(--ph-sab)));
+  --ph-sheet-peek: var(--sheet-peek, calc(210px + var(--ph-sab)));
+  --ph-sheet-full: var(--sheet-full, min(60dvh, 520px));
+
+  /* the plate and the bar, each inside its band. The keyline stack of a panel (hud-phone.css) takes the first 6 px from the edge: the outer white
+     hairline outside the box, the brass border at 0 to 1, the faint inner ring at 2 to 3, the corner brackets at 5 to 6. A control stands 6 px or more
+     inside the edge, so the bar is 56 px for its 44 px controls (the band's whole height, standing on the inset) and the plate is 46 px, 3 px clear
+     of the top inset. */
+  --ph-plate-top: calc(var(--ph-sat) + 3px);
+  --ph-plate-h: 46px;
+  --ph-bar-bottom: var(--ph-sab);
+  --ph-bar-h: 56px;
+
+  /* the menu's scroll cue (hud-phone.css "the scroll cue"): the fade is 24 px tall, solid over the keyline stack (7 px), and the menu's 10 px of space above the
+     first row and below the last is the fade nodes' margin */
+  --ph-fade-h: 24px;
+  --ph-stack-solid: 7px;
+  --ph-menu-pad: 10px;
+}

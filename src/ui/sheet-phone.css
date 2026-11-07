@@ -1,0 +1,1189 @@
+/* Phone round P1, lane L2b: the card as a peek, full or side sheet, its footer and the dialogs on the phone classes (contract sections 3, 5 and 8).
+   Every rule is scoped under :root[data-phone-hud="1"]; sheet-phone.js dresses the card (data-phone="sheet", .sheet-bar, .sheet-scroll,
+   [data-phone="sheet-foot"]) and the dialogs (data-phone="dialog"), and does nothing while the layer is off. No width-keyed @media here:
+   the class comes from data-layout, and the width-keyed card rules of styles.css and v4-shell.css are wrapped there under
+   :where(:root[data-phone-hud="0"]) and repeated at the end of this file, so the sheet's interior is the narrow layout at any width.
+   Token names are L2a's (phone-tokens.css, contract ruling 9); each is read with the ruling's value as its var() fallback, because the
+   lanes build in parallel.
+
+   Specificity. The legacy card forces colour, type and plates with !important at (0,6,0) to (0,8,0) (the J6 type and ink contract,
+   styles.css about 18697-18900). The sheet's rules that must win against those carry !important at a base of (0,7,1):
+     :root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet]   (called S in the comments below)
+   plus one or two classes. Rules that fight nothing use the plain base (0,4,1). */
+
+:root[data-phone-hud="1"] {
+  --sh-sat: var(--sat, env(safe-area-inset-top, 0px));
+  --sh-sab: var(--sab, env(safe-area-inset-bottom, 0px));
+  --sh-sal: var(--sal, env(safe-area-inset-left, 0px));
+  --sh-sar: var(--sar, env(safe-area-inset-right, 0px));
+  --sh-top: var(--band-top, calc(52px + env(safe-area-inset-top, 0px)));
+  --sh-peek: var(--sheet-peek, calc(210px + env(safe-area-inset-bottom, 0px)));
+  --sh-full: var(--sheet-full, min(60dvh, 520px));
+  --sh-seat: var(--seat-w, min(30vw, 300px));
+  --sh-surface: var(--ph-surface, rgb(16 25 32 / var(--glass-alpha, 0.72)));
+  --sh-popover: var(--ph-popover, rgb(16 25 32 / var(--glass-popover, 0.94)));
+  --sh-opaque: var(--ph-opaque, #18232b);
+  --sh-filter: var(--ph-filter, blur(var(--glass-blur, 16px)) saturate(var(--glass-sat, 1.2)));
+  --sh-text: var(--ph-text, #edf0ec);
+  --sh-text-2: var(--ph-text-2, #c6d1d5);
+  --sh-line: var(--ph-line, rgb(237 240 236 / 0.18));
+  --sh-line-strong: var(--ph-line-strong, rgb(237 240 236 / 0.42));
+  --sh-brass: var(--ph-brass, #d3b37c);
+  --sh-brass-hi: var(--ph-brass-hi, #e9cf9f);
+  --sh-info: var(--ph-info, #8fb1d0);
+  --sh-ink: #17242a; /* dark text on brass: 8.4:1 against --sh-brass */
+}
+
+/* ------------------------------------------------------------------------------------------------ the sheet's box */
+
+:root[data-phone-hud="1"] .game > aside.card.card--instrument[data-phone="sheet"][data-sheet] {
+  position: absolute;
+  z-index: 18;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 12px 12px 0 0;
+  max-height: none !important; /* beats `.card.card--instrument { max-height: min(827px, 100vh - 240px) !important }` */
+  background: var(--sh-surface) !important; /* beats `.card.card--deed.card--instrument { background-color: ... !important }` */
+  -webkit-backdrop-filter: var(--sh-filter);
+  backdrop-filter: var(--sh-filter);
+  box-shadow: 0 -8px 28px rgb(0 0 0 / 0.38), inset 0 0 0 1px var(--sh-line);
+  color: var(--sh-text);
+  transform: none;
+  animation: none;
+  transition: height 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* tall: a sheet on the bottom edge, as wide as the window up to 560 px, standing centred above that */
+:root[data-phone-hud="1"][data-layout="tall"] .game > aside.card.card--instrument[data-phone="sheet"][data-sheet] {
+  top: auto;
+  right: var(--sh-sar);
+  bottom: 0;
+  left: var(--sh-sal);
+  width: auto !important; /* beats `.card.card--fringe.card--instrument { width: min(440px, 94vw) !important }` (styles.css:17713), which made the port's sheet 366.6 px in a 390 px window */
+  max-width: 560px;
+  min-height: 0;
+  margin-inline: auto;
+  height: var(--sh-peek);
+}
+:root[data-phone-hud="1"][data-layout="tall"] .game > aside.card.card--instrument[data-phone="sheet"][data-sheet="full"] {
+  height: var(--sh-full);
+}
+:root[data-phone-hud="1"][data-layout="tall"] .game > aside.card.card--instrument[data-phone="sheet"][data-sheet][data-sheet-drag] {
+  height: var(--sheet-drag-h, var(--sh-peek));
+  transition: none;
+}
+
+/* short: a seat on the right, --seat-w wide, standing from --band-top to the bottom inset. The bar stops at the seat's left edge with an 8 px gap
+   while data-phone-sheet is side (hud-phone.css, "the bottom bar"), so nothing runs across the seat's lower rows and its whole height is the card's. */
+:root[data-phone-hud="1"][data-layout="short"] .game > aside.card.card--instrument[data-phone="sheet"][data-sheet] {
+  top: var(--sh-top);
+  right: var(--sh-sar);
+  bottom: var(--sh-sab);
+  left: auto;
+  width: var(--sh-seat) !important; /* the same legacy width !important (the city asset card) would make the seat 440 px */
+  max-width: none;
+  height: auto;
+  border-radius: 10px;
+  display: grid !important; /* the person card's legacy `.card.card--person { display: flex !important }` (styles.css:10261) made its seat a flex column with the close at the left */
+  grid-template-columns: minmax(0, 1fr) 44px;
+  grid-template-rows: 44px auto minmax(0, 1fr);
+}
+
+/* A closing sheet leaves where it stands. main.js drops .game.has-card before card.close() adds .is-closing, so the box rules above are keyed
+   on the dressed card itself (a rule that waited for has-card handed the closing card to the desktop box, [0, 0, 374, 604], for its whole
+   out-animation). card.js removes the element 160 ms after it adds the class, and an `animation: none` card never fires animationend, so the
+   exit is a 120 ms transition: a fade, with a short slide down on tall. It takes no press while it goes. */
+:root[data-phone-hud="1"] .game > aside.card.card--instrument[data-phone="sheet"][data-sheet].is-closing {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease-out, transform 120ms ease-out;
+}
+:root[data-phone-hud="1"][data-layout="tall"] .game > aside.card.card--instrument[data-phone="sheet"][data-sheet].is-closing {
+  transform: translateY(24px);
+}
+
+/* the legacy card's paper grain and frame belong to the desktop card */
+:root[data-phone-hud="1"] .game > aside.card[data-phone="sheet"]::before,
+:root[data-phone-hud="1"] .game > aside.card[data-phone="sheet"]::after {
+  display: none;
+}
+
+/* A stand-in for L2a's rule (contract ruling 8: the bar goes while the sheet is peek or full on tall). Same effect after L2a lands. */
+:root[data-phone-hud="1"][data-layout="tall"][data-phone-sheet="peek"] footer.actionbar,
+:root[data-phone-hud="1"][data-layout="tall"][data-phone-sheet="full"] footer.actionbar {
+  display: none;
+}
+
+/* State e: the rail (and its auction panel) is not laid over the card on a phone; the card's own bid verbs and Walk carry the auction. */
+:root[data-phone-hud="1"] .game.has-card:has(> aside.card[data-phone="sheet"]) > .rail {
+  display: none !important; /* the legacy `.rail { display: flex !important }` */
+}
+
+/* ------------------------------------------------------------------------------------------------ the bar: handle, snap, close */
+
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .sheet-bar {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  flex: 0 0 44px;
+  align-items: center;
+  height: 44px;
+  padding: 0 4px 0 8px;
+}
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .sheet-handle {
+  display: grid;
+  flex: 1 1 auto;
+  place-items: center;
+  min-width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  cursor: grab;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .sheet-handle__grip {
+  display: block;
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--sh-line-strong);
+}
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .sheet-handle:focus-visible,
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .sheet-bar button:focus-visible {
+  outline: 2px solid var(--sh-brass-hi);
+  outline-offset: -2px;
+}
+
+/* the snap and the close: 44 px hit areas, one painted glyph each (the legacy close drew its cross twice). The legacy forces the
+   snap's size with !important (`.card__snap { font-size: var(--chrome-type-2) !important }`), so the glyph rule repeats it at S. */
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .sheet-bar > .card__close,
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .sheet-bar > .card__snap {
+  position: relative;
+  inset: auto;
+  display: grid;
+  flex: 0 0 44px;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none !important;
+  box-shadow: none !important;
+  color: var(--sh-text) !important;
+  font: 400 22px/1 var(--display, system-ui, sans-serif) !important;
+  letter-spacing: 0 !important;
+  text-shadow: none;
+  opacity: 1;
+  transform: none;
+}
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .sheet-bar > .card__snap {
+  font-size: 20px !important;
+  color: var(--sh-text-2) !important;
+}
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .sheet-bar > .card__close::before,
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .sheet-bar > .card__close::after {
+  display: none;
+}
+
+/* short: no handle, no snap; the close sits in the top-right cell of the seat's grid */
+:root[data-phone-hud="1"][data-layout="short"] aside.card[data-phone="sheet"] > .sheet-bar {
+  display: contents;
+}
+:root[data-phone-hud="1"][data-layout="short"] aside.card[data-phone="sheet"] > .sheet-bar > .sheet-handle,
+:root[data-phone-hud="1"][data-layout="short"] aside.card[data-phone="sheet"] > .sheet-bar > .card__snap {
+  display: none !important; /* the grid rule above is !-free for display, but the legacy `.card__snap { display: block }` is not */
+}
+:root[data-phone-hud="1"][data-layout="short"] aside.card[data-phone="sheet"] > .sheet-bar > .card__close {
+  grid-area: 1 / 2;
+  z-index: 4;
+}
+
+/* ------------------------------------------------------------------------------------------------ the tab row and the binder */
+
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .deed-binder {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  min-height: 0;
+  height: 30px;
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--sh-text-2);
+}
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .deed-binder .deed-tab,
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .deed-binder .card__band {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--sh-text-2);
+  font: 700 11px/1.2 var(--mono, ui-monospace, monospace);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .deed-binder .deed-tab * { color: inherit; }
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .deed-binder .card__band { margin-left: auto; }
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .deed-binder .card__band-parcel { display: none; }
+/* One 30 px line holds the parcel id and suburb, the zone chip and the ownership ribbon. A 320 px window has 292 px for them and the zone
+   chip alone is 133 px, so the chip is the one that gives: it shrinks and ends in an ellipsis (the legacy chip is an inline-flex box,
+   where text-overflow does nothing and the text is cut mid-glyph), and the ribbon, the id and the suburb stay whole. The zone is also
+   written in full on the Books page. The legacy forces the chip's font, so its 1 line-height is kept and the label is centred by its top
+   padding (the box is label-h high with a 1 px border). Room: "CZ · commercial" is a 135 px chip, and with the 136 px id and suburb, the
+   81 px ribbon and the old 10 px and 8 px gaps the row needed 369.7 px against the 362 a 390 px window has (the chip used to run over the
+   row's side padding and still read whole); the ellipsis would have started to cut it at 390. The row now has 12 px side padding (the
+   sheet's own gutter), 6 px gaps and a 6 px chip padding, so 366 px hold the 359.7 px the label needs, and the label shows whole at 390. */
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .deed-binder .deed-tab { flex: 0 0 auto; }
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .deed-binder .card__band { flex: 0 1 auto; gap: 6px; min-width: 0; }
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .deed-binder .card__band-district {
+  display: block;
+  flex: 0 1 auto;
+  box-sizing: border-box;
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+  padding-top: calc((var(--chrome-label-h) - 2px - 1em) / 2);
+  padding-right: 6px;
+  padding-left: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .deed-binder .card__band-ribbon { flex: none; }
+/* The civic, city asset and person binders carry a long title in the tab ("Transport interchange · Brunswick" is a 273 px tab). On one
+   line it squeezed the zone chip to 14 px (a lone "C") and pushed the ribbon "NON-TRADEABLE" 48 px past the card's edge, where the card's
+   overflow cut it to "NON-TRAD". These binders now wrap: the tab takes its own line, may shrink to it, and ends its title in an ellipsis
+   when even a whole line is too short; the band (zone chip and ribbon) takes the next line when it does not fit beside the tab, whole.
+   The parcel binder (a 5-character id and a suburb) stays one line, where the chip is the one that gives (above). */
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .deed-binder:is(.deed-binder--civic, .deed-binder--fringe, .deed-binder--person) {
+  flex-wrap: wrap;
+  align-content: center;
+  height: auto;
+  min-height: 30px;
+  padding-block: 2px;
+  row-gap: 2px;
+}
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .deed-binder:is(.deed-binder--civic, .deed-binder--fringe, .deed-binder--person) .deed-tab {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .deed-binder:is(.deed-binder--civic, .deed-binder--fringe, .deed-binder--person) .deed-tab > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .deed-binder:is(.deed-binder--civic, .deed-binder--fringe, .deed-binder--person) .deed-tab__suburb { flex: none; }
+/* The suburb chip keeps the district's accent as its fill (that colour is what the chip is for) and takes the sheet's light text. J6 paints
+   the chip's text brass with !important (styles.css:18886-18897) over a fill of the accent mixed 58 % into ink (styles.css:14254), which
+   computes to 3.50 to 4.99:1 over the six accents and the two fallbacks (Fitzroy 3.75, Brunswick 4.38, Richmond 4.41, Brighton 4.46, the
+   no-accent fallback 3.50); the light text computes to 6.09 to 8.68:1 on every one of them (mvp/tests/sheet-phone.test.mjs computes each).
+   Stated at S plus two classes, to win against J6. */
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .deed-binder .deed-tab__suburb {
+  color: var(--sh-text) !important;
+}
+
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .deed-pages {
+  display: flex;
+  flex: 0 0 44px;
+  gap: 4px;
+  height: 44px;
+  margin: 0;
+  padding: 0 10px;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .deed-pages > button {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0 6px;
+  font-size: 12px;
+}
+
+/* the works page's PERMIT and RENOVATION tabs: 44 px hit areas on the sheet */
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .works-pages [data-works-page] { min-height: 44px; }
+
+/* peek: the bar, the head and the foot only */
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet="peek"] > .deed-binder,
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet="peek"] > .deed-pages {
+  display: none;
+}
+
+/* short: tabs in the first cell beside the close, the foot under them, the scroll below; the binder's id line is in the head */
+:root[data-phone-hud="1"][data-layout="short"] aside.card[data-phone="sheet"] > .deed-binder { display: none; }
+:root[data-phone-hud="1"][data-layout="short"] aside.card[data-phone="sheet"] > .deed-pages { grid-area: 1 / 1; min-width: 0; padding: 0 0 0 8px; overflow-x: auto; scrollbar-width: none; }
+/* the seat is 170 to 300 px wide: the tabs size to their words, flat-sided, at 12 px (PROPERTY needs about
+   5.3 em; a tab is (seat - 52 px) / 3). The legacy forces their padding, clip and type with !important, so these state them at S. */
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .deed-pages {
+  gap: 1px !important;
+  margin: 0 !important;
+  padding: 0 0 0 2px !important;
+}
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .deed-pages > button {
+  flex: 1 0 auto; /* a tab never shrinks below its word (PROPERTY was cut 63 in 58 at 667x375); the row scrolls along when the three do not fit */
+  min-width: 44px; /* a 44 px target wide as well as high; three tabs and the close need 180 px of seat, the 200 px seat of a 667 px window has it */
+  padding: 0 2px !important; /* three tabs at their word widths are 164 px against the 156 px a 200 px seat leaves beside the close; 2 px of padding and 1 px gaps bring them to 155 */
+  clip-path: polygon(3px 0, calc(100% - 3px) 0, 100% 100%, 0 100%) !important;
+  font: 800 12px/1 var(--mono, ui-monospace, monospace) !important; /* 12 px at every seat width (P2a: it was a clamp from 10 px, 11.4 px at 844); the row scrolls when the words do not fit */
+  letter-spacing: 0 !important;
+  white-space: nowrap;
+}
+
+/* The seat's identity block. The seat is 170 to 300 px wide, and the 640 px rules repeated at the end of this file give the identity grid an
+   88 px picture column, then five nested boxes (the scroll, the folder page, the identity plate and its copy) add 34 px a side: the title's
+   box was 18 px wide at 667x375 (the frame read "BRI / SAW / WA") and 71 px at 844x390 ("BRICK SAWTOOT"). In the seat the grid is one column and
+   the picture (the deed's polaroid or plate, and the civic portrait, which is a polaroid) is not drawn, so the words take the width; the
+   nesting is cut to 12 px a side (the scroll 4; the folder page's 8 px margin gone, its border 1 and padding 2; the identity plate's border 1
+   and no padding; the copy's border 1 and padding 3), and a long word breaks inside itself instead of running out of its box. The
+   legacy grid rule for the civic card is (0,9,0), so the column rule is !important. */
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .card__identity-grid {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] :is(.deed-polaroid, .deed-plate) {
+  display: none;
+}
+:root[data-phone-hud="1"][data-layout="short"] aside.card[data-phone="sheet"] > .sheet-scroll { padding: 0 4px 8px; }
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .sheet-scroll > :is(.card__folder-page, .deed-well, .dossier-body) {
+  margin-inline: 0; /* the legacy `.card.card--deed .card__folder-page { margin: 0 8px 8px }` */
+  padding-inline: 2px;
+}
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .card__identity { padding-inline: 0; }
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .card__identity-copy { padding-inline: 3px; }
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] :is(.card__title, .card__sub) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* The person card's identity in the seat (review 3, defect 1). Its hero is a grid of a 120 px portrait column and the name, with !important
+   (styles.css:11271-11276), and the portrait is held at 120 x 160 (11281-11289): in the 200 px seat the name had a 36 px column and read
+   "SA / SKI / A / HO / LT". The orchestrator's ruling is that no picture is drawn on a short window, the person's portrait included, so
+   the grid is one column, the portrait and a working person's site view (`.card__work-layout`: the portrait and the site camera) are not
+   drawn, and the name, role and quip take the width. The rest of the person card (the dossier body, its stats and verbs) is the scroll's. */
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .card__person-hero--dossier {
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 0;
+}
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] :is(.card__cast-media, .card__work-layout) {
+  display: none;
+}
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] :is(.card__subtitle, .card__playbook) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+/* The works page's PERMIT and RENOVATION tabs are two to a row, 86 px each in a 176 px seat with 8 px of clipped corner a side, and
+   RENOVATION is 99 px of text: the legacy box clips it to "RENOVATIO" (the button is overflow hidden). One tab a row in the seat. */
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .works-pages {
+  flex-direction: column;
+}
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .works-pages > [data-works-page] {
+  flex: 0 0 auto;
+  width: 100%;
+}
+/* the civic card's receiver lines are a grid of the parcel, the sector and the basis points, with an auto column on the right that took
+   112 px of a 176 px seat and left the parcel's name 56 px ("Streamlin / e Moder / ne"): one column, the three lines in a stack */
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .card__receivers li {
+  grid-template-columns: minmax(0, 1fr);
+}
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .card__receivers li strong {
+  grid-column: 1;
+  text-align: left;
+}
+/* the person's stat tiles (site, tenure, fee, risk) are two to a row, 84 px each in a 176 px seat with 28 px of icon, and their labels broke
+   inside the word ("PARC / EL", "PROJE / CTS") once the backstop below let them wrap: one tile a row in the seat, whole words */
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .dossier-gutter {
+  grid-template-columns: minmax(0, 1fr);
+}
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .dossier-gutter > .dossier-stat {
+  width: auto;
+}
+/* a card with no verbs in its foot (the civic and person cards: their buttons stay in the scroll, and Bank and Settle stay in the bar on
+   short) has no foot: an empty one was a 15 px strip under the tabs */
+:root[data-phone-hud="1"][data-layout="short"] aside.card[data-phone="sheet"] > [data-phone="sheet-foot"]:not(:has(.sheet-foot__verbs > .verb)) {
+  display: none;
+}
+
+/* Rows with two columns in the seat (review 3, defect 2). The legacy gives them tracks that do not fit 170 to 253 px: `11.5em minmax(0, 1fr)`
+   with nowrap values on the books page (styles.css:10637-10645, 11137-11142, 3424-3443 for the civic influence rows), and the scroll's
+   overflow-x: hidden cut what passed the edge (BOOKS 9 runs, the civic card 10 at 667x375). In the seat each such row is one column, the
+   value under its key, and a value wraps (inside a word only when the word is wider than the seat). The legacy columns are !important. */
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] :is(.ledger-line, .ledger-line--text, .ledger-line--figure, .ledger-line--entry, .card__influence-head, .card__influence-row) {
+  grid-template-columns: minmax(0, 1fr) !important;
+  row-gap: 1px;
+}
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] :is(.ledger-line__k, .ledger-line__v, .ledger-line__v--text, .ledger-signed, .card__influence-head > span, .card__influence-row > span, .card__influence-row .value) {
+  min-width: 0;
+  justify-self: start;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+/* the civic card's receiver lines ("P0222 · Modern corner shop"): the first span is nowrap with an ellipsis in the legacy (styles.css:3471-3475) */
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .card__receivers li span {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+}
+/* the backstop: nothing in the seat's scroll holds a box open past the seat */
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .sheet-scroll :is(span, strong, .value) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ------------------------------------------------------------------------------------------------ peek: the head (title, sub-line, price) */
+
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet="peek"] > .sheet-scroll { padding: 0 12px; }
+
+/* the legacy plates (black wells, bevels, rules) are drawn with !important backgrounds and shadows on the identity block and the cost
+   lines; the peek is one flat head on the glass, so every box inside it is cleared at S (0,8,1) */
+:root[data-phone-hud="1"][data-layout="tall"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet="peek"] > .sheet-scroll * {
+  background: transparent !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  border-color: transparent !important;
+  border-radius: 0 !important;
+}
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet="peek"] > .sheet-scroll > .card__folder-page[data-card-panel="sheet"] {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet="peek"] > .sheet-scroll > .card__folder-page[data-card-panel="sheet"] > :not(.card__identity) {
+  display: none;
+}
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet="peek"] .card__identity {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 12px;
+  align-items: start;
+  margin: 0;
+  padding: 0 2px;
+  border: 0;
+}
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet="peek"] .card__identity:not(.fringe-card__identity) > :not(.card__identity-grid):not(.card__lead-cost) { display: none; }
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet="peek"] .card__identity-grid {
+  display: block;
+  grid-column: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet="peek"] .card__identity-grid > :not(.card__identity-copy),
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet="peek"] .card__tags { display: none; }
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet="peek"] .card__identity-copy {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+/* the type: the legacy forces family, size, weight and colour on every descendant, so the head states all of them at S */
+:root[data-phone-hud="1"][data-layout="tall"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet="peek"] .card__title {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  color: var(--sh-text) !important;
+  font: 700 17px/1.2 var(--display, system-ui, sans-serif) !important;
+  letter-spacing: 0.02em !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:root[data-phone-hud="1"][data-layout="tall"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet="peek"] .card__sub {
+  margin: 2px 0 0;
+  padding: 0;
+  overflow: hidden;
+  color: var(--sh-text-2) !important;
+  font: 500 12px/1.3 var(--display, system-ui, sans-serif) !important;
+  letter-spacing: 0.03em !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* The city asset (fringe) card. Its body is one section that is not a data-card-panel, and its title and sub-line are direct children of the
+   identity block (fringe-desk.js:145-150), with the lead cost a sibling after the register; the port's warehouse comes first of all. The peek
+   is the deed head's two columns made from those parts: the title and sub-line on the left, the first lead-cost line (the price) on the right;
+   the kicker, the warehouse, the register and the later lines are the full sheet's. */
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet="peek"] > .sheet-scroll > .fringe-card__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 12px;
+  align-items: start;
+  margin: 0;
+  padding: 0 2px;
+  border: 0;
+}
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet="peek"] > .sheet-scroll > .fringe-card__body > :not(.fringe-card__identity):not(.card__lead-cost) { display: none; }
+/* Match the generic hide rule's specificity so the later port exception wins. */
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet="peek"] > .sheet-scroll > .fringe-card__body > .port-peek[data-port-peek] {
+  display: grid;
+  grid-column: 1 / -1;
+  min-width: 0;
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.3;
+}
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet="peek"] > .sheet-scroll > .fringe-card__body > .port-peek > span {
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+}
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet="peek"] > .sheet-scroll > .fringe-card__body > .fringe-card__identity {
+  display: block;
+  grid-column: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet="peek"] > .sheet-scroll > .fringe-card__body > .fringe-card__identity > :not(.card__title):not(.card__sub) { display: none; }
+
+/* the price: one line, label over value, right-aligned in the second column; the rent line is the full sheet's */
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet="peek"] .card__lead-cost {
+  display: grid;
+  grid-column: 2;
+  grid-template-columns: auto;
+  justify-items: end;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet="peek"] .card__lead-cost > :not(.card__lead-cost-line:first-child) { display: none; }
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet="peek"] .card__lead-cost-line:first-child {
+  display: grid;
+  grid-template-rows: auto auto;
+  justify-items: end;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+:root[data-phone-hud="1"][data-layout="tall"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet="peek"] .card__lead-cost-line .label {
+  display: block;
+  padding: 0;
+  color: var(--sh-text-2) !important;
+  font: 700 10px/1.3 var(--mono, ui-monospace, monospace) !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase;
+}
+:root[data-phone-hud="1"][data-layout="tall"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet="peek"] .card__lead-cost-line .value {
+  display: block;
+  padding: 0;
+  color: var(--sh-brass-hi) !important;
+  font: 800 19px/1.15 var(--mono, ui-monospace, monospace) !important;
+  letter-spacing: 0.01em !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------------------------------------ the scroll region */
+
+/* The legacy well is a scroller of its own, capped at `calc(-88px + min(827px, -240px + 100vh))` (62 px on a 390 px window), which
+   would nest a second scroll inside the sheet's one. The sheet's scroll region is the only scroller. */
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .sheet-scroll > :is(.card__folder-page, .deed-well, .dossier-body) {
+  max-height: none;
+  overflow: visible;
+}
+
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .sheet-scroll {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding: 0 8px 8px;
+  background: none;
+}
+:root[data-phone-hud="1"][data-layout="short"] aside.card[data-phone="sheet"] > .sheet-scroll { grid-area: 3 / 1 / 4 / 3; }
+
+/* ------------------------------------------------------------------------------------------------ the foot */
+
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > [data-phone="sheet-foot"] {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  flex: 0 0 auto;
+  gap: 6px;
+  box-sizing: border-box;
+  padding: 8px 12px calc(8px + var(--sh-sab));
+  border-top: 1px solid var(--sh-line);
+  background: var(--sh-opaque);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .sheet-foot__verbs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  touch-action: pan-x;
+}
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .sheet-foot__verbs:empty { display: none; }
+/* The peek holds one row of verbs: three fill it, and when there are four or more each is as wide as its longest word (4 px of side
+   padding, 64 px at least) and grows into what is left, so the row shows every verb whole from 375 px up and scrolls along below that,
+   with the fourth still in view (about 34 px of Walk at 320 px: Divest 64, Survey 65, Consolidate 108 and Walk 64 px with 8 px gaps).
+   The row was a 3.5th of its width a verb, which cut CONSOLIDATE inside the word. Sized to its natural one-line width a verb took
+   108 px for "Divest $1.42m" and pushed Walk out of a 320 px window (measured: 0 px of it in view), so the width is the longest word and
+   a label with a price wraps to two lines. The full sheet and the side seat wrap their verbs, so every verb shows there. */
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"][data-sheet="peek"] .sheet-foot__verbs:has(> .verb:nth-child(4)) > .verb {
+  flex: 1 0 auto;
+  width: min-content;
+  min-width: 64px;
+  padding-inline: 4px;
+  scroll-snap-align: start;
+}
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"][data-sheet="peek"] .sheet-foot__verbs:has(> .verb:nth-child(4)) { scroll-snap-type: x proximity; }
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"]:is([data-sheet="full"], [data-sheet="side"]) .sheet-foot__verbs {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .sheet-foot__bank {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* short: the foot is the second row, under the tabs, and holds the verbs only (the bar keeps Bank and Settle) */
+:root[data-phone-hud="1"][data-layout="short"] aside.card[data-phone="sheet"] > [data-phone="sheet-foot"] {
+  grid-area: 2 / 1 / 3 / 3;
+  padding: 6px 8px 8px;
+  border-top: 0;
+  border-bottom: 1px solid var(--sh-line);
+}
+:root[data-phone-hud="1"][data-layout="short"] aside.card[data-phone="sheet"] .sheet-foot__bank { display: none; }
+
+/* the side seat is 30 % of a short window (170 to 300 px): its verbs are narrower and wrap onto a second row when three do not fit */
+:root[data-phone-hud="1"][data-layout="short"] aside.card[data-phone="sheet"] .sheet-foot__verbs { gap: 6px; }
+:root[data-phone-hud="1"][data-layout="short"] aside.card[data-phone="sheet"] .sheet-foot__verbs > .verb {
+  flex: 1 1 64px;
+  padding: 2px 4px;
+}
+:root[data-phone-hud="1"][data-layout="short"] aside.card[data-phone="sheet"] .sheet-foot__verbs > .verb .verb__label {
+  letter-spacing: 0.02em;
+}
+
+/* the verbs in the foot: the card's own buttons, 44 px high, the label on one or two lines, the hint left to the full sheet */
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .sheet-foot__verbs > .verb {
+  display: flex;
+  flex: 1 0 84px; /* three fit a 320 px window (296 px of foot); a fourth scrolls along the peek's one row */
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+  width: auto;
+  min-width: min-content; /* a verb is never narrower than its longest word, so no label breaks inside a word (CONSOLIDATE is about 100 px of text at 12 px) */
+  height: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 2px 8px;
+  text-align: center;
+}
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"][data-sheet="full"] .sheet-foot__verbs > .verb { flex: 1 1 88px; }
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .sheet-foot__verbs > .verb .verb__stack {
+  display: block;
+  min-width: 0;
+  padding: 0;
+}
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .sheet-foot__verbs > .verb .verb__label {
+  display: block;
+  font-size: 12px;
+  line-height: 1.15;
+  letter-spacing: 0.04em;
+  white-space: normal;
+  overflow-wrap: break-word; /* a label wraps at its spaces and the verb's min-content width keeps its longest word whole (`anywhere` would lower the min-content to one glyph) */
+}
+/* The J6 contract forces the foot verbs' labels to 11 px with !important at (0,7,0) (styles.css:18628 and 18765, the deed and person cards),
+   under the W0 rubric's 12 px floor; stated at S plus the foot's classes, which is (0,10,1). */
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .sheet-foot__verbs > .verb .verb__label,
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .sheet-foot__verbs > .verb .verb__label .money {
+  font-size: 12px !important; /* the price span inside a deed verb's label ("$861k") took the deed card's 11 px (P2a) */
+}
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .sheet-foot__verbs > .verb .verb__hint,
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .sheet-foot__verbs > .verb .verb__risk,
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .sheet-foot__verbs > .verb .verb__reason,
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .sheet-foot__verbs > .verb .key,
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .sheet-foot__verbs > .verb .verb__key,
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .sheet-foot__verbs > .verb > img,
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .sheet-foot__verbs > .verb > svg {
+  display: none;
+}
+
+/* the Bank and Settle proxies. The J6 contract forces colour and type onto every descendant of the card with !important, so the
+   proxies state theirs at S too (dark ink on brass for Settle, 8.4:1; light on the glass well for Bank, 11:1). */
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .sheet-proxy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 2px 10px;
+  border: 1px solid var(--sh-line-strong);
+  border-radius: 6px;
+  background: rgb(237 240 236 / 0.08);
+  box-shadow: none;
+  color: var(--sh-text) !important;
+  font: 700 13px/1.1 var(--mono, ui-monospace, monospace) !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+/* a quiet Settle (no action yet this quarter, hud.js settleButtonState) keeps the Bank proxy's glass look; brass once acted or armed */
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .sheet-proxy--settle:is(:not([data-settle-quiet="1"]), [data-settle-armed="1"]) {
+  border-color: var(--sh-brass);
+  background: var(--sh-brass);
+}
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .sheet-proxy--settle:is(:not([data-settle-quiet="1"]), [data-settle-armed="1"]),
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .sheet-proxy--settle:is(:not([data-settle-quiet="1"]), [data-settle-armed="1"]) * {
+  color: var(--sh-ink) !important;
+}
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .sheet-proxy__hint {
+  font: 600 12px/1 var(--mono, ui-monospace, monospace) !important;
+  letter-spacing: 0.02em !important;
+  text-transform: none;
+  opacity: 1;
+}
+/* the same base (styles.css:16995-17003) set the proxy's label span to 11 px on the deed card, under the 12 px floor; the button's own 13 px is inherited only by a span nothing else sizes */
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .sheet-proxy__label {
+  font-size: 13px !important;
+}
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .sheet-proxy:disabled { opacity: 0.5; }
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .sheet-proxy:focus-visible { outline: 2px solid var(--sh-brass-hi); outline-offset: 2px; }
+
+/* ------------------------------------------------------------------------------------------------ state e: the auction diorama's chips */
+
+/* The auction desk's diorama is a 220 px stage with three chips (RES, MAX, HAMMER) placed at x and y percentages (card-voxels.js:447-451) and
+   cut to one nowrap line of 48 % at most; at 62 % from the left "MAX $14.55M" ended past the stage's right edge ("MAX $14.55I") and
+   "HAMMER $14.55M" was cut to "HAMMER $14". With the rail hidden while a card is open (decision 6 of the first round) these chips are the phone's only
+   readout of the maximum and the hammer, so a figure is never clipped: the chip wraps inside the room that is left of its x (an
+   absolutely placed box is as wide as the room to the stage's edge), "HAMMER" over "$14.55M", at 12 px. */
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .card-diorama[data-diorama-kind="auction"] .card-diorama__tag {
+  box-sizing: border-box;
+  justify-content: center;
+  padding: 2px 6px;
+  overflow: visible;
+  font-size: 12px !important; /* the deed card's "authoritative base" (styles.css:16995-17003) sets every descendant to 11 px with !important at (0,6,0) */
+  line-height: 1.15;
+  text-align: center;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+/* ------------------------------------------------------------------------------------------------ dialogs (.overlay .sheet) */
+
+:root[data-phone-hud="1"] .game > .overlay {
+  box-sizing: border-box;
+  padding: max(var(--sh-sat), 8px) max(var(--sh-sar), 8px) max(var(--sh-sab), 8px) max(var(--sh-sal), 8px);
+}
+:root[data-phone-hud="1"] .game > .overlay > .sheet[data-phone="dialog"] {
+  box-sizing: border-box;
+  width: min(680px, 100%);
+  max-width: 100%;
+  max-height: 100%;
+  min-height: 0;
+}
+:root[data-phone-hud="1"] .game > .overlay > .sheet[data-phone="dialog"] > .sheet__paper {
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+:root[data-phone-hud="1"] .game > .overlay > .sheet[data-phone="dialog"] > .sheet__actions {
+  position: sticky;
+  bottom: 0;
+  flex: 0 0 auto;
+  padding-bottom: max(8px, var(--sh-sab));
+  background: var(--sh-opaque);
+}
+:root[data-phone-hud="1"] .game > .overlay > .sheet[data-phone="dialog"] > .sheet__binder > .card__close {
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
+}
+/* The Help sheet's fold, "Sound, rules and camera controls" (help-intro.js; v4-shell.css:348 sets its 13 px type, which stays): a summary is 21.4 px high at
+   the sheet's line height, so on a touch screen it gets a 44 px hit area from padding, and it stays a list item so the native marker is drawn. */
+:root[data-phone-hud="1"][data-coarse="1"] .game > .overlay > .sheet[data-phone="dialog"] .v4-help-reference > summary {
+  box-sizing: border-box;
+  min-height: 44px;
+  padding-block: 11px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-phone-hud="1"] .game > aside.card.card--instrument[data-phone="sheet"][data-sheet],
+  :root[data-phone-hud="1"] .game > aside.card.card--instrument[data-phone="sheet"][data-sheet].is-closing { transition: none; }
+}
+
+/* ------------------------------------------------------------------------------------------------ P2a, item C: 12 px, whole words, no ellipsis */
+/* The 12 px floor on the cards the phone sheet carries. The J6 contract forces 10 and 11 px onto the deed, person and civic cards' descendants with
+   !important at (0,6,0) to (0,7,0), so the floor states itself at S plus the card's classes, (0,9,1) and more. It names the texts the broker's,
+   the public reserve's and the city asset's cards show (the identity, the stat plates, the verbs and their hints, the register, the port's
+   warehouse), and the civic, city asset and person binders' tab, zone chip and ribbon. It is keyed on those three kinds of card: the parcel
+   card's binder keeps its tuned 11 and 10 px row, and its rows are not touched. */
+:root[data-phone-hud="1"] .game aside.card:is(.card--person, .card--civic, .card--fringe).card--instrument[data-phone="sheet"][data-sheet] :is(
+  .card__subtitle, .card__playbook, .dossier-stat__k, .dossier-stat__v, .meet-result__k,
+  .verb__label, .verb__hint, .verb__risk, .verb__reason,
+  .card__addr, .card__section-title, .reserve-gift__meta, .card__contents, .card__sub,
+  .civic-r1-plate span, .civic-r1-plate strong, .civic-r2-explainer,
+  .port-warehouse-head, .port-warehouse-bar-label, .port-warehouse-empty, .fringe-card__kicker,
+  .row .label, .row .value, .card__lead-cost .label,
+  .deed-binder:is(.deed-binder--civic, .deed-binder--fringe, .deed-binder--person) :is(.deed-tab > span, .card__band-district, .card__band-ribbon)
+) { font-size: 12px !important; }
+/* The broker's verbs are one column on every phone layout (two columns left a label under 100 px: the seat's backstop above broke "Accept", "higher" and
+   "interest" inside their words, and at 320 px "interest" stood over the edge); a verb's texts break only a word that is longer than the line, at (0,11,1)
+   against the backstop's (0,10,1). */
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .dossier-verbs { grid-template-columns: minmax(0, 1fr) !important; }
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .sheet-scroll .dossier-verbs .verb :is(.verb__label, .verb__hint, .verb__reason, .verb__risk) { overflow-wrap: break-word; word-break: normal; }
+/* The broker's two Accept verbs sit one level down, in .dossier-verbs__recessed (or __hires), a two-column grid of 132 px cells at 320 px: the label of a
+   cell is 64 px wide there (the cell less its padding, the 36 px icon and the label's own padding) and "interest" is 70 px, so it broke inside its word.
+   card.js marks that wrapper dossier-verbs__choices for the broker; it is one column, like the .dossier-verbs around it. */
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .dossier-verbs__choices { grid-template-columns: minmax(0, 1fr); }
+/* A hint in the scroll (the port's "$250 m · 1 officer") wraps at its spaces. The deed sheet's hint is nowrap !important
+   (styles.css, (0,4,0)), which beat the un-forced wrap and let "officer" paint past the box. */
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .sheet-scroll .verb :is(.verb__hint, .verb__reason, .verb__risk) {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal !important;
+  letter-spacing: 0 !important; /* the contract's 0.09em paints past the box's right edge */
+  text-overflow: clip;
+  overflow: visible;
+  overflow-wrap: break-word;
+}
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .sheet-scroll .card__actions-primary :is(.verb, .verb__stack) {
+  min-width: 0;
+  max-width: 100%;
+}
+/* the public reserve has no portrait on the phone layer (card.js noPortrait): its identity grid is one column */
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .card__identity-grid--solo { grid-template-columns: minmax(0, 1fr) !important; }
+
+/* The port warehouse's bar label column is 62 px (it was 52: "SECURE" at 12 px broke inside its word), the binder's title wraps at its spaces instead of ending
+   in an ellipsis, a reserve's sub-line keeps its " · " parts whole (card.js card__sub-part), and the tall peek's title and sub-line wrap instead of ending in an ellipsis. */
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .sheet-scroll .port-warehouse-bar { grid-template-columns: 62px minmax(0, 1fr) 52px; }
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .sheet-scroll .port-warehouse-bar .port-warehouse-bar-label { overflow-wrap: normal; }
+:root[data-phone-hud="1"] .game aside.card:is(.card--person, .card--civic, .card--fringe).card--instrument[data-phone="sheet"][data-sheet] > .deed-binder .deed-tab > span:first-child { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: break-word; line-height: 1.2; }
+:root[data-phone-hud="1"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .card__sub-part { white-space: nowrap; }
+:root[data-phone-hud="1"][data-layout="tall"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet="peek"] :is(.card__title, .card__sub) { white-space: normal; text-overflow: clip; overflow: visible; overflow-wrap: break-word; }
+/* P2a, item C (stretch): the parcel card's text under 12 px. The rows of the Property, Works and Books pages and the tab row, at (0,9,1) with !important against
+   the J6 contract's 10 and 11 px. The binder's one 30 px line (id and suburb, zone chip, ownership ribbon) is not here: at 12 px it needs 392 px of the 366 a
+   390 px window has, so it needs a layout change (a second line), which is listed in the round's notes instead. */
+:root[data-phone-hud="1"] .game aside.card.card--deed.card--instrument[data-phone="sheet"][data-sheet]:not(.card--civic):not(.card--person):not(.card--fringe) > .sheet-scroll :is(
+  .card__sub, .tag, .label, .money, p, .stat-chip__k, .acquire-funding, .pitch-chip,
+  .card__ledger-link, .card__empty, .ledger-block__mark, .ledger-line__k, .ledger-line__v, .ledger-signed,
+  .card__section-title, .permit-rung-info__ceiling, .works-readonly__gate, .permit-rung-info__price, .permit-rung-info__state, .permit-rung-info :is(small, strong):not(.permit-rung-info__identity strong), [data-works-page]
+) { font-size: 12px !important; }
+:root[data-phone-hud="1"] .game aside.card.card--deed.card--instrument[data-phone="sheet"][data-sheet]:not(.card--civic):not(.card--person):not(.card--fringe) > .deed-pages > button { font-size: 12px !important; }
+/* Fix 6: the floor lifts text that is under 12 px and leaves the rest as it was. The rung's identity line ("Residential/Commercial", "High-rise apartments") is 13 px
+   (a strong in .permit-rung-info__identity): it keeps its 13, so the strong in the floor's list leaves it out. And a ledger line whose value is a sentence
+   ("Brick sawtooth warehouse") wraps at its spaces: the legacy rule keeps it on one line and visible, which stood 21 px over a 320 px card at 11 px and 35 px at 12. */
+:root[data-phone-hud="1"] .game aside.card.card--deed.card--instrument[data-phone="sheet"][data-sheet]:not(.card--civic):not(.card--person):not(.card--fringe) > .sheet-scroll .ledger-line__v--text { white-space: normal; overflow-wrap: break-word; }
+
+/* ------------------------------------------------------------------------------------------------ P2b, item 2: the parcel binder at 12 px, in two lines when it must */
+/* The parcel binder (a 5-character id and a suburb chip; the zone chip and the ownership ribbon) was 11 px, the J6 contract's rung (!important, (0,7,0)), in one
+   30 px line where the zone chip was the one that gave: it shrank to "MUZ ·" at 320 px and ended in an ellipsis. At 12 px the line needs 392 px, so the binder wraps
+   as the civic, city asset and person binders already do (above): the id and suburb keep the first line, the band (zone chip and ownership ribbon) goes to the
+   next line when it does not fit beside them, and inside the band the ribbon goes under the chip when the two do not fit one line. Every box is whole: the chip
+   keeps its one line at its own width, and nothing is cut. The size is stated at S plus the card's classes, over the contract's (0,7,0). */
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .deed-binder:not(.deed-binder--civic):not(.deed-binder--fringe):not(.deed-binder--person) {
+  flex-wrap: wrap;
+  align-content: center;
+  height: auto;
+  min-height: 30px;
+  padding-top: 2px;
+  padding-bottom: 8px; /* the second line sat 2 px above the tab strip */
+  row-gap: 2px;
+}
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] > .deed-binder:not(.deed-binder--civic):not(.deed-binder--fringe):not(.deed-binder--person) .card__band {
+  flex-wrap: wrap;
+  row-gap: 2px;
+  max-width: 100%;
+}
+:root[data-phone-hud="1"] .game aside.card.card--deed.card--instrument[data-phone="sheet"][data-sheet]:not(.card--civic):not(.card--person):not(.card--fringe) > .deed-binder :is(.deed-tab, .deed-tab *, .card__band-district, .card__band-ribbon) {
+  font-size: 12px !important;
+}
+
+/* ------------------------------------------------------------------------------------------------ P2b, item 3: whole words in the side seat */
+/* The reserve's gift rows put the copy beside a nowrap "Gift · $x" button: in the 200 px seat of a 667x375 window the copy was 40 px wide and the backstop above
+   (overflow-wrap: anywhere) broke 35 of its words inside themselves. In the seat a gift row is a column: the copy takes the row's width and the button stands under it. */
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .reserve-gift {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .reserve-gift .verb { width: 100%; }
+/* The Works page's permit rungs name their zones in one unbroken string ("Residential/Civic/Industrial", 28 characters): 202 px at the legacy 13 px and 0.09em
+   of tracking, in a box that was 134 px at 667x375 (the works panel's 12 px sides, the rung's 8 px padding and its 10 px column gap take 52 px of the seat) and 187 px at
+   844x390, so the backstop broke it. In the seat the panel and the rung keep a 4 px side, the string is 12 px with no tracking (157 px), and the form tile of the rung's
+   facts takes the same. The legacy sets the size and the tracking with !important at (0,7,0). */
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .works-readonly { padding-inline: 0; }
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .permit-rung-info { column-gap: 0; padding-inline: 4px; }
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .permit-rung-info__identity > strong {
+  flex: 1 0 100%;
+  font-size: 12px !important;
+  letter-spacing: 0 !important;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .permit-rung-info__fact--form strong {
+  letter-spacing: 0 !important;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+/* The rung's facts are a two-column grid, and the label "DEVELOPMENT COST" has one 11-letter word that is 106.5 px at 12 px with its tracking (94.7 px with none) in a
+   cell whose text box is 80 px at 667x375 and 103 px at 844x390. It is never split (the legacy sets overflow-wrap: normal on the label, so a Range reads one
+   rect), it runs out of its cell instead and the next cell paints over its tail ("DEVELOPMI" at 667x375, 30 px over; 3.5 px over at 844x390). Tracking 0 alone still
+   leaves 18 px over at 667x375, so the cost and the time take a row each, as the successor already does: the label has the seat's width and stands whole. */
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .permit-rung-info__fact:is([data-permit-fact="development-cost"], [data-permit-fact="quarters"]) { grid-column: 1 / -1; }
+
+/* ------------------------------------------------------------------------------------------------ P2c, items 2 to 5 and 7. The binder's 8 px foot is in the parcel binder rule above. */
+/* Item 2. The rooms list's dt is the contract's 10 px and its dd the 11 px star. Both are 12 px here, and on short the two cells stack: a half cell at 568 is too narrow for "NEXT RUNG". */
+:root[data-phone-hud="1"] .game aside.card.card--deed.card--instrument[data-phone="sheet"][data-sheet]:not(.card--civic):not(.card--person):not(.card--fringe) > .sheet-scroll .works-readonly__summary :is(dt, dd) {
+  font-size: 12px !important;
+  letter-spacing: 0 !important;
+}
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--deed.card--instrument[data-phone="sheet"][data-sheet]:not(.card--civic):not(.card--person):not(.card--fringe) > .sheet-scroll .works-readonly__summary {
+  grid-template-columns: minmax(0, 1fr);
+}
+/* Item 3, fix turn. Tracking stays at 0 (never tighter than -0.02em: -0.08em and -0.26em ran the letters together). The row's gap is 4 px, so adjacent label boxes stand apart, and the 2 px of side padding on each tab is the rule above. The 44 px hit stays. --seat-w and the sheet's height are untouched, and the row stays one line.
+   Three labels at 0 do not fit a row under 720 px (PROPERTY is about 70 px; the 568 row is 126 px and the 667 row is 156 px, and 4 px gaps need about 8 px more). Those seats scroll. 844's row is 209 px and holds them.
+   The snap is the tab's end, 16 px clear of the row's end (scroll-margin). A center snap pulled a tab that overflowed by only a few pixels back to the previous stop, so a tap on WORKS at 568 left it clipped. */
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .deed-pages {
+  gap: 4px !important;
+  padding: 0 !important;
+}
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .deed-pages > button {
+  height: 44px;
+  min-height: 44px;
+  letter-spacing: 0 !important;
+}
+@container phone (max-width: 720px) {
+  :root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .deed-pages {
+    overflow-x: auto !important; /* beats `.deed-pages { overflow: hidden !important }` (styles.css) */
+    overflow-y: hidden !important;
+    scrollbar-width: none;
+    scroll-snap-type: x mandatory;
+    -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - var(--tab-fade-r, 16px)), transparent);
+    mask-image: linear-gradient(to right, #000 0, #000 calc(100% - var(--tab-fade-r, 16px)), transparent);
+  }
+  :root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .deed-pages[data-tab-cut="left"] {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--tab-fade-l, 16px), #000 100%);
+    mask-image: linear-gradient(to right, transparent, #000 var(--tab-fade-l, 16px), #000 100%);
+  }
+  :root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .deed-pages[data-tab-cut="both"] {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--tab-fade-l, 16px), #000 calc(100% - var(--tab-fade-r, 16px)), transparent);
+    mask-image: linear-gradient(to right, transparent, #000 var(--tab-fade-l, 16px), #000 calc(100% - var(--tab-fade-r, 16px)), transparent);
+  }
+  :root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .deed-pages[data-tab-cut="none"] {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  /* The row's mask fades its right edge and not its left (a leading transparent stop does not paint on this scroller). A sticky wash covers the left edge when labels are past it.
+     P2d SHEET item 1: each fade is as wide as the part of the tab cut at that edge allows, clamp(min(overhang, visible part), 0, 16) px, and 0 when no tab straddles the edge.
+     sheet-phone.js (syncTabFades, on scroll, scrollend and resize) writes the widths as --tab-fade-l and --tab-fade-r; 16 px is the width before it first runs. The negative
+     margin is the wash plus the row's 4 px gap, so the wash takes no extra scroll width at any width. */
+  :root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .deed-pages:is([data-tab-cut="left"], [data-tab-cut="both"])::before {
+    content: "";
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    flex: 0 0 var(--tab-fade-l, 16px);
+    width: var(--tab-fade-l, 16px);
+    margin-right: calc(-4px - var(--tab-fade-l, 16px));
+    align-self: stretch;
+    pointer-events: none;
+    background: linear-gradient(to right, var(--sh-opaque), transparent);
+  }
+  :root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .deed-pages::-webkit-scrollbar {
+    display: none;
+    height: 0;
+  }
+  :root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .deed-pages > button {
+    scroll-snap-align: end;
+    scroll-snap-stop: always;
+    scroll-margin-inline-end: 16px;
+    letter-spacing: 0 !important;
+  }
+}
+/* Item 4, the 568 px seat only (a short game under 620 px; 667 and 844 stay as they are). The port register's value column is 36 px, so "Melbourne" breaks. The actions bar is two columns and the primary block sits in the first, 71 px, so "WARSHIP" breaks. The broker label's 0.09em tracking makes "interest" 2 px wider than its box. */
+@container phone (max-width: 620px) {
+  :root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .sheet-scroll .fringe-card__register .row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  :root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .sheet-scroll .fringe-card__register .row :is(.label, .value) {
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  :root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .sheet-scroll .card__actions--fixed > .card__actions-primary {
+    grid-column: 1 / -1;
+  }
+  :root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .sheet-scroll .card__actions-primary .verb__label {
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  :root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] > .sheet-scroll .dossier-verbs .verb__label {
+    letter-spacing: 0 !important;
+    padding-inline: 0;
+  }
+}
+/* G6. The port's verbs are 48 px tall. Under 620 px the primary block already spans the bar, and the warship hint stands on one line inside the button. At 844 and 667 the same button is one column (112 px and 86 px) and the hint's second line leaves the button. Every short window spans the city-asset bar, and each verb in it spans that grid. */
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--fringe.card--instrument[data-phone="sheet"][data-sheet] > .sheet-scroll .card__actions--fixed > .card__actions-primary,
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--fringe.card--instrument[data-phone="sheet"][data-sheet] > .sheet-scroll .card__actions-primary > .verb {
+  grid-column: 1 / -1;
+}
+/* Item 4. In the seat the permit name takes the rung's width, and it breaks only where card.js put a wbr (after "/"), not inside a word. */
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .works-readonly--permit .permit-rung-info {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "identity" "action" "facts";
+}
+:root[data-phone-hud="1"][data-layout="short"] .game aside.card.card--instrument[data-phone="sheet"][data-sheet] .works-readonly--permit .permit-rung-info__identity {
+  flex-wrap: wrap;
+}
+
+/* ------------------------------------------------------------------------------------------------ P2b, item 4: an eyebrow that repeats its title is not drawn */
+/* sheet-phone.js tidyEyebrow hides a civic card's eyebrow line when it reads the card's title ("Public reserve" over "Public reserve", a reserve with no district) */
+:root[data-phone-hud="1"] aside.card[data-phone="sheet"] .card__addr[data-phone-hid] { display: none; }
+
+/* ------------------------------------------------------------------------------------------------ P2d SHEET, items 4 and 5 */
+/* Item 4. The parcel binder's zone chip read "CZ · COMMERCIAL" with nothing to say it is the zone. On the tall layer's full sheet (the binder is hidden at the peek and on
+   short) the chip names itself, "Zone CZ · COMMERCIAL", where the prefix fits; the data and the rules are unchanged, and the desktop chip is the owner's call.
+   Zone fix (the P2d adversary, 27 Oct): the prefix is not always room-free. At 320 px "Zone NRZ · neighbourhood" is 214.6 px, and beside the 86.4 px "FOR SALE" in the
+   296 px row the band wrapped the ribbon under the chip (band 18 -> 38 px, binder 48 -> 68 px, the tabs 20 px lower). sheet-phone.js fitZoneChip now picks the chip's
+   state from its own boxes (data-phone-zone): "full" draws the prefix wherever the chip and the ribbon keep one row (at 430 px that takes a short label's
+   binder from 30 to the 48 px of the narrower windows, so every parcel reads alike); "bare" is the label as 523b2791 draws it; "code" keeps the band to one row when even the bare label does not fit there, and ends the label in an
+   ellipsis after the code, which stays whole (the measured code width, --phone-zone-code-w, plus the ellipsis, the 6 px sides and the 1 px border is the chip's
+   min-width). The chip is one line in every state, at its own width. */
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet] > .deed-binder:not(.deed-binder--civic):not(.deed-binder--fringe):not(.deed-binder--person) .card__band-district[data-phone-zone="full"]::before {
+  content: "Zone ";
+}
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet] > .deed-binder:not(.deed-binder--civic):not(.deed-binder--fringe):not(.deed-binder--person) .card__band-district {
+  min-width: min-content; /* one line at its own width: the chip never cuts its label in the full and bare states */
+  white-space: nowrap;
+  text-overflow: clip;
+}
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet] > .deed-binder:not(.deed-binder--civic):not(.deed-binder--fringe):not(.deed-binder--person) .card__band:has(> .card__band-district[data-phone-zone="code"]) {
+  flex-wrap: nowrap;
+}
+:root[data-phone-hud="1"][data-layout="tall"] aside.card[data-phone="sheet"][data-sheet] > .deed-binder:not(.deed-binder--civic):not(.deed-binder--fringe):not(.deed-binder--person) .card__band-district[data-phone-zone="code"] {
+  min-width: calc(var(--phone-zone-code-w, 0px) + 1em + 14px);
+  text-overflow: ellipsis;
+}
+/* Item 5 (PORT's fix B, phone only). On the full sheet and in the side seat the port card's sub-line ("Berth holding", p.card__sub in .fringe-card__identity) took the
+   desktop's document ink, #2b251d on the #18232b plate (1.05:1). It takes the card's muted chrome ink, as it already has at the peek (--sh-text-2, #c6d1d5). The desktop
+   card and ?phoneHud=0 are unchanged (styles.css is the owner's call). */
+:root[data-phone-hud="1"] .game aside.card.card--fringe.card--instrument[data-phone="sheet"][data-sheet] > .sheet-scroll .fringe-card__identity > .card__sub {
+  color: var(--sh-text-2) !important;
+}
+
+/* BEGIN replicas: the width-keyed card and dialog interior rules of styles.css and v4-shell.css, which are wrapped there in
+   :where(:root[data-phone-hud="0"]) so a phone window no longer reads its width. They are repeated here as they were, so the sheet
+   keeps the narrow layout the legacy gave a window of 420 to 640 px, at every phone window (the seat is 300 px wide on a short one).
+   Declarations are the legacy's, unchanged; the source line and the media condition are named on each. */
+/* styles.css:2052 was @media (max-width: 1100px) */
+:root[data-phone-hud="1"] .room-reno-layout { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+/* styles.css:2056 was @media (max-width: 1100px) */
+:root[data-phone-hud="1"] .room-preview-rail { width: 100%; }
+/* styles.css:2059 was @media (max-width: 1100px) */
+:root[data-phone-hud="1"] .room-preview-rail__img { height: clamp(88px, 11dvh, 120px); }
+/* styles.css:2062 was @media (max-width: 1100px) */
+:root[data-phone-hud="1"] .room-reno-sheet__scroll { max-height: min(300px, 38dvh); }
+/* styles.css:2065 was @media (max-width: 1100px) */
+:root[data-phone-hud="1"] .room-reno-row__verbs .verb .verb__label { font-size: 15px; }
+/* styles.css:4649 was @media (max-width: 520px) */
+:root[data-phone-hud="1"] .card-diorama__caption { white-space: normal; }
+/* styles.css:4748 was @media (max-width: 720px) */
+:root[data-phone-hud="1"] .room-reno-layout { grid-template-columns: 1fr; min-height: 0; }
+/* styles.css:4752 was @media (max-width: 720px) */
+:root[data-phone-hud="1"] .room-preview-rail__img { max-height: 200px; min-height: 140px; }
+/* styles.css:6229 was @media (max-width: 860px) */
+:root[data-phone-hud="1"] .help-quick__row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* styles.css:6774 was @media (max-width: 420px) */
+:root[data-phone-hud="1"] .endowment-desk .verb,
+:root[data-phone-hud="1"] .endowment-desk__mark--verb { width: 100%; }
+/* styles.css:15655 was @media (max-width: 640px) */
+:root[data-phone-hud="1"] .deed-binder { grid-template-columns: minmax(0, 1fr) var(--chrome-control-h); min-height: var(--chrome-control-h); }
+/* styles.css:15660 was @media (max-width: 640px) */
+:root[data-phone-hud="1"] .deed-binder .card__band { display: none; }
+/* styles.css:15662 was @media (max-width: 640px) */
+:root[data-phone-hud="1"] .deed-binder .deed-tab { flex: 1 1 auto; min-width: max-content; }
+/* styles.css:15671 was @media (max-width: 640px) */
+:root[data-phone-hud="1"] .card--deed .card__folder-page,
+:root[data-phone-hud="1"] .card--deed .deed-well { padding: var(--chrome-space-2); }
+/* styles.css:15674 was @media (max-width: 640px) */
+:root[data-phone-hud="1"] .card--deed .card__identity-grid { grid-template-columns: minmax(0, 1fr) 92px; }
+/* styles.css:15675 was @media (max-width: 640px) */
+:root[data-phone-hud="1"] .card--deed .card__lead-cost { grid-template-columns: 1fr; }
+/* styles.css:15682 was @media (max-width: 640px) */
+:root[data-phone-hud="1"] .sheet.sheet--document .sheet__paper { padding: var(--chrome-space-4) var(--chrome-space-3); }
+/* styles.css:15686 was @media (max-width: 640px) */
+:root[data-phone-hud="1"] .sheet.sheet--document .row { grid-template-columns: minmax(0, 1fr); }
+/* styles.css:15690 was @media (max-width: 640px) */
+:root[data-phone-hud="1"] .sheet.sheet--document .row > .label { border-right: 0; border-bottom: var(--doc-rule-hair) solid var(--doc-rule); }
+/* styles.css:16366 was @media (max-width: 640px) */
+:root[data-phone-hud="1"] .card.card--deed .card__identity-grid { grid-template-columns: minmax(0, 1fr) 88px; }
+/* styles.css:16367 was @media (max-width: 640px) */
+:root[data-phone-hud="1"] .card.card--deed .deed-polaroid,
+:root[data-phone-hud="1"] .card.card--deed .deed-plate { width: 88px; min-width: 88px; }
+/* styles.css:16963 was @media (max-width: 420px) */
+:root[data-phone-hud="1"] .card.card--deed .tenant-exit-sheet:not(.tenant-exit-sheet--chip-strip) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* styles.css:16967 was @media (max-width: 420px) */
+:root[data-phone-hud="1"] .card.card--deed .tenant-exit-sheet:not(.tenant-exit-sheet--chip-strip) .tenant-exit-sheet__copy { grid-column: 1 / -1; }
+/* styles.css:16971 was @media (max-width: 420px) */
+:root[data-phone-hud="1"] .card.card--deed .permit-rung-info { grid-template-columns: minmax(0, 1fr) auto; }
+/* styles.css:16975 was @media (max-width: 420px) */
+:root[data-phone-hud="1"] .card.card--deed :is(.permit-rung-info__action, .permit-rung-info__future) { grid-column: 1 / -1; }
+/* styles.css:17297 was @media (max-width: 560px) */
+:root[data-phone-hud="1"] .card.card--deed .permit-rung-info__facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* styles.css:17301 was @media (max-width: 560px) */
+:root[data-phone-hud="1"] .card.card--deed .permit-rung-info__fact--form { grid-column: 1 / -1; }
+/* styles.css:18355 was @media (max-width: 560px) */
+:root[data-phone-hud="1"] .card.card--deed [data-change-use-ribbon] .change-use-rung { grid-template-columns: minmax(0, 1fr) minmax(96px, 0.42fr); }
+/* styles.css:18359 was @media (max-width: 560px) */
+:root[data-phone-hud="1"] .game .card.card--civic.card--deed.card--instrument[data-civic-id] .card__identity-grid { grid-template-columns: minmax(0, 1fr) 88px; }
+/* styles.css:18364 was @media (max-width: 560px) */
+:root[data-phone-hud="1"] .game .card.card--civic.card--deed.card--instrument[data-civic-id] .civic-portrait { width: 88px; height: 76px; min-height: 76px; }
+/* styles.css:18371 was @media (max-width: 560px) */
+:root[data-phone-hud="1"] .game .card.card--civic.card--deed.card--instrument[data-civic-id] .civic-r1-plates { grid-template-columns: 1fr; }
+/* styles.css:18932 was @media (max-width: 560px) */
+:root[data-phone-hud="1"] .card.card--deed .tenant-exit-sheet--chip-strip,
+:root[data-phone-hud="1"] .card.card--deed .tenant-sheet__row { grid-template-columns: minmax(0, 1fr); }
+/* v4-shell.css:407 was @media (max-width: 860px) */
+:root[data-phone-hud="1"] .sheet--help-book .sheet__paper { padding: 20px; }
+/* v4-shell.css:408 was @media (max-width: 860px) */
+:root[data-phone-hud="1"] .v4-help-intro h2 { font-size: 26px; }
+/* quarterly-bulletin.css:590 was @media (max-width: 640px) */
+:root[data-phone-hud="1"] .qb__actions { padding: 4px 8px 6px; gap: 4px; }
+/* END replicas */

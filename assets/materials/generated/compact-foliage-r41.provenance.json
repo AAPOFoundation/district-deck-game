@@ -1,0 +1,321 @@
+{
+  "status": "Original generated preview, isolated R41 full-tree trial only; not accepted gameplay art",
+  "generator": "Built-in image_gen",
+  "date": "2026-09-24",
+  "sourceOriginal": "~/.codex/generated_images/01a08f6c-463a-7173-92c7-3a011b271e9b/exec-89ec016b-08be-4d31-bbc8-8bf4a0918b47.png",
+  "sha256": "2039c26a563918e34fd2f90db46a50b27768ad15fd3c225132965e2dcd5a397c",
+  "bytes": 2235360,
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "mode": "RGBA",
+  "referencedImages": [],
+  "promptSummary": "Original 2x2 neutral grayscale compact botanical atlas with transparent gutters: two plane-leaf clusters above, jacaranda compound foliage lower-left, flowers-only lower-right. Dense overlapping photographic detail; no scene, labels or outlined illustration. Requested1024square; actual dimensions recorded.",
+  "cells": [
+    {
+      "cell": "plane-a",
+      "pixelBox": [
+        0,
+        0,
+        627,
+        627
+      ],
+      "visibleBounds": [
+        27,
+        31,
+        627,
+        620
+      ],
+      "coverage04": 0.6209056060478876,
+      "boxMipAnalysis": [
+        {
+          "size": 64,
+          "coverage04": 0.626953125,
+          "meanAlpha": 0.6131232766544118
+        },
+        {
+          "size": 32,
+          "coverage04": 0.6279296875,
+          "meanAlpha": 0.6131855085784313
+        },
+        {
+          "size": 16,
+          "coverage04": 0.640625,
+          "meanAlpha": 0.6129289215686274
+        },
+        {
+          "size": 8,
+          "coverage04": 0.640625,
+          "meanAlpha": 0.6127450980392157
+        },
+        {
+          "size": 4,
+          "coverage04": 0.8125,
+          "meanAlpha": 0.6139705882352942
+        },
+        {
+          "size": 2,
+          "coverage04": 1.0,
+          "meanAlpha": 0.6137254901960785
+        },
+        {
+          "size": 1,
+          "coverage04": 1.0,
+          "meanAlpha": 0.611764705882353
+        }
+      ]
+    },
+    {
+      "cell": "plane-b",
+      "pixelBox": [
+        627,
+        0,
+        1254,
+        627
+      ],
+      "visibleBounds": [
+        0,
+        83,
+        591,
+        602
+      ],
+      "coverage04": 0.4191601230130568,
+      "boxMipAnalysis": [
+        {
+          "size": 64,
+          "coverage04": 0.4267578125,
+          "meanAlpha": 0.41187576593137254
+        },
+        {
+          "size": 32,
+          "coverage04": 0.4375,
+          "meanAlpha": 0.41185661764705883
+        },
+        {
+          "size": 16,
+          "coverage04": 0.4453125,
+          "meanAlpha": 0.4119485294117647
+        },
+        {
+          "size": 8,
+          "coverage04": 0.4375,
+          "meanAlpha": 0.4114583333333333
+        },
+        {
+          "size": 4,
+          "coverage04": 0.4375,
+          "meanAlpha": 0.4122549019607843
+        },
+        {
+          "size": 2,
+          "coverage04": 0.5,
+          "meanAlpha": 0.4117647058823529
+        },
+        {
+          "size": 1,
+          "coverage04": 1.0,
+          "meanAlpha": 0.4117647058823529
+        }
+      ]
+    },
+    {
+      "cell": "jacaranda-leaf",
+      "pixelBox": [
+        0,
+        627,
+        627,
+        1254
+      ],
+      "visibleBounds": [
+        37,
+        23,
+        627,
+        585
+      ],
+      "coverage04": 0.5289637752493457,
+      "boxMipAnalysis": [
+        {
+          "size": 64,
+          "coverage04": 0.550048828125,
+          "meanAlpha": 0.5068780637254902
+        },
+        {
+          "size": 32,
+          "coverage04": 0.564453125,
+          "meanAlpha": 0.5072686887254902
+        },
+        {
+          "size": 16,
+          "coverage04": 0.55859375,
+          "meanAlpha": 0.5069546568627451
+        },
+        {
+          "size": 8,
+          "coverage04": 0.53125,
+          "meanAlpha": 0.5061887254901961
+        },
+        {
+          "size": 4,
+          "coverage04": 0.5,
+          "meanAlpha": 0.5078431372549019
+        },
+        {
+          "size": 2,
+          "coverage04": 1.0,
+          "meanAlpha": 0.5068627450980392
+        },
+        {
+          "size": 1,
+          "coverage04": 1.0,
+          "meanAlpha": 0.5058823529411764
+        }
+      ]
+    },
+    {
+      "cell": "jacaranda-flower",
+      "pixelBox": [
+        627,
+        627,
+        1254,
+        1254
+      ],
+      "visibleBounds": [
+        0,
+        40,
+        584,
+        558
+      ],
+      "coverage04": 0.42542778579041485,
+      "boxMipAnalysis": [
+        {
+          "size": 64,
+          "coverage04": 0.43896484375,
+          "meanAlpha": 0.4165029488357843
+        },
+        {
+          "size": 32,
+          "coverage04": 0.4462890625,
+          "meanAlpha": 0.4162530637254902
+        },
+        {
+          "size": 16,
+          "coverage04": 0.45703125,
+          "meanAlpha": 0.4161917892156863
+        },
+        {
+          "size": 8,
+          "coverage04": 0.453125,
+          "meanAlpha": 0.4158700980392157
+        },
+        {
+          "size": 4,
+          "coverage04": 0.375,
+          "meanAlpha": 0.41691176470588237
+        },
+        {
+          "size": 2,
+          "coverage04": 0.75,
+          "meanAlpha": 0.4166666666666667
+        },
+        {
+          "size": 1,
+          "coverage04": 1.0,
+          "meanAlpha": 0.41568627450980394
+        }
+      ]
+    }
+  ],
+  "inspectionScope": "Read-only alpha bounds and CPU box-filter analysis; not GPU sampling or approval. Image pixels unchanged.",
+  "correctedSamplingRegions": [
+    {
+      "cell": "plane-a",
+      "pixelRect": [
+        10,
+        10,
+        674,
+        635
+      ],
+      "normalizedTopLeftRect": [
+        0.007974481658692184,
+        0.007974481658692184,
+        0.5374800637958532,
+        0.5063795853269537
+      ],
+      "visibleBoundsInsideRect": [
+        17,
+        21,
+        647,
+        610
+      ],
+      "coverage04": 0.5912843373493976
+    },
+    {
+      "cell": "plane-b",
+      "pixelRect": [
+        674,
+        60,
+        1244,
+        625
+      ],
+      "normalizedTopLeftRect": [
+        0.5374800637958532,
+        0.04784688995215311,
+        0.9920255183413078,
+        0.4984051036682616
+      ],
+      "visibleBoundsInsideRect": [
+        26,
+        23,
+        544,
+        542
+      ],
+      "coverage04": 0.507675826734979
+    },
+    {
+      "cell": "jacaranda-leaf",
+      "pixelRect": [
+        10,
+        635,
+        654,
+        1244
+      ],
+      "normalizedTopLeftRect": [
+        0.007974481658692184,
+        0.5063795853269537,
+        0.5215311004784688,
+        0.9920255183413078
+      ],
+      "visibleBoundsInsideRect": [
+        27,
+        15,
+        631,
+        577
+      ],
+      "coverage04": 0.5311502412059277
+    },
+    {
+      "cell": "jacaranda-flower",
+      "pixelRect": [
+        654,
+        635,
+        1244,
+        1227
+      ],
+      "normalizedTopLeftRect": [
+        0.5215311004784688,
+        0.5063795853269537,
+        0.9920255183413078,
+        0.9784688995215312
+      ],
+      "visibleBoundsInsideRect": [
+        16,
+        32,
+        557,
+        550
+      ],
+      "coverage04": 0.4777943197434723
+    }
+  ],
+  "layoutNote": "Generated cluster grid is uneven. Exact half-width crops cut the left clusters. Use measured regions above: top clear vertical gutter657..699, lower641..669 at alphaTest.4; whole-row clear gutter621..649. Pixel image unchanged. Normalized regions use top-left image origin; account explicitly for texture flipY."
+}

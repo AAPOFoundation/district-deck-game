@@ -1,0 +1,20 @@
+{
+  "schema": "district-deck.operator-portraits.v1",
+  "register": "painted-tabletop-miniature / Monopoly Plus figurine",
+  "source": "codex exec gpt-5.6-sol --enable image_generation",
+  "anchors": [
+    "assets/img/people/aido-portrait.png",
+    "assets/img/people/cheap-builder-portrait.png",
+    "assets/img/people/property-agent-portrait.png"
+  ],
+  "portraits": {
+    "underwriter": "underwriter-portrait.png",
+    "auctioneer": "auctioneer-portrait.png",
+    "builder": "builder-portrait.png",
+    "heritage-trust": "heritage-trust-portrait.png",
+    "syndicate": "syndicate-portrait.png",
+    "liquidator": "liquidator-portrait.png",
+    "planner": "planner-portrait.png",
+    "absentee": "absentee-portrait.png"
+  }
+}

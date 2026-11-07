@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<script>(function(){var d=new URLSearchParams("landmarks=airport"),q=new URLSearchParams(location.search),c=0;d.forEach(function(v,k){if(!q.has(k)){q.set(k,v);c++;}});if(c)history.replaceState(null,'',location.pathname+'?'+q.toString()+location.hash);})();</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="color-scheme" content="dark">
+<script>
+/* Phone round P1 (L0): the layout class, set before first paint and kept current on resize and orientation changes.
+   data-layout tall | short | wide, data-orient portrait | landscape, data-coarse 1 | 0, data-phone-hud 1 | 0, and a window event
+   "layoutchange" when one of them changes. The text between the markers is the text of src/ui/layout-class.js; the test
+   tests/layout-class.test.mjs holds the two to each other. ?phoneHud=0 turns the phone HUD layer off (data-phone-hud="0"). */
+(function () {
+  // layout-class:begin
+  function ddLayoutRule(w, h, coarse, off) {
+    var orient = w >= h ? 'landscape' : 'portrait';
+    var layout = w > h && h < 560 ? 'short' : w <= 720 ? 'tall' : 'wide';
+    return { layout: layout, orient: orient, coarse: !!coarse, phoneHud: layout !== 'wide' && !off };
+  }
+
+  function ddCreateLayoutClass(win, doc) {
+    var root = doc.documentElement;
+    var now = null;
+    var timer = 0;
+    var started = false;
+    var api = null;
+
+    function copy(info) {
+      return { layout: info.layout, orient: info.orient, coarse: info.coarse, phoneHud: info.phoneHud, w: info.w, h: info.h };
+    }
+    function size() {
+      var vv = win.visualViewport;
+      var zoom = (vv && vv.scale) || 1;
+      return { w: Math.round(vv ? vv.width * zoom : win.innerWidth), h: Math.round(vv ? vv.height * zoom : win.innerHeight) };
+    }
+    function coarseNow() {
+      try { return !!win.matchMedia('(any-pointer: coarse)').matches; } catch (e) { return false; }
+    }
+    function switchedOff() {
+      try { return new win.URLSearchParams(win.location.search).get('phoneHud') === '0'; } catch (e) { return false; }
+    }
+    function put(name, value) {
+      if (root.getAttribute(name) !== value) root.setAttribute(name, value);
+    }
+    function apply() {
+      var s = size();
+      var next = ddLayoutRule(s.w, s.h, coarseNow(), switchedOff());
+      var prev = now;
+      next.w = s.w;
+      next.h = s.h;
+      now = next;
+      put('data-layout', next.layout);
+      put('data-orient', next.orient);
+      put('data-coarse', next.coarse ? '1' : '0');
+      put('data-phone-hud', next.phoneHud ? '1' : '0');
+      if (prev && (prev.layout !== next.layout || prev.orient !== next.orient || prev.coarse !== next.coarse || prev.phoneHud !== next.phoneHud)) {
+        try { win.dispatchEvent(new win.CustomEvent('layoutchange', { detail: copy(next) })); } catch (e) { /* no CustomEvent: the attributes still follow */ }
+      }
+      return next;
+    }
+    function later() {
+      win.clearTimeout(timer);
+      timer = win.setTimeout(apply, 100);
+    }
+    function start() {
+      if (started) return api;
+      started = true;
+      apply();
+      win.addEventListener('resize', later);
+      win.addEventListener('orientationchange', later);
+      if (win.visualViewport) win.visualViewport.addEventListener('resize', later);
+      try {
+        var mql = win.matchMedia('(any-pointer: coarse)');
+        if (mql.addEventListener) mql.addEventListener('change', later);
+        else if (mql.addListener) mql.addListener(later);
+      } catch (e) { /* an old engine has no media query object to watch */ }
+      return api;
+    }
+    function read() {
+      if (!now) apply();
+      return copy(now);
+    }
+    function on(fn) {
+      function handler(event) { fn(event.detail); }
+      win.addEventListener('layoutchange', handler);
+      return function () { win.removeEventListener('layoutchange', handler); };
+    }
+
+    api = { rule: ddLayoutRule, start: start, read: read, on: on };
+    return api;
+  }
+  // layout-class:end
+  try {
+    window.__ddLayout = ddCreateLayoutClass(window, document).start();
+  } catch (err) {
+    var r = document.documentElement;
+    r.setAttribute('data-layout', 'wide'); r.setAttribute('data-orient', 'landscape'); r.setAttribute('data-coarse', '0'); r.setAttribute('data-phone-hud', '0');
+  }
+})();
+</script>
+<title>District Deck — play</title>
+<meta name="description" content="A deterministic miniature Melbourne campaign. Acquire, renovate, redevelop and divest parcels; corridors compound; Petridis always shows his next move.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%230a0c0e'/><rect x='6' y='14' width='8' height='12' fill='%23d8a24a'/><rect x='18' y='8' width='8' height='18' fill='%23ece6da'/></svg>">
+<link rel="stylesheet" href="./src/ui/styles.css">
+<link rel="stylesheet" href="./src/ui/exchange.css">
+<link rel="stylesheet" href="./src/ui/supermarket-td.css">
+<link rel="stylesheet" href="./src/ui/ice-cream-rush.css">
+<link rel="stylesheet" href="./src/ui/script-lord.css">
+<link rel="stylesheet" href="./src/ui/v4-shell.css">
+<!-- Phone round P1 (contract PHONE-CONTRACT-2026-10-20.md): every rule in these four files is scoped under :root[data-phone-hud="1"]; owners L2a, L1, L2a, L2b -->
+<link rel="stylesheet" href="./src/ui/phone-tokens.css">
+<link rel="stylesheet" href="./src/ui/phone-bands.css">
+<link rel="stylesheet" href="./src/ui/hud-phone.css">
+<link rel="stylesheet" href="./src/ui/sheet-phone.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three/three.module.js",
+    "three/addons/": "./vendor/three/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body class="loader-pending">
+<main class="game">
+  <canvas id="board" aria-label="Miniature city board"></canvas>
+  <svg class="board-connectors" aria-hidden="true" hidden></svg>
+
+  <header class="statusbar" aria-label="Run status"></header>
+  <div class="rail rail--cast" data-scroll-affordance="gutter" aria-label="Rival and market"></div>
+  <div class="mobile-cycle-strip" aria-label="City actions, rival targets and reports"></div>
+  <nav class="camera-controls mat-steel" aria-label="Camera controls">
+    <button type="button" data-camera="zoom-in" aria-label="Zoom in" title="Zoom in"><span class="chrome-key__well camera-key__well" aria-hidden="true"><svg class="camera-key__glyph" viewBox="0 0 24 24" focusable="false"><circle cx="9.5" cy="9.5" r="7"></circle><path d="M14.5 14.5 21 21M9.5 5.5v8M5.5 9.5h8"></path></svg></span></button>
+    <button type="button" data-camera="zoom-out" aria-label="Zoom out" title="Zoom out"><span class="chrome-key__well camera-key__well" aria-hidden="true"><svg class="camera-key__glyph" viewBox="0 0 24 24" focusable="false"><circle cx="9.5" cy="9.5" r="7"></circle><path d="M14.5 14.5 21 21M5.5 9.5h8"></path></svg></span></button>
+    <button type="button" data-camera="frame" aria-label="Frame city" title="Frame city (F)"><span class="chrome-key__well camera-key__well" aria-hidden="true"><svg class="camera-key__glyph" viewBox="0 0 24 24" focusable="false"><path d="M3 9V3h6M15 3h6v6M21 15v6h-6M9 21H3v-6"></path><rect x="8" y="8" width="8" height="8" rx="1"></rect></svg></span></button>
+    <button type="button" data-camera="north" aria-label="Reset north" title="Reset north (N)"><span class="chrome-key__well camera-key__well" aria-hidden="true"><svg class="camera-key__glyph camera-key__glyph--compass" viewBox="0 0 24 24" focusable="false"><circle class="camera-key__compass-ring" cx="12" cy="12" r="10"></circle><path class="camera-key__compass-rose" d="M12 1.5 14 7.7 12 6.7 10 7.7 12 1.5ZM22.5 12 16.3 14 17.3 12 16.3 10 22.5 12ZM12 22.5 10 16.3 12 17.3 14 16.3 12 22.5ZM1.5 12 7.7 10 6.7 12 7.7 14 1.5 12Z"></path><path class="camera-key__compass-n" d="M8 16V8h2.25L14 12.85V8h2v8h-2.2L10 11.1V16H8Z"></path></svg></span></button>
+  </nav>
+  <div class="toasts" aria-live="polite" aria-atomic="false"></div>
+  <footer class="actionbar" aria-label="Actions"></footer>
+
+  <div class="loader">
+    <div class="loader__inner">
+      <div class="loader__eyebrow label">District Deck · V4</div>
+      <div class="loader__title">Assembling the model</div>
+      <div class="loader__display">
+        <div class="loader__bar"><div class="loader__fill"></div></div>
+        <div class="loader__text label">Loading the kit</div>
+      </div>
+      <noscript><p style="color:#c9705a;margin-top:18px">This game needs JavaScript and WebGL.</p></noscript>
+    </div>
+  </div>
+</main>
+
+<script type="module" src="./src/main.js"></script>
+<script type="module" src="./src/ui/hud-phone.js"></script>
+<script type="module" src="./src/ui/sheet-phone.js"></script>
+<script type="module" src="./src/ui/quarterly-bulletin.js"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>District Deck — Credits and release notes</title>
+  <link rel="stylesheet" href="./src/ui/online-lobby.css">
+  <style>.release-notes{max-width:860px;margin:0 auto;padding:48px 28px 80px}.release-notes section{padding:28px 0;border-bottom:1px solid #496052}.release-notes h1{font-size:48px}.release-notes li{line-height:1.8;margin:8px 0}.release-notes code{overflow-wrap:anywhere}.release-notes h2{margin-top:0}</style>
+</head>
+<body>
+  <header class="lobby-masthead"><a class="lobby-brand" href="./index.html">District Deck</a><a href="./online.html">Online play</a></header>
+  <main class="release-notes">
+    <p class="eyebrow">V4 · DEVELOPMENT REVIEW</p><h1>A city of your own.</h1>
+    <p>District Deck combines a Melbourne property game, an expanding world campaign and small businesses you can run from the city board.</p>
+    <section><h2>What’s changing in V4</h2><ul>
+      <li>P1100 keeps its frontage when a permit changes its building.</li>
+      <li>Cybercab has a new low coupe silhouette and a quarterly dispatch business. Income follows service capacity, demand, energy, reliability and operating costs. These are game balance assumptions, not a forecast of real taxi returns.</li>
+      <li>The city includes an original synthesized score and action sounds. Open Help, then Sound for independent music and effects volume.</li>
+      <li>Online city rooms support an invited player, the built-in rival, or an external AI seat. The server validates plans and resolves the quarter when both players commit.</li>
+    </ul><p>This is a development review. Independent visual, performance and full release checks are still in progress. Online world transfers and client-scored arcade rewards are not available in city rooms. Books and View plan show your completed-quarter financial totals, including Cybercab costs, purchases and profit. Detailed action outcomes are not included; older rooms may have only their latest recorded quarter. The solo campaign remains available.</p></section>
+    <section><h2>Credits</h2><p>District Deck’s procedural buildings, city, vehicles and game rules are developed for this project. The score and sound effects are synthesized by the game without external audio recordings.</p>
+      <p>The renderer uses <a href="./licenses/three.txt">Three.js (MIT licence)</a>, <a href="./licenses/meshoptimizer.txt">meshoptimizer (MIT licence)</a> and <a href="./licenses/draco.txt">Draco (Apache License 2.0 and bundled notices)</a>. Draco’s <a href="./licenses/draco-source.txt">source record</a> and <a href="./licenses/draco-AUTHORS.txt">copyright authors</a> are retained. Typography uses <a href="./assets/fonts/LICENSE-LibreFranklin.txt">Libre Franklin</a> and <a href="./assets/fonts/LICENSE-Oswald.txt">Oswald</a>, distributed under the SIL Open Font License.</p>
+      <p>The Cybercab model is an original mesh inspired by Tesla’s vehicle. Tesla is a trademark of its owner; this game is not affiliated with or endorsed by Tesla. Reference images used for art review are not game assets.</p>
+      <p>Asset source records and generation manifests are retained with the project. The character authoring pipeline uses Meshy; the active model files and retained input plates are inventoried. Some generated-input and service permission records remain unverified for public distribution. This does not prevent local review of the development build.</p>
+    </section>
+    <section id="online-api"><h2>Connect an AI player</h2><p>Create a room with “Connect an external AI player”, then pass its invitation to your agent. The invitation grants one seat and can be used once. Keep the returned seat token private.</p>
+      <ol><li>Read <a href="./api/rooms/options">the current protocol and game versions</a>.</li><li>Generate a cryptographically random 32-byte <code>seatToken</code> encoded as unpadded base64url (43 characters). Save it and the exact join body before sending. POST <code>inviteToken</code>, <code>seatToken</code>, <code>protocol</code>, <code>stateVersion</code> and <code>simRevision</code> to <code>/api/rooms/ROOM_ID/join</code>. Use the versions from the options response. If the reply is lost, retry the same body; the saved proof recovers the original seat. Save the returned credentials and snapshot.</li><li>Authenticate subsequent calls with <code>Authorization: Bearer SEAT_TOKEN</code>.</li><li>POST <code>/api/rooms/ROOM_ID/get_state</code> with the versions, current seed, quarter, and optional <code>candidates</code> action array. Read your seat and legal action candidates.</li><li>POST <code>/api/rooms/ROOM_ID/submit_actions</code> with the versions, a unique <code>requestId</code>, the current <code>revision</code>, <code>quarter</code>, <code>startStateHash</code> and an <code>actions</code> array. This submits and commits a complete plan.</li><li>GET <code>/api/rooms/ROOM_ID/state</code> to follow the room. After a network failure, retry the exact request with the same ID and body. After a definite conflict, refresh before making a new request.</li></ol>
+      <p>Pacts can open a decision window after both commits. POST <code>/decision</code> with the current request envelope and <code>action: {"type":"honour-pact","pactId":"…"}</code>, or <code>{"type":"defect","pactId":"…","replacementAction":null}</code>. Your partner’s choice stays private until resolution.</p>
+      <p>The room protocol accepts bounded player inputs. It does not accept arbitrary state, prices, world snapshots or client-scored rewards. A rejected action does not change the game.</p>
+    </section>
+    <section><h2>Play on this device</h2><p>Solo campaigns save in this browser. Room credentials are remembered by this tab; save your seat access token before moving to another device. Online rooms are stored by the host.</p><p><a class="primary" href="./index.html">Return to District Deck</a></p></section>
+  </main>
+</body>
+</html>

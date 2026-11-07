@@ -1,0 +1,52 @@
+{
+  "batch": "imagen-t2-landing-posters",
+  "generated_at": "2026-08-14",
+  "generator": "GPT Image 2.0 via Codex built-in image tool",
+  "reference": "mvp/_reviews/quality-loop/ui-aaa/captures/ui-landing-desktop.png",
+  "format": "PNG",
+  "width": 1536,
+  "height": 1024,
+  "register": "Cinematic film still in the Christopher Nolan register: IMAX 70mm feel, deep blacks, practical tungsten and sodium light, restrained palette of paper-cream, brass-amber and ink-blue, heavy atmosphere, photorealistic, no on-screen text, no captions, no watermark, no people's faces in sharp close-up.",
+  "files": [
+    {
+      "file": "poster-snip-01.png",
+      "beat": "The Open Inspection",
+      "brief": "Overcast winter morning auction in Kew; falling clipboard and lifting pages from knee height.",
+      "iterations": 1,
+      "bytes": 2372194,
+      "sha256": "7faff3c3af9f364fafab19b22f0ca32cca37350270e371886359846ba7d1db0e"
+    },
+    {
+      "file": "poster-snip-02.png",
+      "beat": "The Ledger",
+      "brief": "Worn leather ledger under tungsten light; one entry underlined twice in glistening biro.",
+      "iterations": 1,
+      "bytes": 1981817,
+      "sha256": "60c89e27f4ae11c761f77e9e104b18c59dade1cb0e35606721cea251a1c4640c"
+    },
+    {
+      "file": "poster-snip-03.png",
+      "beat": "The Terrace",
+      "brief": "Boarded Fitzroy terrace at dawn; iron lacework, tram reflection, weathered illegible A-frame.",
+      "iterations": 1,
+      "bytes": 2517586,
+      "sha256": "01528d5554cf85287590d9c0f2b3c73e863625c9d7a39066f766260dee09ee84"
+    },
+    {
+      "file": "poster-snip-04.png",
+      "beat": "The Rival",
+      "brief": "Silhouetted rival in a glass boardroom placing one brass building into a backlit city model.",
+      "iterations": 1,
+      "bytes": 1886124,
+      "sha256": "3fe5201bfc887e8c2f4db4a267f26e3010212e09e4760e1a834bebce087b69fa"
+    },
+    {
+      "file": "poster-snip-05.png",
+      "beat": "The Contest",
+      "brief": "Aerial miniature city at night; warm amber and cold blue fronts meet along one contested street.",
+      "iterations": 1,
+      "bytes": 2934045,
+      "sha256": "fb009219535503063bd3e2c8fca39f6310aa163cef58d805057b736e351a1eac"
+    }
+  ]
+}

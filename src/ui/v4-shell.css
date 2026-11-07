@@ -1,0 +1,1140 @@
+/* Astra 6 V4: a quiet charcoal-and-brass field desk. Keep the model in view;
+   disclose reference material and secondary inventories when the player asks. */
+:root {
+  --v4-surface: #18232b;
+  --v4-surface-deep: #101920;
+  --v4-line: #52616a;
+  --v4-text: #edf0ec;
+  --v4-muted: #b5c3c8;
+  --v4-accent: #d3b37c;
+}
+
+.game {
+  --chrome-brand-w: 136px;
+  --chrome-stat-w: 88px;
+  --chrome-place-min-w: 200px;
+  --chrome-place-max-w: 380px;
+  --chrome-quarter-w: 66px;
+  --chrome-actions-w: 70px;
+  --chrome-rail-w: 304px;
+  --chrome-bevel: inset 0 1px 0 #ffffff0c;
+  --chrome-well: inset 0 1px 3px #00000032;
+  --chrome-shadow-1: 0 8px 24px #050b1540;
+  --chrome-border: 1px solid #60717b80;
+  --mat-steel: var(--v4-surface);
+  --mat-carbon: var(--v4-surface-deep);
+  --chrome-amber: var(--v4-accent);
+  --chrome-bone: var(--v4-text);
+  --mono: "DD Body", system-ui, sans-serif;
+  --display: "DD Body", system-ui, sans-serif;
+}
+
+.game .statusbar,
+.game .statusbar__deck,
+.game .rail,
+.game .actionbar {
+  background: var(--v4-surface);
+  border-color: #697b856b;
+  box-shadow: 0 8px 30px #040b1238;
+}
+.game .statusbar::before,
+.game .statusbar::after,
+.game .chrome-rivets { display: none; }
+.game .statusbar .stat,
+.game .statusbar__cassette,
+.game .statusbar__cassette-key,
+.game .counter__plate,
+.game .counter__well,
+.game .camera-key__well,
+.game .rail-tools,
+.game .rail-tool,
+.game .panel--instrument,
+.game .panel--instrument > header,
+.game .rival-portrait-frame,
+.game .rival-header__name,
+.game .rival-header__policy,
+.game .nav-bar,
+.game .nav-bar__readout {
+  background-image: none;
+  box-shadow: none;
+  text-shadow: none;
+}
+.game .counter__plate { background: transparent; color: var(--v4-muted); border: 0; }
+.game .counter__well { background: #0a14194d; border: 0; color: var(--v4-text); }
+.game .statusbar .counter__caption { color: var(--v4-muted); font-size: 10px; letter-spacing: .09em; }
+.game .statusbar .counter__plate :is(.counter__caption, .label) { color: var(--v4-muted) !important; }
+.game .statusbar .value { font-size: 13px; letter-spacing: 0; }
+.game .statusbar .stat--brand a { font-size: 13px; letter-spacing: .08em; }
+.game .statusbar__cassette-key { background: transparent; border: 0; border-left: 1px solid #ffffff12; }
+.game .statusbar__cassette-key > span:last-child { font-size: 10px; letter-spacing: .01em; }
+.game .rail { height: auto; bottom: auto; border-radius: 5px; }
+.game .rail:has(.panel--pairs:not(.is-open)):not(:has(.panel--tool)) .rail__scroll { flex: 0 1 auto; }
+.game .rail-tools { background: transparent; border: 0; padding: 4px; }
+.game .rail-tool { background: #0e18214d; border: 1px solid #5b6b7560; }
+.game .rail-tool > span:last-child { font-size: 10px; letter-spacing: 0; }
+.game .rail-tool { padding-left: 2px; padding-right: 2px; }
+.game .rail-tool .rail-tool__label { font-size: 9px; letter-spacing: -.02em; text-overflow: clip; }
+.game .rail-tools.military-rail { grid-template-columns: 1.15fr .9fr 1fr .8fr 1.15fr; gap: 3px; }
+.game [data-rail-tool="military"] svg { fill: none; stroke: var(--v4-text); stroke-width: 1.8; stroke-linejoin: round; }
+.game .rail .panel--instrument { border: 0; background: transparent; }
+.game .rail .panel > header { background: #0c151d75; border: 0; border-bottom: 1px solid #66778350; }
+.game .rail .label,
+.game .rail .rival-header__name { color: var(--v4-text) !important; }
+.game .rail .rival-header__name { font-size: 13px; letter-spacing: 0; }
+.game .rail .rival-header__policy { color: var(--v4-muted); font-size: 10px; letter-spacing: .07em; }
+/* The auction has one heading and paired financial rows. Legacy instrument
+   headers reserve an icon column, and their paper values disappear on charcoal. */
+.game .rail .auction-rail > header {
+  grid-template-columns: minmax(0, 1fr) !important;
+  height: auto;
+  min-height: 40px;
+  padding: 10px 12px;
+}
+.game .rail .auction-rail > header .label {
+  color: var(--v4-accent) !important;
+  font: 700 12px/1.4 "DD Body", system-ui, sans-serif !important;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  letter-spacing: .06em;
+}
+.game .rail .auction-rail__metrics .row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: baseline;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom-color: #76868b26;
+}
+.game .rail .auction-rail__metrics .label {
+  min-width: 0;
+  color: var(--v4-muted) !important;
+  font: 500 11px/1.4 "DD Body", system-ui, sans-serif;
+  letter-spacing: .03em;
+  white-space: normal;
+}
+.game .rail .auction-rail__metrics .value {
+  min-width: 0;
+  color: var(--v4-text) !important;
+  font: 600 12px/1.4 "DD Body", system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.game .rail:has(.auction-rail) {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - var(--bar-h) - var(--act-h) - 24px);
+  max-height: calc(100dvh - var(--bar-h) - var(--act-h) - 24px);
+  overflow: hidden;
+}
+.game .rail:has(.auction-rail) .rail__pin { flex: 0 0 auto; }
+.game .rail:has(.auction-rail) .rail__scroll {
+  display: flex;
+  flex: 1 1 auto !important;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.game .rail:has(.auction-rail) .panel--pairs {
+  flex: 0 1 auto;
+  min-height: 42px;
+  max-height: 35%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.game .rail:has(.auction-rail) .panel--pairs .v4-districts-toggle {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--v4-surface);
+}
+.game .rail .auction-rail {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  flex-direction: column;
+  min-height: 0;
+}
+.game .rail .auction-rail > header { flex: 0 0 auto; }
+.game .rail .auction-rail > .body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  padding-bottom: 10px;
+}
+.game .rail .auction-rail__metrics {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--v4-line) var(--v4-surface-deep);
+  padding-right: 4px;
+}
+.game .rail .auction-rail__actions {
+  flex: 0 0 auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--v4-line);
+}
+.game.has-card > .card.card--instrument:is(.card--deed[data-parcel-id][data-folder-page], .card--person[data-person-id]) .verb--primary:not(:disabled) :is(.verb__hint, .verb__risk, .verb__reason) {
+  color: #17242a !important;
+  text-shadow: none !important;
+}
+@media (min-width: 640px) and (max-width: 860px) {
+  /* A single property/person sheet can use a full-height side seat. Its city
+     view retains both vertical context and the route to the selected subject. */
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument {
+    left: auto !important;
+    right: 8px !important;
+    top: calc(var(--bar-h) + 8px) !important;
+    bottom: calc(var(--act-h) + 12px) !important;
+    width: 368px !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: var(--v4-line) var(--v4-surface-deep);
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--deed[data-parcel-id] > .deed-binder {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 32px;
+    gap: 4px;
+    flex: 0 0 auto;
+    height: auto;
+    padding: 5px;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--deed[data-parcel-id] > .deed-binder .deed-tab {
+    grid-column: 1;
+    min-width: 0;
+    min-height: 26px;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--deed[data-parcel-id] > .deed-binder .card__band {
+    grid-column: 1;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px;
+    min-height: 26px;
+    padding: 4px;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--deed[data-parcel-id] > .deed-binder .card__band-district {
+    white-space: normal;
+    overflow: visible;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--deed[data-parcel-id] > .deed-binder .card__band-parcel { display: none; }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--deed[data-parcel-id] > .deed-binder > .card__close {
+    position: relative;
+    inset: auto !important;
+    grid-column: 2;
+    grid-row: 1 / 3;
+    align-self: start;
+    width: 32px;
+    height: 32px;
+    color: transparent !important;
+    font-size: 0 !important;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card > .card.card--instrument:is(.card--deed[data-parcel-id][data-folder-page], .card--person[data-person-id]) .card__title {
+    color: var(--v4-text) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    font: 700 14px/1.35 "DD Body", system-ui, sans-serif !important;
+    letter-spacing: .03em !important;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card > .card.card--instrument:is(.card--deed[data-parcel-id][data-folder-page], .card--person[data-person-id]) :is(.card__sub, .card__subtitle) {
+    color: var(--v4-muted) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    font: 500 11px/1.4 "DD Body", system-ui, sans-serif !important;
+    letter-spacing: .03em !important;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card .rail:has(.auction-rail) {
+    display: flex !important;
+    top: calc(var(--bar-h) + 8px);
+    left: auto;
+    right: 8px;
+    width: 304px;
+    height: calc(100dvh - var(--bar-h) - var(--act-h) - 24px);
+    max-height: calc(100dvh - var(--bar-h) - var(--act-h) - 24px);
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card .rail:has(.auction-rail) .rail__pin { display: none; }
+  :where(:root[data-phone-hud="0"]) .game.has-card .rail:has(.auction-rail) .auction-rail { display: flex !important; }
+  :where(:root[data-phone-hud="0"]) .game.has-card:has(.auction-rail) > .card.card--instrument {
+    left: 8px !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: calc(var(--act-h) + 12px) !important;
+    width: calc(100vw - 336px) !important;
+    height: min(42dvh, 320px) !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:has(.auction-rail) > .card.card--instrument [data-auction-desk] {
+    display: none;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:has(.auction-rail) > .card.card--instrument[data-parcel-id][data-folder-page] .card__title {
+    color: var(--v4-text) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    font: 700 14px/1.35 "DD Body", system-ui, sans-serif !important;
+    letter-spacing: .03em !important;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:has(.auction-rail) > .card.card--instrument[data-parcel-id][data-folder-page] .card__sub {
+    color: var(--v4-muted) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    font: 500 11px/1.4 "DD Body", system-ui, sans-serif !important;
+    letter-spacing: .03em !important;
+  }
+}
+.game .board-person-cue__ring {
+  fill: #14212b50;
+  stroke: #efd8ad;
+  stroke-width: 2;
+  filter: drop-shadow(0 1px 2px #071015);
+}
+.game .board-person-cue__stem {
+  fill: none;
+  stroke: #efd8ad;
+  stroke-width: 1.5;
+  filter: drop-shadow(0 1px 2px #071015);
+}
+.game .board-person-cue__label { fill: #14212bf5; stroke: #bda57e; stroke-width: 1; }
+.game .board-person-cue__name {
+  fill: #f3efdf;
+  font: 600 11px "DD Body", system-ui, sans-serif;
+  letter-spacing: .02em;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+.game .panel--pairs .body[hidden] { display: none !important; }
+.v4-districts-toggle {
+  display: flex; align-items: center; gap: 8px; width: 100%; min-height: 42px;
+  padding: 10px 12px; border: 0; border-top: 1px solid #6c7d8760;
+  color: var(--v4-text); background: #0b151d55; cursor: pointer;
+  font: 600 12px/1.4 "DD Body", system-ui, sans-serif; text-align: left;
+}
+.v4-districts-toggle svg { width: 20px; height: 20px; }
+.v4-districts-count { margin-left: auto; color: var(--v4-accent); font-size: 11px; }
+.game :is(button, a, summary):focus-visible { outline: 2px solid #b5dbe6; outline-offset: 3px; }
+.game .actionbar { border-radius: 5px; }
+.game .mobile-cycle-strip { position: absolute; z-index: 18; align-items: center; overflow: visible; }
+.game .mobile-cycle-chip,
+.v4-mobile-drawer > summary { background: #12212a; color: var(--v4-text); border: 1px solid #556872; box-shadow: none; }
+.v4-mobile-drawer > summary { cursor: pointer; padding: 10px 12px; min-height: 36px; font: 600 11px/1.25 "DD Body", system-ui, sans-serif; letter-spacing: .04em; text-transform: uppercase; }
+.v4-mobile-drawer > summary::marker { color: var(--v4-accent); }
+.v4-mobile-drawer__body { position: absolute; top: calc(100% + 4px); right: 4px; display: grid; gap: 7px; width: min(290px, calc(100vw - 16px)); padding: 14px; border: 1px solid #76868b; border-radius: 5px; background: #18232b; box-shadow: 0 12px 30px #0008; }
+.v4-mobile-drawer__body p { margin: 0 0 4px; color: var(--v4-muted); font: 12px/1.5 "DD Body", system-ui, sans-serif; }
+.v4-mobile-drawer__body .mobile-cycle-chip { text-align: left; min-height: 40px; }
+
+.sheet.sheet--help-book { max-width: 620px; border: 1px solid #76828a; border-radius: 8px; background: var(--v4-surface); }
+.sheet.sheet--document.sheet--help-book { --doc-paper-stock: #e8ebe5; --doc-paper-shadow: none; --doc-ink: #283840; --display: "DD Body", system-ui, sans-serif; --doc-type-body: 14px; }
+.sheet--help-book .sheet__binder { background: var(--v4-surface); border: 0; box-shadow: none; }
+.sheet--help-book .sheet__nameplate { background: transparent; border: 0; box-shadow: none; color: var(--v4-accent); font-family: "DD Body", sans-serif; }
+.sheet--help-book .sheet__paper { padding: 24px 30px; color: #283840; background: #e8ebe5; font: 400 14px/1.65 "DD Body", system-ui, sans-serif; }
+.v4-help-intro .v4-eyebrow { margin: 0 0 10px; color: #54676f; font-size: 10px; font-weight: 700; letter-spacing: .17em; text-transform: uppercase; }
+.v4-help-intro h2 { margin: 0 0 12px; font: 600 30px/1.14 "DD Body", sans-serif; letter-spacing: -.045em; color: #152933; }
+.sheet.sheet--document.sheet--help-book .v4-help-intro h2 { font: 600 30px/1.14 "DD Body", sans-serif; letter-spacing: -.045em; text-transform: none; border: 0; padding: 0; }
+.sheet.sheet--document.sheet--help-book .sheet__paper > .help-steps,
+.sheet.sheet--document.sheet--help-book .sheet__paper > .help-steps > li { font: 400 14px/1.65 "DD Body", system-ui, sans-serif; }
+.v4-help-intro > p:last-child { margin: 0 0 22px; color: #45575c; }
+.sheet--help-book .help-steps { display: grid; gap: 10px; margin: 0 0 20px; padding-left: 22px; font: 400 14px/1.65 "DD Body", sans-serif; }
+.sheet--help-book .help-steps strong { color: #152c38; font-weight: 700; }
+.v4-help-reference { margin-top: 22px; border-top: 1px solid #b7c2bf; padding-top: 14px; }
+.v4-help-reference summary { cursor: pointer; font-size: 13px; font-weight: 600; color: #294a57; }
+.v4-help-reference[open] summary { margin-bottom: 20px; }
+.sheet--help-book .sheet__actions { background: var(--v4-surface); border: 0; }
+.sheet--help-book .sheet__commit { background: #d3b37c; border: 1px solid #e9cf9f; box-shadow: none; color: #15232b; text-shadow: none; font: 700 13px/1.2 "DD Body", sans-serif; }
+.sheet.sheet--document.sheet--help-book .sheet__actions .sheet__commit { background: #d3b37c !important; box-shadow: none !important; border: 1px solid #e9cf9f !important; color: #15232b !important; }
+.qb[data-qb-root] .qb__scroll { min-height: 0; max-height: calc(78dvh - 160px); overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; scrollbar-color: #726955 #d2cbb9; padding-bottom: 24px; }
+.qb[data-qb-root] .qb__scroll::-webkit-scrollbar { width: 10px; }
+.qb[data-qb-root] .qb__scroll::-webkit-scrollbar-track { background: #d2cbb9; }
+.qb[data-qb-root] .qb__scroll::-webkit-scrollbar-thumb { background: #726955; border: 2px solid #d2cbb9; border-radius: 8px; }
+.qb .qb__scroll-hint { margin: 0; padding: 6px 10px; border: 1px solid #768c94; border-radius: 3px; background: #253942; color: #f0f2e9; font: 600 12px/1.4 "DD Body", system-ui, sans-serif; }
+.qb .qb__scroll-hint[hidden] { display: none; }
+
+.province-body {
+  --chrome-type-1: 12px; --chrome-type-2: 14px; --chrome-type-3: 17px;
+  --font-ui: "DD Body", system-ui, sans-serif;
+  --font-num: "DD Body", system-ui, sans-serif;
+  --mat-steel: var(--v4-surface); --chrome-ink: var(--v4-surface-deep);
+  --chrome-steel: var(--v4-surface); --chrome-bone: var(--v4-text);
+  --chrome-amber: var(--v4-accent); --chrome-border: 1px solid #67798680;
+  --chrome-bevel: inset 0 1px 0 #ffffff0d; --chrome-shadow-1: 0 8px 24px #030b1530;
+}
+.province-body .chrome-rivets { display: none; }
+.province-body .province-mast { width: 258px; padding: 14px 16px; border-radius: 5px; }
+.province-body .province-mast h1 { font-size: 18px; letter-spacing: -.02em; }
+.province-body .province-kicker { font-size: 10px; letter-spacing: .16em; }
+.province-body .province-key { font-size: 11px; line-height: 1.6; }
+.province-body .province-yard { width: 300px; top: 140px; height: auto; bottom: auto; max-height: calc(100dvh - 230px); }
+.province-body .province-yard-card--ledger { flex: 0 1 auto; min-height: 0; }
+.province-body .province-yard-ambition-disclosure > summary { display: flex; flex-wrap: wrap; gap: 6px 12px; }
+.province-body .province-yard-ambition-disclosure > summary small { font-size: 12px; }
+.province-body .province-yard-card { border-radius: 5px; box-shadow: none; }
+.province-body .province-yard-card > header { padding: 10px; }
+.province-body .province-yard-card h2 { font-size: 14px; letter-spacing: .01em; }
+.province-body .province-yard-card :is(p, button, summary) { line-height: 1.4; }
+.province-body [data-yard-closed] > summary { cursor: pointer; min-height: 36px; }
+.province-body [data-yard-closed] > summary::after { content: '+'; margin-left: 8px; color: var(--v4-accent); }
+.province-body [data-yard-closed][open] > summary::after { content: '−'; }
+.province-body :is(button, a, summary):focus-visible { outline: 2px solid #b5dbe6; outline-offset: 3px; }
+.province-body .province-dossier { width: 300px; height: auto; min-height: 0; padding: 16px; border-radius: 5px; font-size: 14px; }
+.province-body .province-dossier h2 { font-size: 18px; letter-spacing: -.01em; }
+.province-body .province-dossier p { font-size: 14px; line-height: 1.55; }
+.province-body .province-city-label,
+.province-body .province-route-label,
+.province-body .threat-chip { font-size: 12px !important; font-weight: 600; border: 1px solid #afc1c78c; border-radius: 3px; padding: 4px 7px; letter-spacing: .015em; }
+.province-body .province-city-label[aria-current="true"] { font-size: 13px !important; background: #e0e8e4; border-color: #ffffff; }
+.province-body .province-city-label .province-weather-chip { font-size: 10px !important; font-weight: 500; margin-top: 3px; }
+.province-body .province-foot { font-size: 12px; border-radius: 5px; padding: 10px 12px; }
+
+@media (max-width: 1200px) {
+  .game { --chrome-place-min-w: 160px; --chrome-brand-w: 114px; --chrome-stat-w: 76px; }
+  .game .statusbar .stat--qbeat { display: none; }
+}
+@media (max-width: 860px) {
+  :where(:root[data-phone-hud="0"]) .game { --chrome-mobile-row-h: 48px; --chrome-mobile-status-h: 48px; }
+  :where(:root[data-phone-hud="0"]) .game .statusbar__deck,
+  :where(:root[data-phone-hud="0"]) .game .statusbar:has(.status-row--ticker) .statusbar__deck { grid-template-columns: 156px minmax(0, 1fr); grid-template-rows: 48px; }
+  :where(:root[data-phone-hud="0"]) .game .status-row--run { grid-template-columns: 70px 76px; }
+  :where(:root[data-phone-hud="0"]) .game .statusbar__counters { gap: 4px; }
+  :where(:root[data-phone-hud="0"]) .game .mobile-cycle-strip { gap: 5px; padding: 6px; }
+  :where(:root[data-phone-hud="0"]) .sheet--help-book .sheet__paper { padding: 20px; }
+  :where(:root[data-phone-hud="0"]) .v4-help-intro h2 { font-size: 26px; }
+  .province-body .province-mast { width: 220px; }
+  .province-body .province-yard { width: 250px; top: 126px; max-height: calc(100dvh - 215px); }
+  .province-body .province-dossier { width: 235px; top: auto; bottom: 82px; max-height: 220px; overflow-y: auto; scrollbar-gutter: stable; }
+}
+@media (max-width: 560px) {
+  :where(:root[data-phone-hud="0"]) .game { --chrome-mobile-status-h: 96px; }
+  :where(:root[data-phone-hud="0"]) .game .statusbar__deck,
+  :where(:root[data-phone-hud="0"]) .game .statusbar:has(.status-row--ticker) .statusbar__deck { grid-template-columns: minmax(0, 1fr); grid-template-rows: repeat(2, 48px); }
+  .province-body .province-yard { width: calc(100% - 24px); top: auto; max-height: 29dvh; bottom: 84px; }
+  .province-body .province-mast { width: 200px; padding: 10px 12px; }
+  .province-body .province-dossier { width: calc(100% - 24px); max-height: 25dvh; top: 112px; bottom: auto; }
+}
+
+/* Vacant holdings lead with tenant offers before their property actions. */
+.game > .card.card--deed [data-lease-shortcut] { grid-column: 1 / -1; width: 100%; }
+
+/* The deed sidebar stays narrow at desktop widths too. Keep the permit's five
+   facts readable without changing change-use ribbons or the card footprint. */
+.game > .card.card--deed [data-permit-rung-list] .permit-rung-info__facts {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.game > .card.card--deed [data-permit-rung-list] [data-permit-fact="successor"] {
+  grid-column: 1 / -1;
+}
+.game > .card.card--deed [data-permit-rung-list] .permit-rung-info__fact :is(small, strong) {
+  overflow-wrap: normal;
+  word-break: normal;
+  white-space: normal;
+}
+
+/* Keep the existing single binder/Close in the deed's own scrollport. The
+   binder is a direct card child; its opaque background and z-index are retained. */
+.game > .card.card--deed[data-parcel-id][data-folder-page] {
+  scroll-padding-block-start: calc(var(--chrome-control-h) + var(--chrome-space-3));
+}
+.game > .card.card--deed[data-parcel-id][data-folder-page] > .deed-binder {
+  position: sticky;
+  top: 0;
+}
+@media (min-width: 640px) and (max-width: 860px) {
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--deed[data-parcel-id][data-folder-page] {
+    /* This seat wraps the binder into two rows; leave clearance when scrolling
+       a fact or keyboard target into view beneath the retained header. */
+    scroll-padding-block-start: calc(2 * var(--chrome-control-h));
+  }
+}
+
+/* A permit rung is a vertical decision: identity, complete facts, then action.
+   Avoid reserving a fixed action column beside a long form name. */
+.game > .card.card--deed [data-permit-rung-list] [data-permit-rung-info] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "identity" "facts" "action";
+}
+.game > .card.card--deed [data-permit-rung-list] .permit-rung-info__identity {
+  flex-wrap: wrap;
+}
+.game > .card.card--deed [data-permit-rung-list] .permit-rung-info__identity > strong {
+  flex: 1 1 16ch;
+  min-width: 0;
+}
+.game > .card.card--deed [data-permit-rung-list] .permit-rung-info__identity > :is(strong, .permit-rung-info__state),
+.game > .card.card--deed [data-permit-rung-list] :is(.permit-rung-info__action--live, .permit-rung-info__action--ceiling) {
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/* M14: each room commitment keeps its own price, timing and uplift readable. */
+.card.card--deed [data-room-reno] .room-reno-row__verbs { grid-template-columns: minmax(0, 1fr); }
+.card.card--deed [data-room-reno] .verb--room-finish { height: auto; min-height: 48px; }
+.card.card--deed [data-room-reno] .verb--room-finish .verb__hint { white-space: normal !important; overflow: visible; text-overflow: clip; color: #f3eee2 !important; }
+.card.card--deed [data-acquisition-disclosure] { grid-column: 1 / -1; font-size: 12px; line-height: 1.45; margin: 8px 0; }
+
+/* Compact disabled Acquire keeps its dark face beneath the text. */
+@media (max-width: 860px) {
+  :where(:root[data-phone-hud="0"]) .card.card--deed .verb[data-verb="acquire"]:disabled :is(.verb__stack, .verb__label, .verb__hint) {
+    background: transparent !important;
+  }
+}
+
+/* Holdings rows retain their light title within a paper modal. */
+.sheet.sheet--document .rail-holding-row .rail-directory__copy > strong { color: var(--chrome-bone) !important; }
+
+/* Run history uses readable paper labels rather than embossed chrome text. */
+.sheet.sheet--document .run-history .run-history__context {
+  margin: 0 0 14px; color: var(--doc-ink) !important; font-size: 13px; line-height: 1.4;
+}
+.sheet.sheet--document .run-history .settlement-delta .label,
+.sheet.sheet--document .run-history .run-ledger-quarter > h3 {
+  color: var(--doc-ink-strong) !important; font-size: 14px; line-height: 1.35;
+  text-shadow: none !important;
+}
+.sheet.sheet--document .run-history .cause-chip {
+  font-size: 12px; line-height: 1.35; letter-spacing: 0; text-transform: none;
+  text-shadow: none !important;
+}
+
+.card .verb--food :is(.verb__hint, .verb__reason) { white-space: normal !important; overflow: visible; text-overflow: clip; }
+/* A multi-move opponent receipt is a readable list, not a clipped ticker. */
+.settlement-presenter__lines li[data-ledger-line="rival"] { height: auto; align-items: start; }
+.settlement-presenter__lines li[data-ledger-line="rival"] .value,
+.settlement-presenter__lines li[data-ledger-line="rival"] .settlement-presenter__segments > span {
+  white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: normal; line-height: 1.35;
+}
+
+/* Active quarter receipt only. The invoice is the one scrollport so Total
+   and Continue stay reachable when the paper is taller than the viewport. */
+.settlement-presenter {
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.settlement-presenter > .settlement-presenter__binder {
+  box-sizing: border-box;
+  width: min(520px, 100%);
+  max-width: 100%;
+  max-height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+.settlement-presenter > .settlement-presenter__binder > .settlement-presenter__sheet--invoice {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  max-height: calc(100dvh - 64px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* People uses the space remaining above the footer; only its body scrolls. */
+.game .rail:has([data-rail-panel="people"]) {
+  display: flex; flex-direction: column;
+  height: calc(100dvh - var(--bar-h) - var(--act-h) - 24px);
+  max-height: calc(100dvh - var(--bar-h) - var(--act-h) - 24px);
+  overflow: hidden !important;
+}
+.game .rail:has([data-rail-panel="people"]) .rail__pin { flex: 0 0 auto; }
+.game .rail:has([data-rail-panel="people"]) .rail__scroll {
+  flex: 1 1 auto !important; min-height: 0; overflow: hidden !important;
+}
+.game .rail [data-rail-panel="people"] { flex: 1 1 auto !important; min-height: 0; }
+.game .rail [data-rail-panel="people"] > header { flex: 0 0 auto; }
+.game .rail [data-rail-panel="people"] > .body {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto;
+  overscroll-behavior-y: contain; scrollbar-gutter: stable;
+}
+.game .rail [data-rail-panel="people"] .rail-directory--people { flex: 0 0 auto; }
+
+/* Compact deed paper patches do not belong under civic steel-plate text. */
+@media (max-width: 860px) {
+  :where(:root[data-phone-hud="0"]) .game .card.card--civic.card--deed.card--instrument[data-civic-id]
+  .civic-sheet :is(.card__identity-copy .card__title, .card__identity-copy .card__sub, .card__section .row > .label) {
+    background: transparent !important;
+    text-shadow: none !important;
+  }
+}
+
+/* Whole-building commitment: the ribbon's dark well must not replace its primary face. */
+.game.has-card > .card.card--instrument.card--deed[data-parcel-id][data-folder-page]
+.renovation-ribbon-row > .verb[data-verb="renovate"].verb--primary:not(:disabled):not(.verb--blocked):not([aria-disabled="true"]) {
+  background: linear-gradient(180deg, var(--amber-hot), var(--chrome-amber) 62%, var(--brass-dim)) !important;
+  border-color: var(--brass-dim) !important;
+  border-top-color: var(--amber-hot) !important;
+  border-bottom-color: var(--chrome-paper-ink) !important;
+  box-shadow: var(--chrome-bevel), var(--chrome-shadow-1) !important;
+  color: var(--chrome-paper-ink) !important;
+}
+.game.has-card > .card.card--instrument.card--deed[data-parcel-id][data-folder-page]
+.renovation-ribbon-row > .verb[data-verb="renovate"].verb--primary:not(:disabled):not(.verb--blocked):not([aria-disabled="true"])
+:is(.verb__stack, .verb__label, .verb__hint, .verb__risk, .verb__reason) {
+  color: var(--chrome-paper-ink) !important;
+  background: transparent !important;
+  text-shadow: none !important;
+}
+
+.card .verb--walk-quote .verb__hint {
+  display: block; -webkit-line-clamp: unset; white-space: normal !important;
+  overflow: visible; text-overflow: clip;
+}
+
+/* Compact outer deed scrolls; its content-sized Works tab must not trap the wheel. */
+@media (max-width: 860px) {
+  :where(:root[data-phone-hud="0"]) .card.card--deed.card--instrument[data-works-page="rooms"] [data-card-panel="works"] {
+    overscroll-behavior-y: auto;
+  }
+}
+/* Room illustration captions have independent title/status lines at every width. */
+.card.card--deed[data-works-page="rooms"] .room-preview-rail {
+  max-height: none !important;
+  overflow: visible;
+}
+.card.card--deed[data-works-page="rooms"] .room-preview-rail__caption {
+  flex-direction: column !important;
+  align-items: stretch;
+  gap: 4px;
+  line-height: 1.35 !important;
+}
+.card.card--deed[data-works-page="rooms"] .room-preview-rail__caption :is(strong, [data-room-preview-sub]) {
+  display: block !important;
+  min-width: 0;
+  white-space: normal !important;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/* Lease offers: identity/facts above a full-width action in the narrow deed. */
+.game > .card.card--deed [data-tenant-quality-sheet] > .tenant-sheet__row {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+  gap: 8px;
+  padding-block: 10px;
+}
+.game > .card.card--deed [data-tenant-quality-sheet] > .tenant-sheet__row > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.game > .card.card--deed [data-tenant-quality-sheet] > .tenant-sheet__row > .verb {
+  width: 100%;
+  box-sizing: border-box;
+  height: auto;
+  min-height: 48px;
+}
+.game > .card.card--deed [data-tenant-quality-sheet] > .tenant-sheet__row > .verb .verb__stack {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.game > .card.card--deed [data-tenant-quality-sheet] > .tenant-sheet__row :is(strong, span, small) {
+  white-space: normal !important;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  overflow: visible;
+  text-overflow: clip;
+  -webkit-line-clamp: unset;
+  line-height: 1.35;
+}
+
+/* Prop identity: one quiet hint, outside campaign/financial docket ownership. */
+.prop-hint {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--act-h, 108px) + 12px);
+  transform: translateX(-50%);
+  z-index: 50;
+  max-width: min(320px, calc(100vw - 32px));
+  padding: 7px 12px;
+  border: 1px solid var(--v4-line);
+  border-radius: var(--chrome-radius-1);
+  background: var(--mat-carbon);
+  color: var(--v4-text);
+  font: 600 13px/1.35 var(--display);
+  white-space: normal;
+  overflow-wrap: break-word;
+  pointer-events: none;
+}
+.prop-hint[data-rejected="true"] { border-color: var(--loss); }
+
+/* Stack the district and seasonal conditions within the existing status well. */
+@media (min-width: 861px) {
+  .game .status-place {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: var(--chrome-space-1);
+    width: 100%;
+  }
+  .game .status-place > span {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+/* Keep every command and financial readout within the desktop field desk.
+   Intermediate widths use a second row before the separate mobile layout. */
+@media (min-width: 861px) and (max-width: 1799px) {
+  .game {
+    --chrome-lead-w: 108px;
+    --chrome-stat-w: 88px;
+    --chrome-place-min-w: 200px;
+    --chrome-place-max-w: 200px;
+  }
+  .game .statusbar,
+  .game .statusbar:has(.status-row--ticker),
+  .game .statusbar__deck { width: 100%; }
+  .game .status-row--run .stat--brand { display: none; }
+  .game .status-row--run > .stat--quarter,
+  .game .status-row--run > .stat--works {
+    flex: 0 0 76px;
+    min-width: 76px;
+    max-width: 76px;
+  }
+  .game .status-row--run > .stat--works { display: grid; }
+  .game .status-row--run > .stat--actions {
+    flex: 0 0 84px;
+    min-width: 84px;
+    max-width: 84px;
+  }
+  .game .statusbar__cassette {
+    flex: 0 0 420px;
+    width: 420px;
+    min-width: 0;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+@media (min-width: 861px) and (max-width: 1599px) {
+  .game .status-row--place { display: none; }
+}
+@media (min-width: 861px) and (max-width: 1399px) {
+  .game {
+    --chrome-status-h: calc(2 * var(--chrome-status-module-h) + 8px);
+    --bar-h: var(--chrome-status-h);
+  }
+  .game .statusbar__deck {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) repeat(2, var(--chrome-lead-w)) repeat(3, var(--chrome-stat-w));
+    grid-template-rows: repeat(2, var(--chrome-status-module-h));
+    align-items: stretch;
+    gap: 4px;
+    padding-bottom: 4px;
+  }
+  .game .status-row--run { grid-column: 1; grid-row: 1; }
+  .game .statusbar .stat--qbeat { display: none; }
+  .game .status-row--place {
+    display: flex;
+    grid-column: 1;
+    grid-row: 2;
+    min-width: 0;
+    width: 100%;
+    max-width: none;
+  }
+  .game .status-row--money { display: contents; }
+  .game .status-row--money > .stat--counter {
+    grid-row: 1;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+  .game .statusbar__cassette {
+    grid-row: 2;
+    grid-column: 2 / 7;
+    width: auto;
+    margin-right: 60px;
+  }
+  .game .status-row--money > .stat--help {
+    grid-row: 2;
+    grid-column: 6;
+    justify-self: end;
+  }
+}
+
+/* A narrow desktop parcel desk keeps its subject between both panels. Reuse
+   the tablet binder's two-row identity; other card types retain their seats. */
+@media (min-width: 861px) and (max-width: 1079px) {
+  :where(:root:not([data-phone-hud="1"])) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page] {
+    width: 320px;
+    scroll-padding-block-start: calc(2 * var(--chrome-control-h));
+  }
+  :where(:root:not([data-phone-hud="1"])) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page] > .deed-binder {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 32px;
+    gap: 4px;
+    height: auto;
+    padding: 5px;
+  }
+  :where(:root:not([data-phone-hud="1"])) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page] > .deed-binder .deed-tab {
+    grid-column: 1;
+    min-width: 0;
+    min-height: 26px;
+  }
+  :where(:root:not([data-phone-hud="1"])) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page] > .deed-binder .card__band {
+    grid-column: 1;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px;
+    min-height: 26px;
+    padding: 4px;
+  }
+  :where(:root:not([data-phone-hud="1"])) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page] > .deed-binder .card__band-district { white-space: normal; overflow: visible; }
+  :where(:root:not([data-phone-hud="1"])) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page] > .deed-binder .card__band-parcel { display: none; }
+  :where(:root:not([data-phone-hud="1"])) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page] > .deed-binder > .card__close {
+    position: relative;
+    inset: auto !important;
+    grid-column: 2;
+    grid-row: 1 / 3;
+    align-self: start;
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Desktop tool glyphs need their own intrinsic-height track; square buttons
+   shrink that track as the five unequal rail columns get narrower. */
+@media (min-width: 861px) {
+  .game .rail-tools > .rail-tool {
+    aspect-ratio: auto;
+    grid-template-rows: calc(var(--chrome-icon-well-w) - var(--chrome-space-2) + 2px) var(--chrome-label-h);
+    row-gap: 3px;
+  }
+}
+
+/* Compact commit controls grow with the complete Bank explanation. */
+@media (max-width: 860px) {
+  :where(:root[data-phone-hud="0"]) .game .actionbar--fab .settle-fab__buttons > .verb {
+    height: auto;
+  }
+  :where(:root[data-phone-hud="0"]) .game .actionbar--fab .verb--fab-bank .verb__reason {
+    max-height: none;
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+    white-space: normal !important;
+    line-height: 1.25 !important;
+    text-overflow: clip;
+  }
+}
+
+/* The Property overview leaves more of the selected building visible.
+   Keep the full quote, legal actions and ordinary card scroll; Works/Books
+   and auction layouts retain their existing space. */
+@media (min-width: 640px) {
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] {
+    --v4-overview-width: 380px;
+    width: var(--v4-overview-width) !important;
+    bottom: auto !important;
+    height: auto !important;
+    max-height: calc(100dvh - var(--bar-h) - var(--act-h) - 28px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    scrollbar-width: thin;
+    scrollbar-gutter: stable;
+    scrollbar-color: var(--v4-line) var(--v4-surface-deep);
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] > [data-card-panel="sheet"] {
+    flex: 0 0 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 8px;
+    border: 0;
+    box-shadow: none !important;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] .card__identity {
+    flex: 0 0 auto !important;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] .card__identity-grid {
+    grid-template-columns: minmax(0, 1fr) 64px;
+    gap: 8px;
+    align-items: center;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] .card__identity-grid--plate {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] .card__identity-copy {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] .card__title {
+    font-size: 18px !important;
+    line-height: 1.15 !important;
+    letter-spacing: .02em !important;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] :is(.deed-polaroid, .deed-plate) {
+    width: 64px;
+    min-width: 64px;
+    padding: 0;
+    border: 0;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] .deed-plate--wide {
+    width: 100%;
+    min-width: 0;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] :is(.deed-polaroid, .deed-plate) img {
+    height: 48px;
+    background: transparent !important;
+    box-shadow: none;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] .card__lead-cost {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 10px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] .card__lead-cost-line {
+    grid-template-rows: auto auto;
+    gap: 3px;
+    padding: 6px 8px;
+    min-height: 48px;
+    box-shadow: none;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] .card__lead-cost :is(.value, .value--flap, .money) {
+    font-size: 18px !important;
+    line-height: 1.1 !important;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] [data-acquisition-disclosure] {
+    display: block;
+    grid-column: 1 / -1;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 6px 0 2px;
+    overflow: visible !important;
+    white-space: normal !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    letter-spacing: 0 !important;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] .card__actions--fixed {
+    padding: 8px 0 0;
+    border: 0;
+    border-top: 1px solid var(--v4-line);
+    background: transparent;
+    box-shadow: none;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] .card__actions .verb {
+    height: auto !important;
+    min-height: 48px !important;
+    max-height: none !important;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] .card__actions .verb :is(.verb__stack, .verb__hint, .verb__reason, .verb__risk) {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    white-space: normal !important;
+    -webkit-line-clamp: unset;
+  }
+}
+@media (min-width: 640px) and (max-width: 860px) {
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] { --v4-overview-width: 328px; }
+  /* Keep actions after the full quote in the existing outer scrollport. */
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"]
+    > [data-card-panel="sheet"] > .card__actions--fixed {
+    position: static;
+  }
+}
+@media (min-width: 861px) and (max-width: 1079px) {
+  :where(:root:not([data-phone-hud="1"])) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] { --v4-overview-width: 320px; }
+}
+
+/* Narrow Property headers keep parcel identity and Close on the first row.
+   The full planning zone and ownership status share a second full-width row. */
+@media (min-width: 640px) {
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] {
+    scroll-padding-block-start: calc(2 * var(--chrome-control-h));
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] > .deed-binder {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 32px;
+    gap: 4px;
+    flex: 0 0 auto;
+    height: auto;
+    min-height: 0;
+    padding: 5px;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] > .deed-binder .deed-tab {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+    min-height: 32px;
+    flex-wrap: wrap;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] > .deed-binder .deed-tab__suburb {
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.25 !important;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] > .deed-binder .card__band {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px;
+    min-width: 0;
+    min-height: 26px;
+    padding: 4px;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] > .deed-binder .card__band-district {
+    display: block;
+    width: auto;
+    min-width: 0;
+    max-width: 100%;
+    height: auto;
+    min-height: var(--chrome-label-h);
+    white-space: normal;
+    overflow: visible;
+    overflow-wrap: anywhere;
+    line-height: 1.25 !important;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] > .deed-binder .card__band-parcel {
+    display: none;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] > .deed-binder .card__band-ribbon {
+    min-width: max-content;
+    justify-self: end;
+    white-space: nowrap;
+  }
+  :where(:root[data-phone-hud="0"]) .game.has-card:not(:has(.auction-rail)) > .card.card--instrument.card--deed[data-parcel-id][data-folder-page="sheet"] > .deed-binder > .card__close {
+    position: relative;
+    inset: auto !important;
+    grid-column: 2;
+    grid-row: 1;
+    align-self: start;
+    width: 32px;
+    height: 32px;
+    color: transparent !important;
+    font-size: 0 !important;
+  }
+}
+/* Sound preferences share the help sheet and preserve the board's toolbar space. */
+.sound-settings { margin: 12px 0; padding: 14px; border: 1px solid var(--v4-line, #685a40); border-radius: 4px; }
+.sound-settings legend { padding: 0 8px; font-weight: 700; }
+.sound-settings label { display: flex; align-items: center; gap: 12px; min-height: 44px; }
+.sound-settings label > input[type="range"] { flex: 1; min-width: 80px; accent-color: #d8a24a; }
+.sound-settings input[type="checkbox"] { width: 20px; height: 20px; accent-color: #d8a24a; }
+.sound-settings output { width: 3.5em; text-align: right; font-variant-numeric: tabular-nums; }
+.sound-settings small { margin-left: auto; opacity: .7; }
+.sound-settings p { margin: 8px 0 0; font-size: 12px; line-height: 1.5; }
+.online-status { padding: 12px; border: 1px solid var(--v4-line); border-radius: 4px; background: var(--v4-surface-deep); color: var(--v4-text); margin: 0 0 8px; }
+.online-status > div { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; }
+.online-status p { font-size: 12px; line-height: 1.4; margin: 8px 0; }
+.online-status button, .online-plan + p ~ button { min-height: 36px; padding: 6px 12px; border: 1px solid var(--v4-line); background: var(--v4-surface); color: var(--v4-text); cursor: pointer; }
+.online-status button + button { margin-left: 6px; }
+.online-plan { padding-left: 24px; line-height: 1.8; }
+.cybercab-launch { display: block; width: 100%; min-height: 38px; margin-top: 8px; padding: 8px 12px; border: 1px solid #807255; border-radius: 4px; color: #ebd4a4; background: #19282b; font: 600 12px/1.4 "DD Body",sans-serif; text-align: left; cursor: pointer; }
+.cybercab-launch:hover { background: #334543; }
+.cybercab-launch:focus-visible { outline: 3px solid #edce99; outline-offset: 2px; }
+.mobile-cycle-strip .cybercab-launch { width: auto; margin: 0; white-space: nowrap; }
+.cybercab--quarterly { color: #e8e8dc; background: #17262b; border-color: #a99166; font-size: 17px; padding: 24px; }
+.cybercab--quarterly h2 { font-size: 32px; text-transform: none; }
+.cybercab--quarterly h3 { font-size: 23px; }
+.cybercab--quarterly h3 span { font-size: 16px; }
+.cybercab--quarterly .cybercab__eyebrow { margin: 0 0 4px; color: #bba57c; font-size: 11px; letter-spacing: .15em; }
+.cybercab--quarterly section { border-color: #4d605f; }
+.cybercab--quarterly .cybercab__how { color: #bececb; border-color: #4d605f; font-size: 15px; }
+.cybercab--quarterly button { font-size: 16px; border-color: #8d8065; color: #e7ddc6; background: #24383c; }
+.cybercab--quarterly button:disabled { text-decoration: none; color: #92a3a2; border-color: #465958; background: #1a2b2e; }
+.cybercab--quarterly .cybercab__command { display: grid; grid-template-columns: 220px 1fr; align-items: center; gap: 24px; margin: 18px 0; background: #23383a; border-color: #9d8c67; }
+.cybercab--quarterly .cybercab__command h3 { margin-bottom: 8px; }
+.cybercab__progress { display: flex; gap: 6px; }
+.cybercab__progress span { width: 32px; height: 30px; display: grid; place-items: center; border: 1px solid #83908a; color: #bed0ca; font-size: 14px; }
+.cybercab__progress .is-complete { background: #c0a474; color: #17262b; border-color: #c0a474; }
+.cybercab--quarterly [data-cab-next] { background: #d6b87e; border-color: #d6b87e; color: #15262a; font-size: 20px; min-height: 46px; padding: 10px 20px; }
+.cybercab--quarterly [data-cab-next]:disabled { background: #3c4d47; color: #bcc8be; border-color: #738177; }
+.cybercab__command p { color: #c4d3cd; font-size: 15px; }
+.cybercab__summary { display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 18px; margin-bottom: 18px; }
+.cybercab__summary > div { padding: 4px 16px; border-left: 2px solid #657773; }
+.cybercab__summary span, .cybercab__summary small { display: block; color: #b5c5be; font-size: 13px; }
+.cybercab__summary strong { display: block; font: 30px/1.4 "DD Display",sans-serif; color: #ebd4a4; }
+.cybercab__summary .cybercab__fare { display: block; color: #b5c5be; font-size: 13px; margin: 0; }
+.cybercab__summary .cybercab__fare strong { font-size: 30px; }
+.cybercab__fleet-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+.cybercab--quarterly .cybercab__cab { padding: 14px; border: 1px solid #4d605f; background: #1d3034; margin: 0; }
+.cybercab--quarterly .cybercab__cab-head { margin-bottom: 10px; }
+.cybercab--quarterly .cybercab__thumb { width: 66px; height: 34px; color: #d8bf8f; }
+.cybercab--quarterly .cybercab__bar { font-size: 15px; grid-template-columns: 75px 1fr 42px; margin: 6px 0; }
+.cybercab__routes, .cybercab__service-row { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; margin-top: 14px; }
+.cybercab--quarterly .cybercab__routes button, .cybercab--quarterly .cybercab__service-row button { min-height: 38px; padding: 7px 4px; font-size: 14px; }
+.cybercab--quarterly .cybercab__routes button:disabled { color: #92a3a2; border-color: #465958; background: #1a2b2e; }
+.cybercab--quarterly .cybercab__routes button.is-selected { color: #17262b; border-color: #e7c98a; background: #e7c98a; font-weight: 700; }
+.cybercab__plan { margin: 0 0 16px; padding: 12px 14px; border: 1px solid #4d605f; background: #1d3034; min-width: 0; }
+.cybercab__plan h3 { margin: 0 0 8px; font-size: 18px; }
+.cybercab__plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cybercab__plan article { min-width: 0; padding: 8px 10px; border-left: 2px solid #c0a474; }
+.cybercab__plan h4 { margin: 0; color: #dfc596; font-size: 14px; }
+.cybercab__plan-metric { margin: 2px 0; }
+.cybercab__plan-metric strong { font: 26px/1.1 "DD Display", sans-serif; color: #ebd4a4; }
+.cybercab__plan-metric span, .cybercab__plan p { color: #b8c8c0; font-size: 13px; }
+.cybercab--quarterly .cybercab__routes button { min-height: 44px; }
+.cybercab__maintenance-note { color: #b8c8c0; font-size: 14px; padding-top: 12px; }
+.cybercab--quarterly .cybercab__procurement { margin: 14px 0; }
+.cybercab__procurement > div { display: flex; gap: 10px; flex-wrap: wrap; }
+.cybercab--quarterly details { border-top: 1px solid #4d605f; padding: 10px 0; margin: 0; }
+.cybercab--quarterly summary { color: #dfc596; cursor: pointer; min-height: 32px; font-size: 18px; }
+.cybercab__book-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; font-size: 15px; }
+.cybercab--quarterly .cybercab__incidents { max-height: none; overflow: visible; }
+@media(max-width:850px) { .cybercab--quarterly { padding: 18px; }.cybercab__summary { gap: 8px; }.cybercab__summary > div { padding: 4px 8px; }.cybercab__summary strong,.cybercab__summary .cybercab__fare strong { font-size: 25px; }.cybercab--quarterly .cybercab__command { grid-template-columns: 170px 1fr; gap: 14px; }.cybercab__fleet-list { gap: 12px; } }
+@media(max-width:640px) { .cybercab--quarterly { width: calc(100vw - 16px); padding: 14px; }.cybercab--quarterly h2 { font-size: 26px; }.cybercab__fleet-list,.cybercab__book-grid,.cybercab__plan-grid { grid-template-columns: 1fr; }.cybercab--quarterly .cybercab__command { grid-template-columns: 1fr; gap: 12px; }.cybercab--quarterly .cybercab__command > div:first-child { display: flex; align-items: center; justify-content: space-between; gap: 10px; }.cybercab--quarterly .cybercab__command h3 { margin: 0; }.cybercab__summary { grid-template-columns: 1fr; gap: 8px; }.cybercab__summary > div { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }.cybercab__summary small { width: 100%; }.cybercab__summary strong,.cybercab__summary .cybercab__fare strong { font-size: 24px; } }
+
+/* Online plan controls — confined to this modal's footer and ordered moves. */
+.sheet.sheet--document .online-plan { overflow-wrap: anywhere; }
+.sheet.sheet--document > .sheet__actions > .online-plan-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.sheet.sheet--document .online-plan-controls > button {
+  flex: 1 1 160px;
+  min-width: 0;
+  min-height: 44px;
+  margin: 0;
+  padding: 12px 18px;
+  border: 1px solid var(--v4-line);
+  border-radius: 4px;
+  background: var(--v4-surface) !important;
+  color: var(--v4-text) !important;
+  box-shadow: none !important;
+  font: 600 15px/1.3 "DD Body", system-ui, sans-serif;
+  text-align: center;
+  cursor: pointer;
+}
+.sheet.sheet--document .online-plan-controls > [data-online-commit]:not(:disabled) {
+  border-color: var(--v4-accent);
+  background: var(--v4-accent) !important;
+  color: var(--v4-surface-deep) !important;
+}
+.sheet.sheet--document .online-plan-controls > button:disabled {
+  background: var(--v4-surface-deep) !important;
+  color: var(--v4-muted) !important;
+  cursor: default;
+}
+.sheet.sheet--document .online-plan-controls > button:focus-visible {
+  outline: 3px solid var(--v4-accent);
+  outline-offset: 2px;
+}

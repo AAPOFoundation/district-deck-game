@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34">
+  <title>Sledgehammer</title>
+  <!-- Hotspot: 9 9, centred on the broad face. -->
+  <g id="wrecking-hammer">
+    <g id="hammer-handle" fill="none" stroke-linecap="square">
+      <path d="M12.5 12.3 29.5 29.3" stroke="#0c0b09" stroke-width="5.6"/>
+      <path d="M12.5 12.3 29.5 29.3" stroke="#f3b73c" stroke-width="2.8"/>
+      <path d="M25.4 25.2 29.5 29.3" stroke="#e9e3d5" stroke-width="1"/>
+    </g>
+    <g id="hammer-head" stroke="#0c0b09" stroke-linejoin="miter">
+      <path d="M3.1 4.8 6.2 2.4 15.2 3.5 14.6 5.7 3.1 4.8Z"
+            fill="#8a8378" stroke-width="1.8"/>
+      <path id="hammer-cheek" d="M14.6 5.7 18.1 7.6 17.7 14.6 14.1 13.5 14.6 5.7Z"
+            fill="#f3b73c" stroke-width="1.8"/>
+      <path id="hammer-face" d="M3.1 4.8 14.6 5.7 14.1 13.5 2.7 12.7 3.1 4.8Z"
+            fill="#e9e3d5" stroke-width="2"/>
+      <path d="M4.8 6.6 12.7 7.2 12.4 11.7 4.5 11.1 4.8 6.6Z"
+            fill="none" stroke="#8a8378" stroke-width="1"/>
+      <path d="M15.9 7.5 15.6 12.7" fill="none" stroke="#e9e3d5" stroke-width="1"/>
+    </g>
+  </g>
+  <g id="target-crosshair">
+    <circle cx="9" cy="9" r="1.5" fill="#f3b73c" stroke="#0c0b09" stroke-width="1"/>
+  </g>
+</svg>

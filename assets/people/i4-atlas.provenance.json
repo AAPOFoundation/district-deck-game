@@ -1,0 +1,785 @@
+{
+  "source": "mvp/_reviews/imagen/r3/people/people-likeness-sheet.png",
+  "sourceSHA256": "3080de014da81d04c1005b6706b5dfd8b6c632f47c6f6bd6668283a67c3e414e",
+  "atlasSHA256": "e88022ff7243f1588ade038b59971c1244fcb01c15912288b2e4792a9ebe2274",
+  "dimensions": [
+    1024,
+    1024
+  ],
+  "bytes": 228321,
+  "cells": [
+    {
+      "id": "suit",
+      "index": 0,
+      "sourceCrop": [
+        239,
+        16,
+        423,
+        522
+      ],
+      "frontPixels": [
+        4,
+        6,
+        162,
+        500
+      ],
+      "backPixels": [
+        4,
+        518,
+        162,
+        500
+      ],
+      "frontUV": [
+        0.00390625,
+        0.505859375,
+        0.158203125,
+        0.48828125
+      ],
+      "backUV": [
+        0.00390625,
+        0.005859375,
+        0.158203125,
+        0.48828125
+      ]
+    },
+    {
+      "id": "tradesperson",
+      "index": 1,
+      "sourceCrop": [
+        665,
+        10,
+        877,
+        524
+      ],
+      "frontPixels": [
+        174,
+        6,
+        162,
+        500
+      ],
+      "backPixels": [
+        174,
+        518,
+        162,
+        500
+      ],
+      "frontUV": [
+        0.169921875,
+        0.505859375,
+        0.158203125,
+        0.48828125
+      ],
+      "backUV": [
+        0.169921875,
+        0.005859375,
+        0.158203125,
+        0.48828125
+      ]
+    },
+    {
+      "id": "beach-goer",
+      "index": 2,
+      "sourceCrop": [
+        1059,
+        14,
+        1249,
+        518
+      ],
+      "frontPixels": [
+        344,
+        6,
+        162,
+        500
+      ],
+      "backPixels": [
+        344,
+        518,
+        162,
+        500
+      ],
+      "frontUV": [
+        0.3359375,
+        0.505859375,
+        0.158203125,
+        0.48828125
+      ],
+      "backUV": [
+        0.3359375,
+        0.005859375,
+        0.158203125,
+        0.48828125
+      ]
+    },
+    {
+      "id": "cyclist",
+      "index": 3,
+      "sourceCrop": [
+        229,
+        531,
+        405,
+        995
+      ],
+      "frontPixels": [
+        514,
+        6,
+        162,
+        500
+      ],
+      "backPixels": [
+        514,
+        518,
+        162,
+        500
+      ],
+      "frontUV": [
+        0.501953125,
+        0.505859375,
+        0.158203125,
+        0.48828125
+      ],
+      "backUV": [
+        0.501953125,
+        0.005859375,
+        0.158203125,
+        0.48828125
+      ]
+    },
+    {
+      "id": "parent-bag",
+      "index": 4,
+      "sourceCrop": [
+        665,
+        535,
+        867,
+        1014
+      ],
+      "frontPixels": [
+        684,
+        6,
+        162,
+        500
+      ],
+      "backPixels": [
+        684,
+        518,
+        162,
+        500
+      ],
+      "frontUV": [
+        0.66796875,
+        0.505859375,
+        0.158203125,
+        0.48828125
+      ],
+      "backUV": [
+        0.66796875,
+        0.005859375,
+        0.158203125,
+        0.48828125
+      ]
+    },
+    {
+      "id": "elder",
+      "index": 5,
+      "sourceCrop": [
+        1092,
+        532,
+        1270,
+        1016
+      ],
+      "frontPixels": [
+        854,
+        6,
+        162,
+        500
+      ],
+      "backPixels": [
+        854,
+        518,
+        162,
+        500
+      ],
+      "frontUV": [
+        0.833984375,
+        0.505859375,
+        0.158203125,
+        0.48828125
+      ],
+      "backUV": [
+        0.833984375,
+        0.005859375,
+        0.158203125,
+        0.48828125
+      ]
+    }
+  ],
+  "identityMap": {
+    "coat-bag": 4,
+    "suit": 0,
+    "cyclist": 3,
+    "child-backpack": 4,
+    "elder-cane": 5,
+    "hi-vis": 1,
+    "jogger": 3,
+    "summer-dress": 2,
+    "swimwear": 2
+  },
+  "method": "Deterministic connected-border grey chroma/luma removal (chroma<19, 105<meanRGB<173), largest component, hole fill, 0.65px feather; 162x500 cells, 4px gutter, 256-colour RGBA palette. Back mirrored and darkened 0.78; first 100px head replaced by crown colour modulation (helmet overrides), removing face. Source generated Imagen likeness sheet supplied by orchestrator; no new image generation.",
+  "reproductionScript": "from PIL import Image,ImageFilter,ImageOps\nimport numpy as np\nfrom scipy import ndimage\nfrom pathlib import Path\nimport hashlib,json\nsrc=Path('mvp/_reviews/imagen/r3/people/people-likeness-sheet.png'); out=Path('mvp/assets/people');out.mkdir(exist_ok=True)\nim=Image.open(src).convert('RGB'); atlas=Image.new('RGBA',(1024,1024)); cells=[]\nboxes=[(239,16,423,522),(665,10,877,524),(1059,14,1249,518),(229,531,405,995),(665,535,867,1014),(1092,532,1270,1016)]\nfor i,(name,box) in enumerate(zip(['suit','tradesperson','beach-goer','cyclist','parent-bag','elder'],boxes)):\n crop=im.crop(box); a=np.asarray(crop).astype(float); lum=a.mean(2); chroma=a.max(2)-a.min(2)\n bg=(chroma<19)&(lum>105)&(lum<173)\n # Only remove grey connected to the crop boundary, preserving neutral fabric interiors.\n seed=np.zeros(bg.shape,bool);seed[0]=bg[0];seed[-1]=bg[-1];seed[:,0]=bg[:,0];seed[:,-1]=bg[:,-1]\n bg=ndimage.binary_propagation(seed,mask=bg); mask=ndimage.binary_fill_holes(~bg)\n labels,n=ndimage.label(mask); sizes=np.bincount(labels.ravel());sizes[0]=0;mask=labels==sizes.argmax()\n alpha=Image.fromarray((mask*255).astype('uint8')).filter(ImageFilter.GaussianBlur(.65));crop.putalpha(alpha)\n # Tight crop scaled into inset cells; retain RGB beneath alpha for mipmap edges.\n crop=crop.resize((162,500),Image.Resampling.LANCZOS)\n back=ImageOps.mirror(crop); b=np.array(back); b[:,:,:3]=(b[:,:,:3]*.78).astype('uint8')\n # Replace the entire head/face band with spatially varying crown colour: no mirrored face.\n crown=np.median(np.asarray(crop)[8:32,60:103,:3].reshape(-1,3),axis=0)\n if name=='tradesperson': crown=np.array([157,146,123])\n if name=='cyclist': crown=np.array([123,129,130])\n for y in range(100):\n  b[y,:,:3]=np.clip(crown*(.72+.18*np.cos((np.arange(162)-81)/81))[:,None],0,255)\n back=Image.fromarray(b)\n x=i*170+4\n atlas.paste(crop,(x,6));atlas.paste(back,(x,518))\n cells.append({'id':name,'index':i,'sourceCrop':box,'frontPixels':[x,6,162,500],'backPixels':[x,518,162,500],'frontUV':[x/1024,518/1024,162/1024,500/1024],'backUV':[x/1024,6/1024,162/1024,500/1024]})\n# Palette PNG retains feathered alpha and stays below the one MiB budget.\natlas.quantize(colors=256,method=Image.Quantize.FASTOCTREE).save(out/'i4-atlas.png',optimize=True)\nmeta={'source':str(src),'sourceSHA256':hashlib.sha256(src.read_bytes()).hexdigest(),'atlasSHA256':hashlib.sha256((out/'i4-atlas.png').read_bytes()).hexdigest(),'dimensions':[1024,1024],'bytes':(out/'i4-atlas.png').stat().st_size,'cells':cells,'identityMap':{'coat-bag':4,'suit':0,'cyclist':3,'child-backpack':4,'elder-cane':5,'hi-vis':1,'jogger':3,'summer-dress':2,'swimwear':2},'method':'Deterministic connected-border grey chroma/luma removal (chroma<19, 105<meanRGB<173), largest component, hole fill, 0.65px feather; 162x500 cells, 4px gutter, 256-colour RGBA palette. Back mirrored and darkened 0.78; first 100px head replaced by crown colour modulation (helmet overrides), removing face. Source generated Imagen likeness sheet supplied by orchestrator; no new image generation.','reproductionScript':Path('/tmp/p23-human-photo-r2/build-atlas.py').read_text()}\n(out/'i4-atlas.provenance.json').write_text(json.dumps(meta,indent=2)+'\\n')\nprint(meta['bytes'])\n",
+  "projectionRegions": [
+    {
+      "head": [
+        0.33179,
+        0.8035,
+        0.16358,
+        0.165
+      ],
+      "hair": [
+        0.319444,
+        0.9315,
+        0.182099,
+        0.039
+      ],
+      "chest": [
+        0.516975,
+        0.5415,
+        0.237654,
+        0.195
+      ],
+      "pelvis": [
+        0.319444,
+        0.4015,
+        0.33642,
+        0.117
+      ],
+      "upperArmL": [
+        0.152778,
+        0.5975,
+        0.108025,
+        0.161
+      ],
+      "upperArmR": [
+        0.782407,
+        0.5315,
+        0.089506,
+        0.227
+      ],
+      "forearmL": [
+        0.20216,
+        0.4815,
+        0.021605,
+        0.097
+      ],
+      "forearmR": [
+        0.782407,
+        0.5095,
+        0.089506,
+        0.069
+      ],
+      "thighL": [
+        0.381173,
+        0.3475,
+        0.101852,
+        0.111
+      ],
+      "thighR": [
+        0.572531,
+        0.2595,
+        0.064815,
+        0.199
+      ],
+      "shinL": [
+        0.41821,
+        0.0875,
+        0.040123,
+        0.125
+      ],
+      "shinR": [
+        0.578704,
+        0.1695,
+        0.12037,
+        0.085
+      ],
+      "footL": [
+        0.313272,
+        0.0235,
+        0.132716,
+        0.059
+      ],
+      "footR": [
+        0.41821,
+        0.0495,
+        0.064815,
+        0.033
+      ],
+      "gear": [
+        0.368827,
+        0.5415,
+        0.311728,
+        0.103
+      ]
+    },
+    {
+      "head": [
+        0.387346,
+        0.8015,
+        0.237654,
+        0.155
+      ],
+      "hair": [
+        0.405864,
+        0.9315,
+        0.194444,
+        0.035
+      ],
+      "chest": [
+        0.350309,
+        0.4815,
+        0.237654,
+        0.301
+      ],
+      "pelvis": [
+        0.33179,
+        0.4015,
+        0.398148,
+        0.117
+      ],
+      "upperArmL": [
+        0.208333,
+        0.6075,
+        0.052469,
+        0.151
+      ],
+      "upperArmR": [
+        0.782407,
+        0.6255,
+        0.089506,
+        0.133
+      ],
+      "forearmL": [
+        0.140432,
+        0.5175,
+        0.027778,
+        0.061
+      ],
+      "forearmR": [
+        0.813272,
+        0.4375,
+        0.058642,
+        0.141
+      ],
+      "thighL": [
+        0.33179,
+        0.2515,
+        0.151235,
+        0.207
+      ],
+      "thighR": [
+        0.572531,
+        0.2315,
+        0.089506,
+        0.227
+      ],
+      "shinL": [
+        0.344136,
+        0.1515,
+        0.12037,
+        0.095
+      ],
+      "shinR": [
+        0.578704,
+        0.1775,
+        0.126543,
+        0.091
+      ],
+      "footL": [
+        0.300926,
+        0.0595,
+        0.064815,
+        0.029
+      ],
+      "footR": [
+        0.103395,
+        0.0195,
+        0.101852,
+        0.053
+      ],
+      "gear": [
+        0.313272,
+        0.5475,
+        0.33642,
+        0.151
+      ]
+    },
+    {
+      "head": [
+        0.473765,
+        0.8015,
+        0.200617,
+        0.147
+      ],
+      "hair": [
+        0.412037,
+        0.9315,
+        0.243827,
+        0.027
+      ],
+      "chest": [
+        0.412037,
+        0.5815,
+        0.243827,
+        0.227
+      ],
+      "pelvis": [
+        0.319444,
+        0.4755,
+        0.410494,
+        0.043
+      ],
+      "upperArmL": [
+        0.214506,
+        0.5315,
+        0.046296,
+        0.139
+      ],
+      "upperArmR": [
+        0.800926,
+        0.5315,
+        0.070988,
+        0.227
+      ],
+      "forearmL": [
+        0.134259,
+        0.4575,
+        0.089506,
+        0.121
+      ],
+      "forearmR": [
+        0.837963,
+        0.4115,
+        0.033951,
+        0.167
+      ],
+      "thighL": [
+        0.424383,
+        0.3755,
+        0.058642,
+        0.083
+      ],
+      "thighR": [
+        0.572531,
+        0.2315,
+        0.095679,
+        0.181
+      ],
+      "shinL": [
+        0.430556,
+        0.0715,
+        0.033951,
+        0.027
+      ],
+      "shinR": [
+        0.584877,
+        0.0715,
+        0.12037,
+        0.191
+      ],
+      "footL": [
+        0.430556,
+        0.0635,
+        0.040123,
+        0.025
+      ],
+      "footR": [
+        0.572531,
+        0.0315,
+        0.157407,
+        0.057
+      ],
+      "gear": [
+        0.313272,
+        0.5815,
+        0.342593,
+        0.111
+      ]
+    },
+    {
+      "head": [
+        0.399691,
+        0.8995,
+        0.25,
+        0.065
+      ],
+      "hair": [
+        0.368827,
+        0.9315,
+        0.280864,
+        0.033
+      ],
+      "chest": [
+        0.313272,
+        0.5895,
+        0.287037,
+        0.187
+      ],
+      "pelvis": [
+        0.319444,
+        0.4015,
+        0.361111,
+        0.117
+      ],
+      "upperArmL": [
+        0.152778,
+        0.6975,
+        0.108025,
+        0.061
+      ],
+      "upperArmR": [
+        0.763889,
+        0.5315,
+        0.108025,
+        0.139
+      ],
+      "forearmL": [
+        0.134259,
+        0.4355,
+        0.015432,
+        0.143
+      ],
+      "forearmR": [
+        0.782407,
+        0.4375,
+        0.064815,
+        0.141
+      ],
+      "thighL": [
+        0.350309,
+        0.3675,
+        0.132716,
+        0.091
+      ],
+      "thighR": [
+        0.572531,
+        0.2315,
+        0.12037,
+        0.227
+      ],
+      "shinL": [
+        0.436728,
+        0.0715,
+        0.027778,
+        0.035
+      ],
+      "shinR": [
+        0.578704,
+        0.1815,
+        0.126543,
+        0.087
+      ],
+      "footL": [
+        0.442901,
+        0.0155,
+        0.027778,
+        0.073
+      ],
+      "footR": [
+        0.572531,
+        0.0395,
+        0.040123,
+        0.049
+      ],
+      "gear": [
+        0.313272,
+        0.5895,
+        0.29321,
+        0.109
+      ]
+    },
+    {
+      "head": [
+        0.412037,
+        0.8015,
+        0.268519,
+        0.133
+      ],
+      "hair": [
+        0.337963,
+        0.9315,
+        0.243827,
+        0.033
+      ],
+      "chest": [
+        0.41821,
+        0.4815,
+        0.20679,
+        0.327
+      ],
+      "pelvis": [
+        0.319444,
+        0.4415,
+        0.410494,
+        0.067
+      ],
+      "upperArmL": [
+        0.158951,
+        0.5735,
+        0.089506,
+        0.153
+      ],
+      "upperArmR": [
+        0.763889,
+        0.6915,
+        0.108025,
+        0.067
+      ],
+      "forearmL": [
+        0.134259,
+        0.5295,
+        0.052469,
+        0.049
+      ],
+      "forearmR": [
+        0.78858,
+        0.4515,
+        0.064815,
+        0.123
+      ],
+      "thighL": [
+        0.337963,
+        0.2315,
+        0.083333,
+        0.227
+      ],
+      "thighR": [
+        0.671296,
+        0.3015,
+        0.052469,
+        0.157
+      ],
+      "shinL": [
+        0.362654,
+        0.1535,
+        0.101852,
+        0.115
+      ],
+      "shinR": [
+        0.640432,
+        0.1795,
+        0.064815,
+        0.057
+      ],
+      "footL": [
+        0.300926,
+        0.0655,
+        0.145062,
+        0.023
+      ],
+      "footR": [
+        0.41821,
+        0.0715,
+        0.046296,
+        0.017
+      ],
+      "gear": [
+        0.375,
+        0.5015,
+        0.25,
+        0.197
+      ]
+    },
+    {
+      "head": [
+        0.387346,
+        0.8015,
+        0.268519,
+        0.115
+      ],
+      "hair": [
+        0.473765,
+        0.9315,
+        0.126543,
+        0.039
+      ],
+      "chest": [
+        0.282407,
+        0.4875,
+        0.466049,
+        0.321
+      ],
+      "pelvis": [
+        0.54784,
+        0.4015,
+        0.182099,
+        0.117
+      ],
+      "upperArmL": [
+        0.152778,
+        0.5315,
+        0.108025,
+        0.227
+      ],
+      "upperArmR": [
+        0.763889,
+        0.5315,
+        0.108025,
+        0.227
+      ],
+      "forearmL": [
+        0.134259,
+        0.4975,
+        0.089506,
+        0.081
+      ],
+      "forearmR": [
+        0.782407,
+        0.4475,
+        0.070988,
+        0.131
+      ],
+      "thighL": [
+        0.33179,
+        0.3755,
+        0.145062,
+        0.083
+      ],
+      "thighR": [
+        0.584877,
+        0.3635,
+        0.138889,
+        0.095
+      ],
+      "shinL": [
+        0.344136,
+        0.1915,
+        0.083333,
+        0.077
+      ],
+      "shinR": [
+        0.621914,
+        0.1975,
+        0.070988,
+        0.051
+      ],
+      "footL": [
+        0.300926,
+        0.0635,
+        0.021605,
+        0.025
+      ],
+      "footR": [
+        0.177469,
+        0.0555,
+        0.132716,
+        0.019
+      ],
+      "gear": [
+        0.313272,
+        0.5015,
+        0.367284,
+        0.197
+      ]
+    }
+  ],
+  "projectionMethod": "Largest fully opaque rectangle within each anatomical section, back lookup mirrors the full-cell x coordinate; 0.75 pixel inset. Avoids cutting holes in the existing solid rig when the reference pose differs. UV interpolation remains planar within each section.",
+  "projectionScript": "from PIL import Image\nimport numpy as np,json\nfrom pathlib import Path\natlas=Image.open('mvp/assets/people/i4-atlas.png').convert('RGBA')\nregions={'head':[.30,.80,.43,.17],'hair':[.32,.93,.38,.06],'chest':[.28,.48,.48,.33],'pelvis':[.32,.40,.42,.12],'upperArmL':[.15,.53,.12,.23],'upperArmR':[.76,.53,.12,.23],'forearmL':[.13,.41,.10,.17],'forearmR':[.78,.41,.10,.17],'thighL':[.33,.23,.16,.23],'thighR':[.57,.23,.16,.23],'shinL':[.34,.07,.13,.20],'shinR':[.58,.07,.13,.20],'footL':[.30,.015,.18,.075],'footR':[.57,.015,.18,.075],'gear':[.31,.50,.38,.20]}\nall=[]\nfor cell in range(6):\n alpha=np.asarray(atlas.crop((cell*170+4,6,cell*170+166,506)))[:,:,3][::-1]\n # Back lookup mirrors the full-cell x coordinate to match the front silhouette.\n opaque=alpha>240\n result={}\n for slot,(x,y,w,h) in regions.items():\n  x0,y0=int(x*162),int(y*500);x1,y1=int((x+w)*162),int((y+h)*500)\n  def largest(x0,y0,x1,y1):\n   heights=np.zeros(x1-x0,dtype=int);best=(0,None)\n   for yy in range(y0,y1):\n    heights=np.where(opaque[yy,x0:x1],heights+1,0);stack=[]\n    for xx,hh in enumerate([*heights,0]):\n     start=xx\n     while stack and stack[-1][1]>hh:\n      idx,high=stack.pop();area=high*(xx-idx)\n      if area>best[0]:best=(area,(x0+idx,yy-high+1,xx-idx,high))\n      start=idx\n     stack.append((start,hh))\n   return best\n  area,rect=largest(x0,y0,x1,y1)\n  if area<24:\n   area,rect=largest(max(0,x0-25),y0,min(162,x1+25),y1)\n  if rect is None: area,rect=largest(0,y0,162,y1)\n  xx,yy,ww,hh=rect\n  # Half-texel inset excludes alpha boundary from bilinear filtering.\n  result[slot]=[round((xx+.75)/162,6),round((yy+.75)/500,6),round(max(.5,ww-1.5)/162,6),round(max(.5,hh-1.5)/500,6)]\n all.append(result)\nPath('/tmp/p23-human-photo-r2/regions.json').write_text(json.dumps(all,separators=(',',':')))\np=Path('mvp/assets/people/i4-atlas.provenance.json');m=json.loads(p.read_text());m['projectionRegions']=all;m['projectionMethod']='Largest fully opaque rectangle within each anatomical section, back lookup mirrors the full-cell x coordinate; 0.75 pixel inset. Avoids cutting holes in the existing solid rig when the reference pose differs. UV interpolation remains planar within each section.';m['projectionScript']=Path('/tmp/p23-human-photo-r2/regions.py').read_text();p.write_text(json.dumps(m,indent=2)+'\\n')\n"
+}

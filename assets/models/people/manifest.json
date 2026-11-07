@@ -1,0 +1,38 @@
+{
+  "cast": [
+    { "id": "architect", "portrait": "architect-portrait.png" },
+    { "id": "property-agent", "portrait": "property-agent-portrait.png" },
+    { "id": "cheap-builder", "portrait": "cheap-builder-portrait.png" },
+    { "id": "mortgage-broker", "portrait": "mortgage-broker-portrait.png" },
+    { "id": "rival-developer", "portrait": "rival-developer-portrait.png" },
+    { "id": "arsonist", "portrait": "arsonist-portrait.png" },
+    { "id": "squatter", "portrait": "squatter-portrait.png" },
+    { "id": "policeman", "portrait": "policeman-portrait.png" },
+    { "id": "family-nguyen-dad", "archetypeId": "family", "identityId": 0, "role": "dad" },
+    { "id": "family-nguyen-mum", "archetypeId": "family", "identityId": 0, "role": "mum" },
+    { "id": "family-nguyen-boy", "archetypeId": "family", "identityId": 0, "role": "boy" },
+    { "id": "family-nguyen-girl", "archetypeId": "family", "identityId": 0, "role": "girl" },
+    { "id": "family-chen-dad", "archetypeId": "family", "identityId": 1, "role": "dad" },
+    { "id": "family-chen-mum", "archetypeId": "family", "identityId": 1, "role": "mum" },
+    { "id": "family-chen-boy", "archetypeId": "family", "identityId": 1, "role": "boy" },
+    { "id": "family-chen-girl", "archetypeId": "family", "identityId": 1, "role": "girl" },
+    { "id": "family-walsh-dad", "archetypeId": "family", "identityId": 2, "role": "dad" },
+    { "id": "family-walsh-mum", "archetypeId": "family", "identityId": 2, "role": "mum" },
+    { "id": "family-walsh-boy", "archetypeId": "family", "identityId": 2, "role": "boy" },
+    { "id": "family-walsh-girl", "archetypeId": "family", "identityId": 2, "role": "girl" }
+  ],
+  "pedestrians": [
+    { "id": "ped-01" },
+    { "id": "ped-02" },
+    { "id": "ped-03" },
+    { "id": "ped-04" },
+    { "id": "ped-05" },
+    { "id": "ped-06" },
+    { "id": "ped-07" },
+    { "id": "ped-08" },
+    { "id": "ped-09" },
+    { "id": "ped-10" },
+    { "id": "ped-11" },
+    { "id": "ped-12" }
+  ]
+}

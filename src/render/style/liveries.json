@@ -1,0 +1,631 @@
+{
+  "schemaVersion": 1,
+  "units": "metres",
+  "defaults": ["tram", "bus", "car", "cab"],
+  "register": {
+    "bus-navy": {"className":"identity-paint","colour":"#2F4A6A"},
+    "bus-tan": {"className":"identity-paint","colour":"#9E7745"},
+    "bus-roof-grey": {"className":"painted-steel","colour":"#aaa69f","usage":"neutral-livery-component","neutral":true,"share":0.28,"shareBasis":"proposed hull area; material-ID frame share pending orchestrator acceptance"},
+    "fixture-green": {
+      "className": "identity-paint",
+      "colour": "#427c60"
+    },
+    "fixture-red": {
+      "className": "identity-paint",
+      "colour": "#b84c42"
+    },
+    "fixture-yellow": {
+      "className": "safety",
+      "colour": "#cca329"
+    },
+    "fixture-neutral": {
+      "className": "painted-steel",
+      "colour": "#c2bcb2",
+      "usage": "neutral-livery-component"
+    },
+    "fixture-glass": {
+      "className": "dark-glass",
+      "colour": "#252d32"
+    },
+    "fixture-rubber": {
+      "className": "rubber-trim",
+      "colour": "#242526"
+    },
+    "tram-w-green": {
+      "className": "identity-paint",
+      "colour": "#345b3e"
+    },
+    "tram-w-cream": {
+      "className": "painted-steel",
+      "colour": "#cfc6bb",
+      "usage": "neutral-livery-component"
+    },
+    "tram-w-gold": {
+      "className": "identity-paint",
+      "colour": "#b7a273"
+    },
+    "tram-roof-grey": {
+      "className": "rubber-trim",
+      "colour": "#252627",
+      "neutral": true,
+      "share": 0.18,
+      "shareBasis": "proposed livery area; frame share pending orchestrator acceptance"
+    },
+    "tram-e-white": {
+      "className": "painted-steel",
+      "colour": "#c2c6c8",
+      "usage": "neutral-livery-component"
+    },
+    "tram-e-green": {
+      "className": "identity-paint",
+      "colour": "#36845e"
+    },
+    "tram-safety-yellow": {
+      "className": "safety",
+      "colour": "#c9a32d"
+    },
+    "tram-trim": {
+      "className": "rubber-trim",
+      "colour": "#242526"
+    },
+    "car-navy": {
+      "className": "identity-paint",
+      "colour": "#2F4A6A"
+    },
+    "cab-silver-blue": {
+      "className": "identity-paint",
+      "colour": "#668ca8"
+    },
+    "cab-light-neutral": {
+      "className": "painted-steel",
+      "colour": "#a9adaf",
+      "usage": "neutral-livery-component",
+      "neutral": true,
+      "share": 0.4,
+      "shareBasis": "proposed visible body share; material-ID frame measurement pending"
+    }
+  },
+  "specs": {
+    "bus-interchange": {
+      "fixtureOnly":false, "sillY":0.3, "source":"before", "acceptance":"proposed; frame share pending orchestrator acceptance",
+      "sizeMetres":{"side":[8.6,3.07],"roof":[8.6,2.64],"front":[2.64,3.07],"rear":[2.64,3.07]},
+      "regions":{
+        "side":[{"fromMetres":0,"toMetres":0.86,"colour":"bus-navy","pattern":"band"},{"fromMetres":0.86,"toMetres":1.2,"colour":"bus-tan","pattern":"band"},{"fromMetres":1.2,"toMetres":3.07,"colour":"bus-navy","pattern":"band"}],
+        "roof":[{"fromMetres":0,"toMetres":2.64,"colour":"bus-roof-grey","pattern":"band"}],
+        "front":[{"fromMetres":0,"toMetres":0.86,"colour":"bus-navy","pattern":"band"},{"fromMetres":0.86,"toMetres":1.2,"colour":"bus-tan","pattern":"band"},{"fromMetres":1.2,"toMetres":2.76,"colour":"bus-navy","pattern":"band"},{"fromMetres":2.76,"toMetres":3.07,"colour":"bus-roof-grey","pattern":"band"}],
+        "rear":[{"fromMetres":0,"toMetres":0.86,"colour":"bus-navy","pattern":"band"},{"fromMetres":0.86,"toMetres":1.2,"colour":"bus-tan","pattern":"band"},{"fromMetres":1.2,"toMetres":2.76,"colour":"bus-navy","pattern":"band"},{"fromMetres":2.76,"toMetres":3.07,"colour":"bus-roof-grey","pattern":"band"}]
+      }
+    },
+    "fixture-bands": {
+      "fixtureOnly": true,
+      "sizeMetres": {
+        "side": [
+          4.005,
+          2.015
+        ],
+        "roof": [
+          4.005,
+          1.505
+        ],
+        "front": [
+          1.505,
+          2.015
+        ],
+        "rear": [
+          1.505,
+          2.015
+        ]
+      },
+      "regions": {
+        "side": [
+          {
+            "fromMetres": 0,
+            "toMetres": 0.505,
+            "colour": "fixture-green",
+            "pattern": "band"
+          },
+          {
+            "fromMetres": 0.505,
+            "toMetres": 1.005,
+            "colour": "fixture-neutral",
+            "pattern": "band"
+          },
+          {
+            "fromMetres": 1.005,
+            "toMetres": 2.015,
+            "colour": "fixture-red",
+            "pattern": "band"
+          }
+        ],
+        "roof": [
+          {
+            "fromMetres": 0,
+            "toMetres": 1.505,
+            "colour": "fixture-neutral",
+            "pattern": "band"
+          }
+        ],
+        "front": [
+          {
+            "fromMetres": 0,
+            "toMetres": 2.015,
+            "colour": "fixture-glass",
+            "pattern": "band"
+          }
+        ],
+        "rear": [
+          {
+            "fromMetres": 0,
+            "toMetres": 2.015,
+            "colour": "fixture-rubber",
+            "pattern": "band"
+          }
+        ]
+      }
+    },
+    "fixture-patterns": {
+      "fixtureOnly": true,
+      "sizeMetres": {
+        "side": [
+          2,
+          1
+        ],
+        "roof": [
+          2,
+          1
+        ],
+        "front": [
+          2,
+          1
+        ],
+        "rear": [
+          2,
+          1
+        ]
+      },
+      "regions": {
+        "side": [
+          {
+            "fromMetres": 0,
+            "toMetres": 1,
+            "colour": "fixture-yellow",
+            "pattern": "check",
+            "background": "fixture-neutral",
+            "repeatMetres": 0.25
+          }
+        ],
+        "roof": [
+          {
+            "fromMetres": 0,
+            "toMetres": 1,
+            "colour": "fixture-red",
+            "pattern": "chevron",
+            "background": "fixture-neutral",
+            "repeatMetres": 0.25
+          }
+        ],
+        "front": [
+          {
+            "fromMetres": 0,
+            "toMetres": 1,
+            "colour": "fixture-red",
+            "pattern": "stripe",
+            "background": "fixture-neutral",
+            "repeatMetres": 0.25
+          }
+        ],
+        "rear": [
+          {
+            "fromMetres": 0,
+            "toMetres": 1,
+            "colour": "fixture-red",
+            "pattern": "band"
+          }
+        ]
+      }
+    },
+    "tram-w": {
+      "fixtureOnly": false,
+      "sizeMetres": {
+        "side": [
+          14,
+          3.6
+        ],
+        "roof": [
+          14,
+          2.8
+        ],
+        "front": [
+          2.8,
+          3.6
+        ],
+        "rear": [
+          2.8,
+          3.6
+        ]
+      },
+      "regions": {
+        "side": [
+          {
+            "fromMetres": 0,
+            "toMetres": 1.48,
+            "colour": "tram-w-green",
+            "pattern": "band"
+          },
+          {
+            "fromMetres": 1.48,
+            "toMetres": 1.535,
+            "colour": "tram-w-gold",
+            "pattern": "band"
+          },
+          {
+            "fromMetres": 1.535,
+            "toMetres": 3.6,
+            "colour": "tram-w-cream",
+            "pattern": "band"
+          }
+        ],
+        "roof": [
+          {
+            "fromMetres": 0,
+            "toMetres": 2.8,
+            "colour": "tram-roof-grey",
+            "pattern": "band"
+          }
+        ],
+        "front": [
+          {
+            "fromMetres": 0,
+            "toMetres": 1.48,
+            "colour": "tram-w-green",
+            "pattern": "band"
+          },
+          {
+            "fromMetres": 1.48,
+            "toMetres": 1.535,
+            "colour": "tram-w-gold",
+            "pattern": "band"
+          },
+          {
+            "fromMetres": 1.535,
+            "toMetres": 3.6,
+            "colour": "tram-w-cream",
+            "pattern": "band"
+          }
+        ],
+        "rear": [
+          {
+            "fromMetres": 0,
+            "toMetres": 1.48,
+            "colour": "tram-w-green",
+            "pattern": "band"
+          },
+          {
+            "fromMetres": 1.48,
+            "toMetres": 1.535,
+            "colour": "tram-w-gold",
+            "pattern": "band"
+          },
+          {
+            "fromMetres": 1.535,
+            "toMetres": 3.6,
+            "colour": "tram-w-cream",
+            "pattern": "band"
+          }
+        ]
+      }
+    },
+    "tram-e": {
+      "fixtureOnly": false,
+      "sizeMetres": {
+        "side": [
+          16.7,
+          3.9
+        ],
+        "roof": [
+          16.7,
+          2.8
+        ],
+        "front": [
+          2.8,
+          3.9
+        ],
+        "rear": [
+          2.8,
+          3.9
+        ]
+      },
+      "regions": {
+        "side": [
+          {
+            "fromMetres": 0,
+            "toMetres": 1.5,
+            "colour": "tram-e-green",
+            "pattern": "band"
+          },
+          {
+            "fromMetres": 1.5,
+            "toMetres": 3.9,
+            "colour": "tram-e-white",
+            "pattern": "band"
+          }
+        ],
+        "roof": [
+          {
+            "fromMetres": 0,
+            "toMetres": 2.8,
+            "colour": "tram-roof-grey",
+            "pattern": "band"
+          }
+        ],
+        "front": [
+          {
+            "fromMetres": 0,
+            "toMetres": 1.5,
+            "colour": "tram-safety-yellow",
+            "pattern": "band"
+          },
+          {
+            "fromMetres": 1.5,
+            "toMetres": 3.9,
+            "colour": "tram-e-white",
+            "pattern": "band"
+          }
+        ],
+        "rear": [
+          {
+            "fromMetres": 0,
+            "toMetres": 1.5,
+            "colour": "tram-safety-yellow",
+            "pattern": "band"
+          },
+          {
+            "fromMetres": 1.5,
+            "toMetres": 3.9,
+            "colour": "tram-e-white",
+            "pattern": "band"
+          }
+        ]
+      },
+      "source": "owner",
+      "authority": "orchestrator on owner's behalf",
+      "acceptance": "proposed; material-ID frame measurements pending"
+    },
+    "cab": {
+      "source": "owner",
+      "authority": "orchestrator on owner's behalf",
+      "acceptance": "proposed; material-ID lab and board frame measurements pending",
+      "fixtureOnly": false,
+      "sizeMetres": {
+        "side": [
+          4.3,
+          1.6
+        ],
+        "roof": [
+          4.3,
+          2
+        ],
+        "front": [
+          2,
+          1.6
+        ],
+        "rear": [
+          2,
+          1.6
+        ]
+      },
+      "regions": {
+        "side": [
+          {
+            "fromMetres": 0,
+            "toMetres": 1.6,
+            "colour": "cab-light-neutral",
+            "pattern": "band"
+          }
+        ],
+        "roof": [
+          {
+            "fromMetres": 0,
+            "toMetres": 2,
+            "colour": "cab-silver-blue",
+            "pattern": "band"
+          }
+        ],
+        "front": [
+          {
+            "fromMetres": 0,
+            "toMetres": 1.6,
+            "colour": "cab-light-neutral",
+            "pattern": "band"
+          }
+        ],
+        "rear": [
+          {
+            "fromMetres": 0,
+            "toMetres": 1.6,
+            "colour": "cab-light-neutral",
+            "pattern": "band"
+          }
+        ]
+      },
+      "application": "Body-kit roof faces on the lower shell and the accepted top skin / arch shoulders carry silver-blue. Three existing top panels of the canopy form the roof; the forward windscreen stays glass. Uniform region colours bake into the existing paint batch, with no atlas, new draw or custom shader."
+    }
+  },
+  "busLegacy": {
+    "colours": {
+      "black": "#000000",
+      "white": "#ffffff",
+      "glass": "#04070a",
+      "screen": "#050b12",
+      "doorSeal": "#0b0e10",
+      "rubber": "#0d0e10",
+      "lampBarrel": "#0d1013",
+      "bumperPaint": "#101f38",
+      "trim": "#12161a",
+      "undertray": "#15181a",
+      "roofPod": "#16294a",
+      "seatBack": "#162e21",
+      "tread": "#17191c",
+      "gutter": "#1F2833",
+      "cabinFloor": "#1b1d20",
+      "seat": "#1c3a29",
+      "coatBlue": "#1d3a63",
+      "bumper": "#262E3A",
+      "coatGreen": "#26402f",
+      "coatGrey": "#28333f",
+      "glazingSurround": "#2B3A50",
+      "navy": "#2F4A6A",
+      "liner": "#2b2823",
+      "driver": "#2b3f63",
+      "wheelWell": "#2e2a25",
+      "doorFrame": "#39434a",
+      "coatPurple": "#3f2e50",
+      "alloy": "#454b50",
+      "brakeLens": "#4d060d",
+      "aisle": "#54595e",
+      "coatRed": "#552323",
+      "tailLens": "#5e0810",
+      "coatBrown": "#6a3f18",
+      "skin": "#7d674f",
+      "flash": "#8A3A32",
+      "roof": "#8E8A80",
+      "indicatorLens": "#8a4a06",
+      "tan": "#9E7745",
+      "chrome": "#9aa2a8",
+      "reverseLens": "#c8ccce",
+      "screenEmissive": "#c8dcf0",
+      "headLens": "#cdd7dd",
+      "tailEmissive": "#e00a18",
+      "brakeEmissive": "#ff1220",
+      "indicatorEmissive": "#ff9410",
+      "headEmissive": "#ffeccd",
+      "blindBackground": "#050505",
+      "underfloor": "#0a0c0d",
+      "operator": "#101d33",
+      "decalInk": "#12181c",
+      "blindUnlit": "#141008",
+      "fallbackSurround": "#181d20",
+      "plateInk": "#1a2a4a",
+      "fallbackUpper": "#1d5f57",
+      "fallbackBumper": "#243230",
+      "fallbackGutter": "#2a3230",
+      "plateBorder": "#2b3136",
+      "roughPaint": "#4e4e4e",
+      "roughLower": "#606060",
+      "fallbackRoof": "#a8b0aa",
+      "roughBase": "#b0b0b0",
+      "fallbackLower": "#e4ddc9",
+      "roughBumper": "#e4e4e4",
+      "plateBackground": "#e9e6dc",
+      "roughRoof": "#eaeaea",
+      "roughUnderfloor": "#f0f0f0",
+      "blindLit": "#ffb01e",
+      "fallbackFlash": "#ffc21a",
+      "warning": "#ffd21c"
+    },
+    "palette": {"lowerBody": "#9E7745", "upperBand": "#2F4A6A", "flash": "#8A3A32", "roof": "#8E8A80", "gutter": "#1F2833", "glazingSurround": "#2B3A50", "bumper": "#262E3A"},
+    "liveryRoughnessTexel": [97,97,97,255]
+  },
+  "tramFallback": {
+    "atlasTint": "#ffffff",
+    "materials": [
+      {
+        "name": "heritage green",
+        "color": "#345b3e",
+        "roughness": 0.48,
+        "metalness": 0.12
+      },
+      {
+        "name": "warm cream",
+        "color": "#d4c6a4",
+        "roughness": 0.64,
+        "metalness": 0.06
+      },
+      {
+        "name": "roof grey",
+        "color": "#626961",
+        "roughness": 0.75,
+        "metalness": 0.18
+      },
+      {
+        "name": "dark iron",
+        "color": "#252b2a",
+        "roughness": 0.6,
+        "metalness": 0.35
+      },
+      {
+        "name": "smoked glass",
+        "color": "#283e43",
+        "roughness": 0.19,
+        "metalness": 0.48
+      },
+      {
+        "name": "blackwood",
+        "color": "#62462b",
+        "roughness": 0.66,
+        "metalness": 0.03
+      },
+      {
+        "name": "lining gold",
+        "color": "#b7a273",
+        "roughness": 0.43,
+        "metalness": 0.35
+      },
+      {
+        "name": "white lens",
+        "color": "#e3d7ad",
+        "roughness": 0.24,
+        "metalness": 0.12
+      },
+      {
+        "name": "window reflection",
+        "color": "#8a9d9a",
+        "roughness": 0.22,
+        "metalness": 0.45
+      }
+    ]
+  },
+  "car": {
+    "source": "owner",
+    "authority": "orchestrator on owner's behalf",
+    "acceptance": "proposed; material-ID lab and board frame measurements pending",
+    "markings": false,
+    "paintFamily": {
+      "white": "#A09C94",
+      "silver": "#92969A",
+      "charcoal": "#3C3E42",
+      "navy": "#2F4A6A",
+      "maroon": "#7A3A3A",
+      "olive": "#6B6E48",
+      "taxi": "#9E8035"
+    },
+    "paintFamilyBasis": "Existing instance-colour wheel retained exactly, including neutral albedos below the provisional painted-steel band to compensate the board grade. The physical paint carrier uses the identity-paint class; no per-swatch material or private-car livery.",
+    "paintMaterial": {
+      "color": "#ffffff",
+      "roughness": 0.28,
+      "metalness": 0,
+      "clearcoat": 0.45,
+      "clearcoatRoughness": 0.03,
+      "specularIntensity": 0.35,
+      "envMapIntensity": 0.05
+    },
+    "surfaceInk": {
+      "text": "#14161a",
+      "plate": "#1b1e24"
+    }
+  },
+  "cab": {
+    "legacyPaints": [
+      "#A8A49B",
+      "#9C988F"
+    ],
+    "glass": "#101a1e",
+    "rubber": "#202528",
+    "light": "#8be5ec",
+    "lightEmissive": "#43cbdc",
+    "amber": "#ffbb42",
+    "amberEmissive": "#ff8800",
+    "towPaint": "#C9A23F",
+    "vertexTint": "#ffffff"
+  }
+}

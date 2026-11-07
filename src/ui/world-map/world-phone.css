@@ -1,0 +1,30 @@
+/*
+ * The globe's panels on a phone (fix-phone-globe, play report 29 Oct, fix queue item 8).
+ * Every rule is scoped to the phone layout class that src/ui/layout-class.js writes on <html> (world-boot.js starts it), so a
+ * desktop window and ?phoneHud=0 match none of them; the first rule is the one exception and only hides this lane's close control
+ * off the phone. Both phone layouts: the dossier and the open Yard each scroll as one panel, so Advice, every trade route and the
+ * Ambitions can be reached. Tall (portrait) only: the dossier is a sheet above the Yard handle and the footer, clear of the port
+ * the globe frames, and the colour key shows in the mast.
+ */
+:root:not([data-phone-hud="1"]) .province-body .v4-dossier-close { display: none; }
+
+:root[data-phone-hud="1"] .province-body .province-dossier { overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
+:root[data-phone-hud="1"] .province-body .province-dossier > .v4-dossier-layout { flex: 0 0 auto; overflow: visible; }
+:root[data-phone-hud="1"] .province-body .v4-dossier-description { flex: 0 0 auto; min-height: 0; max-height: none; overflow: visible; }
+:root[data-phone-hud="1"] .province-body .v4-dossier-description::before { content: none; }
+/* Contain the floated Close and retain the heading while either phone panel scrolls. */
+:root[data-phone-hud="1"] .province-body .v4-dossier-heading { display: var(--phone-heading-display, flow-root); position: sticky; top: 0; z-index: 1; background: var(--chrome-ink); }
+:root[data-phone-hud="1"] .province-body .v4-dossier-actions .province-shut-band[open] ul { max-height: none; overflow: visible; }
+:root[data-phone-hud="1"] .province-body .province-dossier[data-phone-closed] { display: none; }
+:root[data-phone-hud="1"] .province-body .v4-dossier-close { float: right; min-height: 34px; margin: var(--phone-close-margin, 0 0 4px 8px); padding: 4px 10px; border: var(--chrome-border); background: var(--chrome-ink); color: var(--chrome-bone); font: inherit; }
+:root[data-phone-hud="1"] .province-body .province-yard[data-expanded="1"] { overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
+:root[data-phone-hud="1"] .province-body .province-yard[data-expanded="1"] .v4-yard-toggle { position: sticky; top: 0; z-index: 1; }
+:root[data-phone-hud="1"] .province-body .province-yard[data-expanded="1"] .province-yard-card--ledger { flex: 0 0 auto; overflow: visible; }
+:root[data-phone-hud="1"] .province-body .province-yard[data-expanded="1"] .province-yard-register-scroll { overflow: visible; }
+
+:root[data-phone-hud="1"][data-layout="tall"] .province-body { --phone-foot-reserve: max(100px, calc(env(safe-area-inset-bottom) + 93px)); --phone-yard-handle: 62px; }
+:root[data-phone-hud="1"][data-layout="tall"] .province-body .province-key { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+:root[data-phone-hud="1"][data-layout="tall"] .province-body .province-dossier { top: auto; bottom: calc(var(--phone-foot-reserve) + var(--phone-yard-handle)); left: max(8px, env(safe-area-inset-left)); right: max(8px, env(safe-area-inset-right)); width: auto; max-height: min(var(--phone-sheet-limit, 36dvh), calc(100dvh - var(--phone-foot-reserve) - var(--phone-yard-handle) - var(--phone-mast-bottom, 0px) - var(--phone-map-band, calc(3 * var(--chrome-space-3))))); }
+:root[data-phone-hud="1"][data-layout="tall"] .province-body .province-yard { top: auto; bottom: var(--phone-foot-reserve); left: max(8px, env(safe-area-inset-left)); right: max(8px, env(safe-area-inset-right)); width: auto; }
+:root[data-phone-hud="1"][data-layout="tall"] .province-body .province-yard[data-expanded="1"] { max-height: calc(100dvh - var(--phone-foot-reserve) - 190px); }
+:root[data-phone-hud="1"][data-layout="tall"] .province-body .province:has(.province-yard[data-expanded="1"]) .province-dossier { display: none; }

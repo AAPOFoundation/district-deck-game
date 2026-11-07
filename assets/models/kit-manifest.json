@@ -1,0 +1,5937 @@
+{
+  "schemaVersion": "district-deck.v302.lowpoly-kit.v1",
+  "assetCount": 31,
+  "assets": [
+    {
+      "id": "terrace-single",
+      "file": "terrace-single.glb",
+      "footprintTiles": [
+        1,
+        1
+      ],
+      "storeys": 2,
+      "heightM": 6.4,
+      "triangles": 620,
+      "materials": 6,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v300_placeholder_kit.py",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z",
+        "footprintMeasuredM": [
+          7.14,
+          13.199516
+        ],
+        "footprintLimitM": [
+          15.0,
+          15.0
+        ],
+        "eavesOrParapetHeightM": 6.4,
+        "heightQuantumM": 3.2,
+        "openingCount": 5,
+        "maxOpeningCenterErrorM": 0.0,
+        "maxOpeningSizeErrorM": 0.0,
+        "ornamentObjects": 0,
+        "boundsAuthoringM": {
+          "min": [
+            -3.57,
+            -5.7,
+            0.0
+          ],
+          "max": [
+            3.57,
+            7.499516,
+            8.15
+          ]
+        },
+        "triangles": 620,
+        "triangleBaseline": 500,
+        "triangleLimit": 625,
+        "triangleGrowthPct": 24.0,
+        "materials": 6,
+        "materialNames": [
+          "V300 bluestone",
+          "V300 brick",
+          "V300 glass",
+          "V300 render",
+          "V300 roof-iron",
+          "V300 timber"
+        ],
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportPlanMeasuredM": [
+          7.14,
+          13.199516
+        ],
+        "cleanImportTriangles": 620,
+        "cleanImportMaterials": 6,
+        "cleanImportFrontAxisGltf": "+Z",
+        "glbBytes": 64440
+      }
+    },
+    {
+      "id": "terrace-double",
+      "file": "terrace-double.glb",
+      "footprintTiles": [
+        1,
+        1
+      ],
+      "storeys": 2,
+      "heightM": 6.4,
+      "triangles": 704,
+      "materials": 6,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v300_placeholder_kit.py",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z",
+        "footprintMeasuredM": [
+          13.2,
+          13.199599
+        ],
+        "footprintLimitM": [
+          15.0,
+          15.0
+        ],
+        "eavesOrParapetHeightM": 6.4,
+        "heightQuantumM": 3.2,
+        "openingCount": 7,
+        "maxOpeningCenterErrorM": 0.0,
+        "maxOpeningSizeErrorM": 0.0,
+        "ornamentObjects": 0,
+        "boundsAuthoringM": {
+          "min": [
+            -6.6,
+            -5.65,
+            0.0
+          ],
+          "max": [
+            6.6,
+            7.549599,
+            9.802029
+          ]
+        },
+        "triangles": 704,
+        "triangleBaseline": 620,
+        "triangleLimit": 775,
+        "triangleGrowthPct": 13.548,
+        "materials": 6,
+        "materialNames": [
+          "V300 bluestone",
+          "V300 brick",
+          "V300 glass",
+          "V300 roof-iron",
+          "V300 roof-tile",
+          "V300 timber"
+        ],
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportPlanMeasuredM": [
+          13.2,
+          13.199599
+        ],
+        "cleanImportTriangles": 704,
+        "cleanImportMaterials": 6,
+        "cleanImportFrontAxisGltf": "+Z",
+        "glbBytes": 72968
+      }
+    },
+    {
+      "id": "cottage-federation",
+      "file": "cottage-federation.glb",
+      "footprintTiles": [
+        1,
+        1
+      ],
+      "storeys": 1,
+      "heightM": 3.2,
+      "triangles": 524,
+      "materials": 6,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v300_placeholder_kit.py",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z",
+        "footprintMeasuredM": [
+          13.0,
+          11.999661
+        ],
+        "footprintLimitM": [
+          15.0,
+          15.0
+        ],
+        "eavesOrParapetHeightM": 3.2,
+        "heightQuantumM": 3.2,
+        "openingCount": 5,
+        "maxOpeningCenterErrorM": 0.0,
+        "maxOpeningSizeErrorM": 0.0,
+        "ornamentObjects": 0,
+        "boundsAuthoringM": {
+          "min": [
+            -6.5,
+            -5.0,
+            0.0
+          ],
+          "max": [
+            6.5,
+            6.999661,
+            7.535498
+          ]
+        },
+        "triangles": 524,
+        "triangleBaseline": 440,
+        "triangleLimit": 550,
+        "triangleGrowthPct": 19.091,
+        "materials": 6,
+        "materialNames": [
+          "V300 bluestone",
+          "V300 brick",
+          "V300 glass",
+          "V300 roof-iron",
+          "V300 roof-tile",
+          "V300 timber"
+        ],
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportPlanMeasuredM": [
+          13.0,
+          11.999661
+        ],
+        "cleanImportTriangles": 524,
+        "cleanImportMaterials": 6,
+        "cleanImportFrontAxisGltf": "+Z",
+        "glbBytes": 54852
+      }
+    },
+    {
+      "id": "walkup-flats",
+      "file": "walkup-flats.glb",
+      "footprintTiles": [
+        1,
+        1
+      ],
+      "storeys": 3,
+      "heightM": 9.6,
+      "triangles": 980,
+      "materials": 5,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v300_placeholder_kit.py",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z",
+        "footprintMeasuredM": [
+          13.54,
+          14.24
+        ],
+        "footprintLimitM": [
+          15.0,
+          15.0
+        ],
+        "eavesOrParapetHeightM": 9.6,
+        "heightQuantumM": 3.2,
+        "openingCount": 10,
+        "maxOpeningCenterErrorM": 0.0,
+        "maxOpeningSizeErrorM": 0.0,
+        "ornamentObjects": 0,
+        "boundsAuthoringM": {
+          "min": [
+            -6.77,
+            -6.47,
+            0.0
+          ],
+          "max": [
+            6.77,
+            7.77,
+            11.603352
+          ]
+        },
+        "triangles": 980,
+        "triangleBaseline": 800,
+        "triangleLimit": 1000,
+        "triangleGrowthPct": 22.5,
+        "materials": 5,
+        "materialNames": [
+          "V300 bluestone",
+          "V300 brick",
+          "V300 glass",
+          "V300 roof-iron",
+          "V300 timber"
+        ],
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportPlanMeasuredM": [
+          13.54,
+          14.24
+        ],
+        "cleanImportTriangles": 980,
+        "cleanImportMaterials": 5,
+        "cleanImportFrontAxisGltf": "+Z",
+        "glbBytes": 99996
+      }
+    },
+    {
+      "id": "shop-corner",
+      "file": "shop-corner.glb",
+      "footprintTiles": [
+        1,
+        1
+      ],
+      "storeys": 2,
+      "heightM": 6.4,
+      "triangles": 812,
+      "materials": 6,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v300_placeholder_kit.py",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z",
+        "footprintMeasuredM": [
+          14.34,
+          14.94
+        ],
+        "footprintLimitM": [
+          15.0,
+          15.0
+        ],
+        "eavesOrParapetHeightM": 6.4,
+        "heightQuantumM": 3.2,
+        "openingCount": 8,
+        "maxOpeningCenterErrorM": 0.0,
+        "maxOpeningSizeErrorM": 0.0,
+        "ornamentObjects": 0,
+        "boundsAuthoringM": {
+          "min": [
+            -7.17,
+            -7.17,
+            0.0
+          ],
+          "max": [
+            7.17,
+            7.77,
+            9.091
+          ]
+        },
+        "triangles": 812,
+        "triangleBaseline": 656,
+        "triangleLimit": 820,
+        "triangleGrowthPct": 23.78,
+        "materials": 6,
+        "materialNames": [
+          "V300 bluestone",
+          "V300 brick",
+          "V300 glass",
+          "V300 render",
+          "V300 roof-iron",
+          "V300 timber"
+        ],
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportPlanMeasuredM": [
+          14.34,
+          14.94
+        ],
+        "cleanImportTriangles": 812,
+        "cleanImportMaterials": 6,
+        "cleanImportFrontAxisGltf": "+Z",
+        "glbBytes": 83984
+      }
+    },
+    {
+      "id": "warehouse-brick",
+      "file": "warehouse-brick.glb",
+      "footprintTiles": [
+        1,
+        2
+      ],
+      "storeys": 2,
+      "heightM": 6.4,
+      "triangles": 676,
+      "materials": 5,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v300_placeholder_kit.py",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z",
+        "footprintMeasuredM": [
+          14.2,
+          30.755
+        ],
+        "footprintLimitM": [
+          15.0,
+          31.0
+        ],
+        "eavesOrParapetHeightM": 6.4,
+        "heightQuantumM": 3.2,
+        "openingCount": 7,
+        "maxOpeningCenterErrorM": 0.0,
+        "maxOpeningSizeErrorM": 0.0,
+        "ornamentObjects": 0,
+        "boundsAuthoringM": {
+          "min": [
+            -7.1,
+            -15.05,
+            0.0
+          ],
+          "max": [
+            7.1,
+            15.705,
+            9.992555
+          ]
+        },
+        "triangles": 676,
+        "triangleBaseline": 556,
+        "triangleLimit": 695,
+        "triangleGrowthPct": 21.583,
+        "materials": 5,
+        "materialNames": [
+          "V300 bluestone",
+          "V300 brick",
+          "V300 glass",
+          "V300 roof-iron",
+          "V300 timber"
+        ],
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportPlanMeasuredM": [
+          14.2,
+          30.755
+        ],
+        "cleanImportTriangles": 676,
+        "cleanImportMaterials": 5,
+        "cleanImportFrontAxisGltf": "+Z",
+        "glbBytes": 70652
+      }
+    },
+    {
+      "id": "tower-office",
+      "file": "tower-office.glb",
+      "footprintTiles": [
+        1,
+        2
+      ],
+      "storeys": 8,
+      "heightM": 25.6,
+      "triangles": 972,
+      "materials": 5,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v300_placeholder_kit.py",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z",
+        "footprintMeasuredM": [
+          14.26,
+          30.755
+        ],
+        "footprintLimitM": [
+          15.0,
+          31.0
+        ],
+        "eavesOrParapetHeightM": 25.6,
+        "heightQuantumM": 3.2,
+        "openingCount": 16,
+        "maxOpeningCenterErrorM": 1e-06,
+        "maxOpeningSizeErrorM": 0.0,
+        "ornamentObjects": 0,
+        "boundsAuthoringM": {
+          "min": [
+            -7.13,
+            -15.05,
+            0.0
+          ],
+          "max": [
+            7.13,
+            15.705,
+            28.699999
+          ]
+        },
+        "triangles": 972,
+        "triangleBaseline": 900,
+        "triangleLimit": 1125,
+        "triangleGrowthPct": 8.0,
+        "materials": 5,
+        "materialNames": [
+          "V300 bluestone",
+          "V300 glass",
+          "V300 render",
+          "V300 roof-iron",
+          "V300 timber"
+        ],
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportPlanMeasuredM": [
+          14.26,
+          30.755
+        ],
+        "cleanImportTriangles": 972,
+        "cleanImportMaterials": 5,
+        "cleanImportFrontAxisGltf": "+Z",
+        "glbBytes": 99072
+      }
+    },
+    {
+      "id": "ground-tile",
+      "file": "ground-tile.glb",
+      "footprintTiles": [
+        1,
+        1
+      ],
+      "storeys": 0,
+      "heightM": 0.0,
+      "triangles": 12,
+      "materials": 1,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v300_placeholder_kit.py",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "planMeasuredM": [
+          16.0,
+          16.0
+        ],
+        "kerbXFromWestM": [],
+        "tramCentrelineFromWestM": null,
+        "seamMaxErrorM": 0.0,
+        "connections": [],
+        "boundsAuthoringM": {
+          "min": [
+            -8.0,
+            -8.0,
+            0.0
+          ],
+          "max": [
+            8.0,
+            8.0,
+            0.02
+          ]
+        },
+        "triangles": 12,
+        "materials": 1,
+        "materialNames": [
+          "V300 ground"
+        ],
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportPlanMeasuredM": [
+          16.0,
+          16.0
+        ],
+        "cleanImportTriangles": 12,
+        "cleanImportMaterials": 1,
+        "cleanImportFrontAxisGltf": null,
+        "glbBytes": 1944
+      }
+    },
+    {
+      "id": "road-straight",
+      "file": "road-straight.glb",
+      "footprintTiles": [
+        1,
+        1
+      ],
+      "storeys": 0,
+      "heightM": 0.0,
+      "triangles": 156,
+      "materials": 4,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v300_placeholder_kit.py",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "planMeasuredM": [
+          16.0,
+          16.0
+        ],
+        "kerbXFromWestM": [
+          3.0,
+          13.0
+        ],
+        "tramCentrelineFromWestM": 8.0,
+        "seamMaxErrorM": 0.0,
+        "connections": [
+          "N",
+          "S"
+        ],
+        "boundsAuthoringM": {
+          "min": [
+            -8.0,
+            -8.0,
+            0.0
+          ],
+          "max": [
+            8.0,
+            8.0,
+            0.16
+          ]
+        },
+        "triangles": 156,
+        "materials": 4,
+        "materialNames": [
+          "V300 asphalt",
+          "V300 bluestone",
+          "V300 footpath",
+          "V300 reservation"
+        ],
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportPlanMeasuredM": [
+          16.0,
+          16.0
+        ],
+        "cleanImportTriangles": 156,
+        "cleanImportMaterials": 4,
+        "cleanImportFrontAxisGltf": null,
+        "glbBytes": 16140
+      }
+    },
+    {
+      "id": "road-corner",
+      "file": "road-corner.glb",
+      "footprintTiles": [
+        1,
+        1
+      ],
+      "storeys": 0,
+      "heightM": 0.0,
+      "triangles": 144,
+      "materials": 4,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v300_placeholder_kit.py",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "planMeasuredM": [
+          16.0,
+          16.0
+        ],
+        "kerbXFromWestM": [
+          3.0,
+          13.0
+        ],
+        "tramCentrelineFromWestM": 8.0,
+        "seamMaxErrorM": 0.0,
+        "connections": [
+          "N",
+          "E"
+        ],
+        "boundsAuthoringM": {
+          "min": [
+            -8.0,
+            -8.0,
+            0.0
+          ],
+          "max": [
+            8.0,
+            8.0,
+            0.16
+          ]
+        },
+        "triangles": 144,
+        "materials": 4,
+        "materialNames": [
+          "V300 asphalt",
+          "V300 bluestone",
+          "V300 footpath",
+          "V300 reservation"
+        ],
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportPlanMeasuredM": [
+          16.0,
+          16.0
+        ],
+        "cleanImportTriangles": 144,
+        "cleanImportMaterials": 4,
+        "cleanImportFrontAxisGltf": null,
+        "glbBytes": 15208
+      }
+    },
+    {
+      "id": "road-tee",
+      "file": "road-tee.glb",
+      "footprintTiles": [
+        1,
+        1
+      ],
+      "storeys": 0,
+      "heightM": 0.0,
+      "triangles": 192,
+      "materials": 4,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v300_placeholder_kit.py",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "planMeasuredM": [
+          16.0,
+          16.0
+        ],
+        "kerbXFromWestM": [
+          3.0,
+          13.0
+        ],
+        "tramCentrelineFromWestM": 8.0,
+        "seamMaxErrorM": 0.0,
+        "connections": [
+          "N",
+          "E",
+          "S"
+        ],
+        "boundsAuthoringM": {
+          "min": [
+            -8.0,
+            -8.0,
+            0.0
+          ],
+          "max": [
+            8.0,
+            8.0,
+            0.16
+          ]
+        },
+        "triangles": 192,
+        "materials": 4,
+        "materialNames": [
+          "V300 asphalt",
+          "V300 bluestone",
+          "V300 footpath",
+          "V300 reservation"
+        ],
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportPlanMeasuredM": [
+          16.0,
+          16.0
+        ],
+        "cleanImportTriangles": 192,
+        "cleanImportMaterials": 4,
+        "cleanImportFrontAxisGltf": null,
+        "glbBytes": 19488
+      }
+    },
+    {
+      "id": "road-cross",
+      "file": "road-cross.glb",
+      "footprintTiles": [
+        1,
+        1
+      ],
+      "storeys": 0,
+      "heightM": 0.0,
+      "triangles": 228,
+      "materials": 4,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v300_placeholder_kit.py",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "planMeasuredM": [
+          16.0,
+          16.0
+        ],
+        "kerbXFromWestM": [
+          3.0,
+          13.0
+        ],
+        "tramCentrelineFromWestM": 8.0,
+        "seamMaxErrorM": 0.0,
+        "connections": [
+          "N",
+          "E",
+          "S",
+          "W"
+        ],
+        "boundsAuthoringM": {
+          "min": [
+            -8.0,
+            -8.0,
+            0.0
+          ],
+          "max": [
+            8.0,
+            8.0,
+            0.16
+          ]
+        },
+        "triangles": 228,
+        "materials": 4,
+        "materialNames": [
+          "V300 asphalt",
+          "V300 bluestone",
+          "V300 footpath",
+          "V300 reservation"
+        ],
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportPlanMeasuredM": [
+          16.0,
+          16.0
+        ],
+        "cleanImportTriangles": 228,
+        "cleanImportMaterials": 4,
+        "cleanImportFrontAxisGltf": null,
+        "glbBytes": 22864
+      }
+    },
+    {
+      "id": "road-tram-straight",
+      "file": "road-tram-straight.glb",
+      "footprintTiles": [
+        1,
+        1
+      ],
+      "storeys": 0,
+      "heightM": 0.0,
+      "triangles": 180,
+      "materials": 5,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v300_placeholder_kit.py",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "planMeasuredM": [
+          16.0,
+          16.0
+        ],
+        "kerbXFromWestM": [
+          3.0,
+          13.0
+        ],
+        "tramCentrelineFromWestM": 8.0,
+        "seamMaxErrorM": 0.0,
+        "connections": [
+          "N",
+          "S"
+        ],
+        "boundsAuthoringM": {
+          "min": [
+            -8.0,
+            -8.0,
+            0.0
+          ],
+          "max": [
+            8.0,
+            8.0,
+            0.16
+          ]
+        },
+        "triangles": 180,
+        "materials": 5,
+        "materialNames": [
+          "V300 asphalt",
+          "V300 bluestone",
+          "V300 footpath",
+          "V300 rail",
+          "V300 reservation"
+        ],
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportPlanMeasuredM": [
+          16.0,
+          16.0
+        ],
+        "cleanImportTriangles": 180,
+        "cleanImportMaterials": 5,
+        "cleanImportFrontAxisGltf": null,
+        "glbBytes": 18736
+      }
+    },
+    {
+      "id": "apartment-midrise",
+      "file": "apartment-midrise.glb",
+      "footprintTiles": [
+        1,
+        1
+      ],
+      "storeys": 5,
+      "heightM": 16.0,
+      "triangles": 480,
+      "materials": 5,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v302_lowpoly_assets.py",
+      "referenceSheet": "docs/art-direction/v302-lowpoly/references/apartment-midrise-six-view.png",
+      "wave": "A",
+      "gateState": "MECHANICALLY_VALIDATED",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "boundsAuthoringM": {
+          "min": [
+            -6.7,
+            -6.4875,
+            0.0
+          ],
+          "max": [
+            6.7,
+            7.25,
+            16.349998
+          ]
+        },
+        "dimensionsMeasuredM": [
+          13.4,
+          13.7375,
+          16.349998
+        ],
+        "triangles": 480,
+        "materials": 5,
+        "materialNames": [
+          "V300 bluestone",
+          "V300 brick",
+          "V300 glass",
+          "V300 render",
+          "V300 roof-iron"
+        ],
+        "openingCount": 25,
+        "openingSchedule": [
+          {
+            "id": "front-apartment-01-01",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -5.3,
+              6.455,
+              1.75
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "front-apartment-01-02",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              0.0,
+              6.455,
+              1.75
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "front-apartment-01-03",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              5.3,
+              6.455,
+              1.75
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-apartment-01-01",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              -4.7,
+              -6.455,
+              1.75
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-apartment-01-02",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              4.7,
+              -6.455,
+              1.75
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "front-apartment-02-01",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -5.3,
+              6.455,
+              4.95
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "front-apartment-02-02",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              0.0,
+              6.455,
+              4.95
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "front-apartment-02-03",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              5.3,
+              6.455,
+              4.95
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-apartment-02-01",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              -4.7,
+              -6.455,
+              4.95
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-apartment-02-02",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              4.7,
+              -6.455,
+              4.95
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "front-apartment-03-01",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -5.3,
+              6.455,
+              8.15
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "front-apartment-03-02",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              0.0,
+              6.455,
+              8.15
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "front-apartment-03-03",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              5.3,
+              6.455,
+              8.15
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-apartment-03-01",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              -4.7,
+              -6.455,
+              8.15
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-apartment-03-02",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              4.7,
+              -6.455,
+              8.15
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "front-apartment-04-01",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -5.3,
+              6.455,
+              11.35
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "front-apartment-04-02",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              0.0,
+              6.455,
+              11.35
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "front-apartment-04-03",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              5.3,
+              6.455,
+              11.35
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-apartment-04-01",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              -4.7,
+              -6.455,
+              11.35
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-apartment-04-02",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              4.7,
+              -6.455,
+              11.35
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "front-apartment-05-01",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -4.6,
+              4.955,
+              14.55
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "front-apartment-05-02",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              0.0,
+              4.955,
+              14.55
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "front-apartment-05-03",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              4.6,
+              4.955,
+              14.55
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-apartment-05-01",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              -4.0,
+              -5.555,
+              14.55
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-apartment-05-02",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              4.0,
+              -5.555,
+              14.55
+            ],
+            "size": [
+              1.55,
+              1.65
+            ]
+          }
+        ],
+        "criticalFeatureEvidence": {
+          "broad balcony slabs": [
+            "balcony-01-balustrade",
+            "balcony-01-slab",
+            "balcony-02-balustrade",
+            "balcony-02-slab",
+            "balcony-03-balustrade",
+            "balcony-03-slab"
+          ],
+          "recessed fifth storey": [
+            "recessed-top-wall"
+          ],
+          "brick ground floor": [
+            "brick-ground-floor"
+          ]
+        },
+        "elementCounts": {
+          "balcony": 3,
+          "box": 40,
+          "flat-roof": 1,
+          "opening": 25
+        },
+        "forbiddenObjects": [],
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z",
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportBoundsM": {
+          "min": [
+            -6.7,
+            -7.25,
+            0.0
+          ],
+          "max": [
+            6.7,
+            6.4875,
+            16.349998
+          ]
+        },
+        "cleanImportTriangles": 480,
+        "cleanImportMaterials": 5,
+        "glbBytes": 53380
+      }
+    },
+    {
+      "id": "shoptop-mixed",
+      "file": "shoptop-mixed.glb",
+      "footprintTiles": [
+        1,
+        1
+      ],
+      "storeys": 4,
+      "heightM": 12.8,
+      "triangles": 432,
+      "materials": 5,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v302_lowpoly_assets.py",
+      "referenceSheet": "docs/art-direction/v302-lowpoly/references/shoptop-mixed-six-view.png",
+      "wave": "A",
+      "gateState": "MECHANICALLY_VALIDATED",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "boundsAuthoringM": {
+          "min": [
+            -7.1,
+            -6.1,
+            0.0
+          ],
+          "max": [
+            7.1,
+            7.15,
+            13.150001
+          ]
+        },
+        "dimensionsMeasuredM": [
+          14.2,
+          13.25,
+          13.150001
+        ],
+        "triangles": 432,
+        "materials": 5,
+        "materialNames": [
+          "V300 bluestone",
+          "V300 brick",
+          "V300 glass",
+          "V300 roof-iron",
+          "V300 timber"
+        ],
+        "openingCount": 28,
+        "openingSchedule": [
+          {
+            "id": "shopfront-01",
+            "elevation": "front",
+            "kind": "shopfront",
+            "center": [
+              -5.75,
+              6.055,
+              1.65
+            ],
+            "size": [
+              2.7,
+              2.45
+            ]
+          },
+          {
+            "id": "shopfront-02",
+            "elevation": "front",
+            "kind": "shopfront",
+            "center": [
+              0.0,
+              6.055,
+              1.65
+            ],
+            "size": [
+              2.7,
+              2.45
+            ]
+          },
+          {
+            "id": "shopfront-03",
+            "elevation": "front",
+            "kind": "shopfront",
+            "center": [
+              5.75,
+              6.055,
+              1.65
+            ],
+            "size": [
+              2.7,
+              2.45
+            ]
+          },
+          {
+            "id": "shop-door",
+            "elevation": "front",
+            "kind": "door",
+            "center": [
+              0.0,
+              6.055,
+              1.25
+            ],
+            "size": [
+              0.95,
+              2.25
+            ]
+          },
+          {
+            "id": "front-residential-02-01",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -5.25,
+              6.055,
+              4.95
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "front-residential-02-02",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -1.75,
+              6.055,
+              4.95
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "front-residential-02-03",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              1.75,
+              6.055,
+              4.95
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "front-residential-02-04",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              5.25,
+              6.055,
+              4.95
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-residential-02-01",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              -5.0,
+              -6.055,
+              4.95
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-residential-02-02",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              0.0,
+              -6.055,
+              4.95
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-residential-02-03",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              5.0,
+              -6.055,
+              4.95
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "east-residential-02",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.855,
+              0.0,
+              4.95
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "front-residential-03-01",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -5.25,
+              6.055,
+              8.15
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "front-residential-03-02",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -1.75,
+              6.055,
+              8.15
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "front-residential-03-03",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              1.75,
+              6.055,
+              8.15
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "front-residential-03-04",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              5.25,
+              6.055,
+              8.15
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-residential-03-01",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              -5.0,
+              -6.055,
+              8.15
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-residential-03-02",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              0.0,
+              -6.055,
+              8.15
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-residential-03-03",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              5.0,
+              -6.055,
+              8.15
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "east-residential-03",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.855,
+              0.0,
+              8.15
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "front-residential-04-01",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -5.25,
+              6.055,
+              11.35
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "front-residential-04-02",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -1.75,
+              6.055,
+              11.35
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "front-residential-04-03",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              1.75,
+              6.055,
+              11.35
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "front-residential-04-04",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              5.25,
+              6.055,
+              11.35
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-residential-04-01",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              -5.0,
+              -6.055,
+              11.35
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-residential-04-02",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              0.0,
+              -6.055,
+              11.35
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-residential-04-03",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              5.0,
+              -6.055,
+              11.35
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          },
+          {
+            "id": "east-residential-04",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.855,
+              0.0,
+              11.35
+            ],
+            "size": [
+              1.15,
+              1.65
+            ]
+          }
+        ],
+        "criticalFeatureEvidence": {
+          "glazed retail base": [
+            "opening-shopfront-01",
+            "opening-shopfront-02",
+            "opening-shopfront-03"
+          ],
+          "continuous awning at 3.2 m": [
+            "shop-awning"
+          ],
+          "three residential storeys": [
+            "opening-front-residential-02-01",
+            "opening-front-residential-02-02",
+            "opening-front-residential-02-03",
+            "opening-front-residential-02-04",
+            "opening-front-residential-03-01",
+            "opening-front-residential-03-02",
+            "opening-front-residential-03-03",
+            "opening-front-residential-03-04",
+            "opening-front-residential-04-01",
+            "opening-front-residential-04-02",
+            "opening-front-residential-04-03",
+            "opening-front-residential-04-04"
+          ]
+        },
+        "elementCounts": {
+          "awning": 1,
+          "box": 36,
+          "flat-roof": 1,
+          "opening": 28
+        },
+        "forbiddenObjects": [],
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z",
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportBoundsM": {
+          "min": [
+            -7.1,
+            -7.15,
+            0.0
+          ],
+          "max": [
+            7.1,
+            6.1,
+            13.150001
+          ]
+        },
+        "cleanImportTriangles": 432,
+        "cleanImportMaterials": 5,
+        "glbBytes": 48896
+      }
+    },
+    {
+      "id": "warehouse-converted",
+      "file": "warehouse-converted.glb",
+      "footprintTiles": [
+        1,
+        2
+      ],
+      "storeys": 3,
+      "heightM": 9.6,
+      "triangles": 512,
+      "materials": 5,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v302_lowpoly_assets.py",
+      "referenceSheet": "docs/art-direction/v302-lowpoly/references/warehouse-converted-six-view.png",
+      "wave": "A",
+      "gateState": "MECHANICALLY_VALIDATED",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "boundsAuthoringM": {
+          "min": [
+            -6.9875,
+            -14.7875,
+            0.0
+          ],
+          "max": [
+            6.9875,
+            14.7875,
+            12.872431
+          ]
+        },
+        "dimensionsMeasuredM": [
+          13.974999,
+          29.575001,
+          12.872431
+        ],
+        "triangles": 512,
+        "materials": 5,
+        "materialNames": [
+          "V300 bluestone",
+          "V300 brick",
+          "V300 glass",
+          "V300 roof-iron",
+          "V300 timber"
+        ],
+        "openingCount": 38,
+        "openingSchedule": [
+          {
+            "id": "front-glazed-end",
+            "elevation": "front",
+            "kind": "curtain",
+            "center": [
+              4.8,
+              14.755,
+              4.8
+            ],
+            "size": [
+              3.5,
+              9.05
+            ]
+          },
+          {
+            "id": "front-industrial-01-01",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -4.3,
+              14.755,
+              1.75
+            ],
+            "size": [
+              1.45,
+              1.75
+            ]
+          },
+          {
+            "id": "front-industrial-01-02",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -1.2,
+              14.755,
+              1.75
+            ],
+            "size": [
+              1.45,
+              1.75
+            ]
+          },
+          {
+            "id": "east-industrial-01-01",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              -12.2,
+              1.75
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "east-industrial-01-02",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              -6.1,
+              1.75
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "east-industrial-01-03",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              0.0,
+              1.75
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "east-industrial-01-04",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              6.1,
+              1.75
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "east-industrial-01-05",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              12.2,
+              1.75
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "west-industrial-01-01",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              -12.2,
+              1.75
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "west-industrial-01-02",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              -6.1,
+              1.75
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "west-industrial-01-03",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              0.0,
+              1.75
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "west-industrial-01-04",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              6.1,
+              1.75
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "west-industrial-01-05",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              12.2,
+              1.75
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "front-industrial-02-01",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -4.3,
+              14.755,
+              4.95
+            ],
+            "size": [
+              1.45,
+              1.75
+            ]
+          },
+          {
+            "id": "front-industrial-02-02",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -1.2,
+              14.755,
+              4.95
+            ],
+            "size": [
+              1.45,
+              1.75
+            ]
+          },
+          {
+            "id": "east-industrial-02-01",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              -12.2,
+              4.95
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "east-industrial-02-02",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              -6.1,
+              4.95
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "east-industrial-02-03",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              0.0,
+              4.95
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "east-industrial-02-04",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              6.1,
+              4.95
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "east-industrial-02-05",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              12.2,
+              4.95
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "west-industrial-02-01",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              -12.2,
+              4.95
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "west-industrial-02-02",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              -6.1,
+              4.95
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "west-industrial-02-03",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              0.0,
+              4.95
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "west-industrial-02-04",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              6.1,
+              4.95
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "west-industrial-02-05",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              12.2,
+              4.95
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "front-industrial-03-01",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -4.3,
+              14.755,
+              8.15
+            ],
+            "size": [
+              1.45,
+              1.75
+            ]
+          },
+          {
+            "id": "front-industrial-03-02",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -1.2,
+              14.755,
+              8.15
+            ],
+            "size": [
+              1.45,
+              1.75
+            ]
+          },
+          {
+            "id": "east-industrial-03-01",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              -12.2,
+              8.15
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "east-industrial-03-02",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              -6.1,
+              8.15
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "east-industrial-03-03",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              0.0,
+              8.15
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "east-industrial-03-04",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              6.1,
+              8.15
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "east-industrial-03-05",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              12.2,
+              8.15
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "west-industrial-03-01",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              -12.2,
+              8.15
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "west-industrial-03-02",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              -6.1,
+              8.15
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "west-industrial-03-03",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              0.0,
+              8.15
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "west-industrial-03-04",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              6.1,
+              8.15
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "west-industrial-03-05",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              12.2,
+              8.15
+            ],
+            "size": [
+              1.5,
+              1.75
+            ]
+          },
+          {
+            "id": "rear-service",
+            "elevation": "rear",
+            "kind": "door",
+            "center": [
+              4.2,
+              -14.755,
+              1.25
+            ],
+            "size": [
+              0.95,
+              2.15
+            ]
+          }
+        ],
+        "criticalFeatureEvidence": {
+          "retained sawtooth roof": [
+            "roof-sawtooth-01",
+            "roof-sawtooth-02",
+            "roof-sawtooth-03",
+            "roof-sawtooth-04"
+          ],
+          "punched industrial openings": [
+            "opening-east-industrial-01-01",
+            "opening-east-industrial-01-02",
+            "opening-east-industrial-01-03",
+            "opening-east-industrial-01-04",
+            "opening-east-industrial-01-05",
+            "opening-east-industrial-02-01",
+            "opening-east-industrial-02-02",
+            "opening-east-industrial-02-03",
+            "opening-east-industrial-02-04",
+            "opening-east-industrial-02-05",
+            "opening-east-industrial-03-01",
+            "opening-east-industrial-03-02",
+            "opening-east-industrial-03-03",
+            "opening-east-industrial-03-04",
+            "opening-east-industrial-03-05"
+          ],
+          "contemporary glazed end bay": [
+            "opening-front-glazed-end"
+          ]
+        },
+        "elementCounts": {
+          "box": 40,
+          "mesh": 4,
+          "opening": 38,
+          "sawtooth-roof": 1
+        },
+        "forbiddenObjects": [],
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z",
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportBoundsM": {
+          "min": [
+            -6.9875,
+            -14.7875,
+            0.0
+          ],
+          "max": [
+            6.9875,
+            14.7875,
+            12.872431
+          ]
+        },
+        "cleanImportTriangles": 512,
+        "cleanImportMaterials": 5,
+        "glbBytes": 58380
+      }
+    },
+    {
+      "id": "office-lowrise",
+      "file": "office-lowrise.glb",
+      "footprintTiles": [
+        1,
+        2
+      ],
+      "storeys": 5,
+      "heightM": 16.0,
+      "triangles": 552,
+      "materials": 6,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v302_lowpoly_assets.py",
+      "referenceSheet": "docs/art-direction/v302-lowpoly/references/office-lowrise-six-view.png",
+      "wave": "A",
+      "gateState": "MECHANICALLY_VALIDATED",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "boundsAuthoringM": {
+          "min": [
+            -7.05,
+            -14.75,
+            0.0
+          ],
+          "max": [
+            7.05,
+            15.445001,
+            16.549999
+          ]
+        },
+        "dimensionsMeasuredM": [
+          14.099999,
+          30.195001,
+          16.549999
+        ],
+        "triangles": 552,
+        "materials": 6,
+        "materialNames": [
+          "V300 bluestone",
+          "V300 brick",
+          "V300 glass",
+          "V300 render",
+          "V300 roof-iron",
+          "V300 timber"
+        ],
+        "openingCount": 21,
+        "openingSchedule": [
+          {
+            "id": "front-ribbon-01",
+            "elevation": "front",
+            "kind": "curtain",
+            "center": [
+              0.0,
+              14.655,
+              1.7
+            ],
+            "size": [
+              11.2,
+              1.7
+            ]
+          },
+          {
+            "id": "rear-ribbon-01",
+            "elevation": "rear",
+            "kind": "curtain",
+            "center": [
+              0.0,
+              -14.655,
+              1.7
+            ],
+            "size": [
+              11.2,
+              1.7
+            ]
+          },
+          {
+            "id": "east-ribbon-01",
+            "elevation": "east",
+            "kind": "curtain",
+            "center": [
+              6.955,
+              0.0,
+              1.7
+            ],
+            "size": [
+              26.0,
+              1.7
+            ]
+          },
+          {
+            "id": "west-ribbon-01",
+            "elevation": "west",
+            "kind": "curtain",
+            "center": [
+              -6.955,
+              0.0,
+              1.7
+            ],
+            "size": [
+              26.0,
+              1.7
+            ]
+          },
+          {
+            "id": "front-ribbon-02",
+            "elevation": "front",
+            "kind": "curtain",
+            "center": [
+              0.0,
+              14.655,
+              4.9
+            ],
+            "size": [
+              11.2,
+              1.7
+            ]
+          },
+          {
+            "id": "rear-ribbon-02",
+            "elevation": "rear",
+            "kind": "curtain",
+            "center": [
+              0.0,
+              -14.655,
+              4.9
+            ],
+            "size": [
+              11.2,
+              1.7
+            ]
+          },
+          {
+            "id": "east-ribbon-02",
+            "elevation": "east",
+            "kind": "curtain",
+            "center": [
+              6.955,
+              0.0,
+              4.9
+            ],
+            "size": [
+              26.0,
+              1.7
+            ]
+          },
+          {
+            "id": "west-ribbon-02",
+            "elevation": "west",
+            "kind": "curtain",
+            "center": [
+              -6.955,
+              0.0,
+              4.9
+            ],
+            "size": [
+              26.0,
+              1.7
+            ]
+          },
+          {
+            "id": "front-ribbon-03",
+            "elevation": "front",
+            "kind": "curtain",
+            "center": [
+              0.0,
+              14.655,
+              8.1
+            ],
+            "size": [
+              11.2,
+              1.7
+            ]
+          },
+          {
+            "id": "rear-ribbon-03",
+            "elevation": "rear",
+            "kind": "curtain",
+            "center": [
+              0.0,
+              -14.655,
+              8.1
+            ],
+            "size": [
+              11.2,
+              1.7
+            ]
+          },
+          {
+            "id": "east-ribbon-03",
+            "elevation": "east",
+            "kind": "curtain",
+            "center": [
+              6.955,
+              0.0,
+              8.1
+            ],
+            "size": [
+              26.0,
+              1.7
+            ]
+          },
+          {
+            "id": "west-ribbon-03",
+            "elevation": "west",
+            "kind": "curtain",
+            "center": [
+              -6.955,
+              0.0,
+              8.1
+            ],
+            "size": [
+              26.0,
+              1.7
+            ]
+          },
+          {
+            "id": "front-ribbon-04",
+            "elevation": "front",
+            "kind": "curtain",
+            "center": [
+              0.0,
+              14.655,
+              11.3
+            ],
+            "size": [
+              11.2,
+              1.7
+            ]
+          },
+          {
+            "id": "rear-ribbon-04",
+            "elevation": "rear",
+            "kind": "curtain",
+            "center": [
+              0.0,
+              -14.655,
+              11.3
+            ],
+            "size": [
+              11.2,
+              1.7
+            ]
+          },
+          {
+            "id": "east-ribbon-04",
+            "elevation": "east",
+            "kind": "curtain",
+            "center": [
+              6.955,
+              0.0,
+              11.3
+            ],
+            "size": [
+              26.0,
+              1.7
+            ]
+          },
+          {
+            "id": "west-ribbon-04",
+            "elevation": "west",
+            "kind": "curtain",
+            "center": [
+              -6.955,
+              0.0,
+              11.3
+            ],
+            "size": [
+              26.0,
+              1.7
+            ]
+          },
+          {
+            "id": "front-ribbon-05",
+            "elevation": "front",
+            "kind": "curtain",
+            "center": [
+              0.0,
+              14.655,
+              14.5
+            ],
+            "size": [
+              11.2,
+              1.7
+            ]
+          },
+          {
+            "id": "rear-ribbon-05",
+            "elevation": "rear",
+            "kind": "curtain",
+            "center": [
+              0.0,
+              -14.655,
+              14.5
+            ],
+            "size": [
+              11.2,
+              1.7
+            ]
+          },
+          {
+            "id": "east-ribbon-05",
+            "elevation": "east",
+            "kind": "curtain",
+            "center": [
+              6.955,
+              0.0,
+              14.5
+            ],
+            "size": [
+              26.0,
+              1.7
+            ]
+          },
+          {
+            "id": "west-ribbon-05",
+            "elevation": "west",
+            "kind": "curtain",
+            "center": [
+              -6.955,
+              0.0,
+              14.5
+            ],
+            "size": [
+              26.0,
+              1.7
+            ]
+          },
+          {
+            "id": "front-entry",
+            "elevation": "front",
+            "kind": "door",
+            "center": [
+              0.0,
+              14.655,
+              1.28
+            ],
+            "size": [
+              2.6,
+              2.25
+            ]
+          }
+        ],
+        "criticalFeatureEvidence": {
+          "horizontal glass bands": [
+            "opening-front-ribbon-01",
+            "opening-front-ribbon-02",
+            "opening-front-ribbon-03",
+            "opening-front-ribbon-04",
+            "opening-front-ribbon-05"
+          ],
+          "cream spandrel bands": [
+            "front-spandrel-01",
+            "front-spandrel-02",
+            "front-spandrel-03",
+            "front-spandrel-04"
+          ],
+          "brick service core": [
+            "brick-service-core"
+          ],
+          "recessed entry": [
+            "opening-front-entry"
+          ]
+        },
+        "elementCounts": {
+          "box": 46,
+          "flat-roof": 1,
+          "opening": 21,
+          "spandrel-band": 16
+        },
+        "forbiddenObjects": [],
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z",
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportBoundsM": {
+          "min": [
+            -7.05,
+            -15.445001,
+            0.0
+          ],
+          "max": [
+            7.05,
+            14.75,
+            16.549999
+          ]
+        },
+        "cleanImportTriangles": 552,
+        "cleanImportMaterials": 6,
+        "glbBytes": 59064
+      }
+    },
+    {
+      "id": "site-hoarding",
+      "file": "props/site-hoarding.glb",
+      "footprintTiles": null,
+      "storeys": 0,
+      "heightM": 2.4,
+      "triangles": 156,
+      "materials": 2,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v302_lowpoly_assets.py",
+      "referenceSheet": "docs/art-direction/v302-lowpoly/references/site-hoarding-six-view.png",
+      "wave": "C",
+      "gateState": "MECHANICALLY_VALIDATED",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "boundsAuthoringM": {
+          "min": [
+            -7.55,
+            -0.16,
+            0.0
+          ],
+          "max": [
+            7.55,
+            0.16,
+            2.4
+          ]
+        },
+        "dimensionsMeasuredM": [
+          15.1,
+          0.32,
+          2.4
+        ],
+        "triangles": 156,
+        "materials": 2,
+        "materialNames": [
+          "V300 roof-iron",
+          "V300 timber"
+        ],
+        "openingCount": 0,
+        "openingSchedule": [],
+        "criticalFeatureEvidence": {
+          "repeated 2.4 m panels": [
+            "hoarding-panel-01",
+            "hoarding-panel-02",
+            "hoarding-panel-03",
+            "hoarding-panel-04",
+            "hoarding-panel-05",
+            "hoarding-panel-06"
+          ],
+          "grounded posts": [
+            "hoarding-post-01",
+            "hoarding-post-02",
+            "hoarding-post-03",
+            "hoarding-post-04",
+            "hoarding-post-05",
+            "hoarding-post-06",
+            "hoarding-post-07"
+          ],
+          "tileable ends": [
+            "hoarding-post-01",
+            "hoarding-post-07"
+          ]
+        },
+        "elementCounts": {
+          "box": 13
+        },
+        "forbiddenObjects": [],
+        "frontAxisBlender": null,
+        "frontAxisGltf": null,
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportBoundsM": {
+          "min": [
+            -7.55,
+            -0.16,
+            0.0
+          ],
+          "max": [
+            7.55,
+            0.16,
+            2.4
+          ]
+        },
+        "cleanImportTriangles": 156,
+        "cleanImportMaterials": 2,
+        "glbBytes": 16204
+      },
+      "realDimensionsM": [
+        15.0,
+        0.22,
+        2.4
+      ]
+    },
+    {
+      "id": "spoil-heap",
+      "file": "props/spoil-heap.glb",
+      "footprintTiles": null,
+      "storeys": 0,
+      "heightM": 1.8,
+      "triangles": 96,
+      "materials": 2,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v302_lowpoly_assets.py",
+      "referenceSheet": "docs/art-direction/v302-lowpoly/references/spoil-heap-six-view.png",
+      "wave": "C",
+      "gateState": "MECHANICALLY_VALIDATED",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "boundsAuthoringM": {
+          "min": [
+            -2.08,
+            -1.636788,
+            0.0
+          ],
+          "max": [
+            2.0,
+            1.645,
+            1.8
+          ]
+        },
+        "dimensionsMeasuredM": [
+          4.08,
+          3.281788,
+          1.8
+        ],
+        "triangles": 96,
+        "materials": 2,
+        "materialNames": [
+          "V300 bluestone",
+          "V300 brick"
+        ],
+        "openingCount": 0,
+        "openingSchedule": [],
+        "criticalFeatureEvidence": {
+          "irregular low rubble cone": [
+            "spoil-heap-body"
+          ],
+          "board-distance demolition read": [
+            "spoil-rock-01",
+            "spoil-rock-02",
+            "spoil-rock-03"
+          ]
+        },
+        "elementCounts": {
+          "ico": 3,
+          "mesh": 1
+        },
+        "forbiddenObjects": [],
+        "frontAxisBlender": null,
+        "frontAxisGltf": null,
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportBoundsM": {
+          "min": [
+            -2.08,
+            -1.636788,
+            0.0
+          ],
+          "max": [
+            2.0,
+            1.645,
+            1.8
+          ]
+        },
+        "cleanImportTriangles": 96,
+        "cleanImportMaterials": 2,
+        "glbBytes": 10412
+      },
+      "realDimensionsM": [
+        4.0,
+        3.5,
+        1.8
+      ]
+    },
+    {
+      "id": "tower-crane",
+      "file": "props/tower-crane.glb",
+      "footprintTiles": null,
+      "storeys": 0,
+      "heightM": 24.0,
+      "triangles": 632,
+      "materials": 2,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v302_lowpoly_assets.py",
+      "referenceSheet": "docs/art-direction/v302-lowpoly/references/tower-crane-six-view.png",
+      "wave": "C",
+      "gateState": "MECHANICALLY_VALIDATED",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "boundsAuthoringM": {
+          "min": [
+            -10.7,
+            -0.8,
+            0.0
+          ],
+          "max": [
+            22.518726,
+            0.8,
+            26.07
+          ]
+        },
+        "dimensionsMeasuredM": [
+          33.218726,
+          1.6,
+          26.07
+        ],
+        "triangles": 632,
+        "materials": 2,
+        "materialNames": [
+          "V300 bluestone",
+          "V300 roof-iron"
+        ],
+        "openingCount": 0,
+        "openingSchedule": [],
+        "criticalFeatureEvidence": {
+          "24 m mast": [
+            "crane-mast-leg-01",
+            "crane-mast-leg-02",
+            "crane-mast-leg-03",
+            "crane-mast-leg-04"
+          ],
+          "30 m jib": [
+            "crane-jib-bottom"
+          ],
+          "counter-jib": [
+            "crane-counter-jib"
+          ],
+          "hook line": [
+            "crane-hook-line"
+          ]
+        },
+        "elementCounts": {
+          "beam": 42,
+          "box": 51,
+          "cylinder": 1
+        },
+        "forbiddenObjects": [],
+        "frontAxisBlender": null,
+        "frontAxisGltf": null,
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportBoundsM": {
+          "min": [
+            -10.7,
+            -0.8,
+            0.0
+          ],
+          "max": [
+            22.518726,
+            0.8,
+            26.07
+          ]
+        },
+        "cleanImportTriangles": 632,
+        "cleanImportMaterials": 2,
+        "glbBytes": 62652
+      },
+      "realDimensionsM": [
+        30.0,
+        2.2,
+        24.0
+      ]
+    },
+    {
+      "id": "car-sedan",
+      "file": "props/car-sedan.glb",
+      "footprintTiles": null,
+      "storeys": 0,
+      "heightM": 1.45,
+      "triangles": 236,
+      "materials": 3,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v302_lowpoly_assets.py",
+      "referenceSheet": "docs/art-direction/v302-lowpoly/references/car-sedan-six-view.png",
+      "wave": "C",
+      "gateState": "MECHANICALLY_VALIDATED",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "boundsAuthoringM": {
+          "min": [
+            -0.9,
+            -2.35,
+            0.0
+          ],
+          "max": [
+            0.9,
+            2.35,
+            1.45
+          ]
+        },
+        "dimensionsMeasuredM": [
+          1.8,
+          4.7,
+          1.45
+        ],
+        "triangles": 236,
+        "materials": 3,
+        "materialNames": [
+          "V300 brick",
+          "V300 glass",
+          "V300 roof-iron"
+        ],
+        "openingCount": 0,
+        "openingSchedule": [],
+        "criticalFeatureEvidence": {
+          "sedan three-box profile": [
+            "car-boot",
+            "car-cabin",
+            "car-hood"
+          ],
+          "four wheels": [
+            "car-wheel-01",
+            "car-wheel-02",
+            "car-wheel-03",
+            "car-wheel-04"
+          ],
+          "front facing +Y": [
+            "car-hood"
+          ]
+        },
+        "elementCounts": {
+          "box": 4,
+          "cylinder": 4,
+          "mesh": 1
+        },
+        "forbiddenObjects": [],
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z",
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportBoundsM": {
+          "min": [
+            -0.9,
+            -2.35,
+            0.0
+          ],
+          "max": [
+            0.9,
+            2.35,
+            1.45
+          ]
+        },
+        "cleanImportTriangles": 236,
+        "cleanImportMaterials": 3,
+        "glbBytes": 17416
+      },
+      "realDimensionsM": [
+        4.7,
+        1.8,
+        1.45
+      ]
+    },
+    {
+      "id": "plane-tree-london",
+      "file": "props/plane-tree-london.glb",
+      "footprintTiles": null,
+      "storeys": 0,
+      "heightM": 12.0,
+      "triangles": 520,
+      "materials": 3,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v302_lowpoly_assets.py",
+      "referenceSheet": "docs/art-direction/v302-lowpoly/references/plane-tree-london-six-view.png",
+      "wave": "C",
+      "gateState": "MECHANICALLY_VALIDATED",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "boundsAuthoringM": {
+          "min": [
+            -3.996944,
+            -3.41,
+            0.0
+          ],
+          "max": [
+            3.902116,
+            3.42,
+            12.02
+          ]
+        },
+        "dimensionsMeasuredM": [
+          7.89906,
+          6.83,
+          12.02
+        ],
+        "triangles": 520,
+        "materials": 3,
+        "materialNames": [
+          "V300 ground",
+          "V300 render",
+          "V300 timber"
+        ],
+        "openingCount": 0,
+        "openingSchedule": [],
+        "criticalFeatureEvidence": {
+          "pale mottled trunk read": [
+            "plane-tree-trunk",
+            "plane-tree-trunk-mottle-01",
+            "plane-tree-trunk-mottle-02",
+            "plane-tree-trunk-mottle-03",
+            "plane-tree-trunk-mottle-04"
+          ],
+          "broad rounded canopy": [
+            "plane-tree-canopy-01",
+            "plane-tree-canopy-02",
+            "plane-tree-canopy-03",
+            "plane-tree-canopy-04",
+            "plane-tree-canopy-05"
+          ],
+          "clear street-tree trunk": [
+            "plane-tree-trunk",
+            "plane-tree-trunk-mottle-01",
+            "plane-tree-trunk-mottle-02",
+            "plane-tree-trunk-mottle-03",
+            "plane-tree-trunk-mottle-04"
+          ]
+        },
+        "elementCounts": {
+          "beam": 3,
+          "box": 7,
+          "cylinder": 1,
+          "ico": 5
+        },
+        "forbiddenObjects": [],
+        "frontAxisBlender": null,
+        "frontAxisGltf": null,
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportBoundsM": {
+          "min": [
+            -3.996944,
+            -3.41,
+            0.0
+          ],
+          "max": [
+            3.902116,
+            3.42,
+            12.02
+          ]
+        },
+        "cleanImportTriangles": 520,
+        "cleanImportMaterials": 3,
+        "glbBytes": 45236
+      },
+      "realDimensionsM": [
+        7.0,
+        7.0,
+        12.0
+      ]
+    },
+    {
+      "id": "townhouse-row",
+      "file": "townhouse-row.glb",
+      "footprintTiles": [
+        1,
+        1
+      ],
+      "storeys": 2,
+      "heightM": 6.4,
+      "triangles": 348,
+      "materials": 6,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v302_lowpoly_assets.py",
+      "referenceSheet": "docs/art-direction/v302-lowpoly/references/townhouse-row-six-view.png",
+      "wave": "A",
+      "gateState": "MECHANICALLY_VALIDATED",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "boundsAuthoringM": {
+          "min": [
+            -7.04,
+            -8.8,
+            0.0
+          ],
+          "max": [
+            7.04,
+            5.77,
+            7.357542
+          ]
+        },
+        "dimensionsMeasuredM": [
+          14.08,
+          14.57,
+          7.357542
+        ],
+        "triangles": 348,
+        "materials": 6,
+        "materialNames": [
+          "V300 bluestone",
+          "V300 brick",
+          "V300 glass",
+          "V300 render",
+          "V300 roof-iron",
+          "V300 timber"
+        ],
+        "openingCount": 15,
+        "openingSchedule": [
+          {
+            "id": "front-door-01",
+            "elevation": "front",
+            "kind": "door",
+            "center": [
+              -5.32,
+              5.655,
+              1.3
+            ],
+            "size": [
+              0.85,
+              2.2
+            ]
+          },
+          {
+            "id": "front-window-01-01",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -3.88,
+              5.655,
+              1.76
+            ],
+            "size": [
+              1.05,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-window-01-01",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              -4.6,
+              -5.655,
+              1.76
+            ],
+            "size": [
+              1.35,
+              1.65
+            ]
+          },
+          {
+            "id": "front-window-01-02",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -3.88,
+              5.655,
+              4.96
+            ],
+            "size": [
+              1.05,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-window-01-02",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              -4.6,
+              -5.655,
+              4.96
+            ],
+            "size": [
+              1.35,
+              1.65
+            ]
+          },
+          {
+            "id": "front-door-02",
+            "elevation": "front",
+            "kind": "door",
+            "center": [
+              -0.72,
+              5.655,
+              1.3
+            ],
+            "size": [
+              0.85,
+              2.2
+            ]
+          },
+          {
+            "id": "front-window-02-01",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              0.72,
+              5.655,
+              1.76
+            ],
+            "size": [
+              1.05,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-window-02-01",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              0.0,
+              -5.655,
+              1.76
+            ],
+            "size": [
+              1.35,
+              1.65
+            ]
+          },
+          {
+            "id": "front-window-02-02",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              0.72,
+              5.655,
+              4.96
+            ],
+            "size": [
+              1.05,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-window-02-02",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              0.0,
+              -5.655,
+              4.96
+            ],
+            "size": [
+              1.35,
+              1.65
+            ]
+          },
+          {
+            "id": "front-door-03",
+            "elevation": "front",
+            "kind": "door",
+            "center": [
+              3.88,
+              5.655,
+              1.3
+            ],
+            "size": [
+              0.85,
+              2.2
+            ]
+          },
+          {
+            "id": "front-window-03-01",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              5.32,
+              5.655,
+              1.76
+            ],
+            "size": [
+              1.05,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-window-03-01",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              4.6,
+              -5.655,
+              1.76
+            ],
+            "size": [
+              1.35,
+              1.65
+            ]
+          },
+          {
+            "id": "front-window-03-02",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              5.32,
+              5.655,
+              4.96
+            ],
+            "size": [
+              1.05,
+              1.65
+            ]
+          },
+          {
+            "id": "rear-window-03-02",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              4.6,
+              -5.655,
+              4.96
+            ],
+            "size": [
+              1.35,
+              1.65
+            ]
+          }
+        ],
+        "criticalFeatureEvidence": {
+          "three attached bays": [
+            "party-pier-01",
+            "party-pier-02",
+            "party-pier-03",
+            "party-pier-04"
+          ],
+          "three front entries": [
+            "opening-front-door-01",
+            "opening-front-door-02",
+            "opening-front-door-03"
+          ],
+          "party-wall rhythm": [
+            "party-pier-01",
+            "party-pier-02",
+            "party-pier-03",
+            "party-pier-04"
+          ],
+          "rear carport": [
+            "rear-carport-post-01",
+            "rear-carport-post-02",
+            "rear-carport-roof"
+          ]
+        },
+        "elementCounts": {
+          "box": 27,
+          "canopy": 1,
+          "gable-roof": 3,
+          "mesh": 3,
+          "opening": 15,
+          "repeated-gables": 1
+        },
+        "forbiddenObjects": [],
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z",
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportBoundsM": {
+          "min": [
+            -7.04,
+            -5.77,
+            0.0
+          ],
+          "max": [
+            7.04,
+            8.8,
+            7.357542
+          ]
+        },
+        "cleanImportTriangles": 348,
+        "cleanImportMaterials": 6,
+        "glbBytes": 40188
+      }
+    },
+    {
+      "id": "bungalow-californian",
+      "file": "bungalow-californian.glb",
+      "footprintTiles": [
+        1,
+        1
+      ],
+      "storeys": 1,
+      "heightM": 3.2,
+      "triangles": 317,
+      "materials": 6,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v302_lowpoly_assets.py",
+      "referenceSheet": "docs/art-direction/v302-lowpoly/references/bungalow-californian-six-view.png",
+      "wave": "H",
+      "gateState": "MECHANICALLY_VALIDATED",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "boundsAuthoringM": {
+          "min": [
+            -5.62,
+            -4.92,
+            0.0
+          ],
+          "max": [
+            5.83,
+            7.4,
+            5.13
+          ]
+        },
+        "dimensionsMeasuredM": [
+          11.45,
+          12.32,
+          5.13
+        ],
+        "triangles": 317,
+        "materials": 6,
+        "materialNames": [
+          "V300 bluestone",
+          "V300 brick",
+          "V300 glass",
+          "V300 render",
+          "V300 roof-tile",
+          "V300 timber"
+        ],
+        "openingCount": 10,
+        "openingSchedule": [
+          {
+            "id": "front-door",
+            "elevation": "front",
+            "kind": "door",
+            "center": [
+              -3.55,
+              4.555,
+              1.32
+            ],
+            "size": [
+              1.05,
+              2.2
+            ]
+          },
+          {
+            "id": "front-casement-01",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              0.15,
+              4.555,
+              1.72
+            ],
+            "size": [
+              0.94,
+              1.62
+            ]
+          },
+          {
+            "id": "front-casement-02",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              1.35,
+              4.555,
+              1.72
+            ],
+            "size": [
+              0.94,
+              1.62
+            ]
+          },
+          {
+            "id": "front-casement-03",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              2.55,
+              4.555,
+              1.72
+            ],
+            "size": [
+              0.94,
+              1.62
+            ]
+          },
+          {
+            "id": "east-casement-01",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              5.255,
+              -2.5,
+              1.72
+            ],
+            "size": [
+              1.1,
+              1.58
+            ]
+          },
+          {
+            "id": "east-casement-02",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              5.255,
+              1.3,
+              1.72
+            ],
+            "size": [
+              1.1,
+              1.58
+            ]
+          },
+          {
+            "id": "west-casement-01",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -5.255,
+              -2.5,
+              1.72
+            ],
+            "size": [
+              1.1,
+              1.58
+            ]
+          },
+          {
+            "id": "west-casement-02",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -5.255,
+              1.3,
+              1.72
+            ],
+            "size": [
+              1.1,
+              1.58
+            ]
+          },
+          {
+            "id": "rear-door",
+            "elevation": "rear",
+            "kind": "door",
+            "center": [
+              -2.8,
+              -4.555,
+              1.3
+            ],
+            "size": [
+              0.95,
+              2.18
+            ]
+          },
+          {
+            "id": "rear-casement",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              1.4,
+              -4.555,
+              1.72
+            ],
+            "size": [
+              1.8,
+              1.58
+            ]
+          }
+        ],
+        "criticalFeatureEvidence": {
+          "low hipped terracotta roof": [
+            "roof-main-hip"
+          ],
+          "broad projecting front gable": [
+            "front-gable-face",
+            "roof-front-gable"
+          ],
+          "deep porch with tapered brick piers": [
+            "porch-balustrade-post-01",
+            "porch-balustrade-post-02",
+            "porch-balustrade-post-03",
+            "porch-balustrade-post-04",
+            "porch-balustrade-post-05",
+            "porch-balustrade-rail",
+            "porch-pier-01",
+            "porch-pier-02"
+          ],
+          "grouped casement windows": [
+            "opening-front-casement-01",
+            "opening-front-casement-02",
+            "opening-front-casement-03"
+          ],
+          "wall-bound chimney": [
+            "bungalow-chimney-cap",
+            "bungalow-chimney-shaft"
+          ]
+        },
+        "elementCounts": {
+          "box": 23,
+          "gable-roof": 1,
+          "hip-roof": 1,
+          "mesh": 5,
+          "opening": 10
+        },
+        "forbiddenObjects": [],
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z",
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportBoundsM": {
+          "min": [
+            -5.62,
+            -7.4,
+            0.0
+          ],
+          "max": [
+            5.83,
+            4.92,
+            5.13
+          ]
+        },
+        "cleanImportTriangles": 317,
+        "cleanImportMaterials": 6,
+        "glbBytes": 36624
+      }
+    },
+    {
+      "id": "transport-interchange",
+      "file": "transport-interchange.glb",
+      "footprintTiles": [
+        1,
+        2
+      ],
+      "storeys": 1,
+      "heightM": 3.2,
+      "triangles": 156,
+      "materials": 4,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v302_lowpoly_assets.py",
+      "referenceSheet": "docs/art-direction/v302-lowpoly/references/transport-interchange-six-view.png",
+      "wave": "B",
+      "gateState": "MECHANICALLY_VALIDATED",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "boundsAuthoringM": {
+          "min": [
+            -6.7,
+            -14.25,
+            0.0
+          ],
+          "max": [
+            6.7,
+            14.25,
+            3.29
+          ]
+        },
+        "dimensionsMeasuredM": [
+          13.4,
+          28.5,
+          3.29
+        ],
+        "triangles": 156,
+        "materials": 4,
+        "materialNames": [
+          "V300 bluestone",
+          "V300 render",
+          "V300 roof-iron",
+          "V300 timber"
+        ],
+        "openingCount": 1,
+        "openingSchedule": [
+          {
+            "id": "front-service-door",
+            "elevation": "front",
+            "kind": "door",
+            "center": [
+              -4.0,
+              -3.445,
+              1.25
+            ],
+            "size": [
+              0.95,
+              2.15
+            ]
+          }
+        ],
+        "criticalFeatureEvidence": {
+          "long platform canopy": [
+            "platform-canopy-roof"
+          ],
+          "tram-edge platform": [
+            "tram-platform"
+          ],
+          "open waiting zone": [
+            "platform-canopy-post-01",
+            "platform-canopy-post-02",
+            "platform-canopy-post-03",
+            "platform-canopy-post-04",
+            "platform-canopy-post-05",
+            "platform-canopy-post-06",
+            "platform-canopy-post-07",
+            "platform-canopy-post-08"
+          ]
+        },
+        "elementCounts": {
+          "box": 13,
+          "canopy": 1,
+          "opening": 1
+        },
+        "forbiddenObjects": [],
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z",
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportBoundsM": {
+          "min": [
+            -6.7,
+            -14.25,
+            0.0
+          ],
+          "max": [
+            6.7,
+            14.25,
+            3.29
+          ]
+        },
+        "cleanImportTriangles": 156,
+        "cleanImportMaterials": 4,
+        "glbBytes": 17216
+      }
+    },
+    {
+      "id": "supermarket-strip",
+      "file": "supermarket-strip.glb",
+      "footprintTiles": [
+        3,
+        1
+      ],
+      "storeys": 1,
+      "heightM": 3.2,
+      "triangles": 59375,
+      "materials": 39,
+      "source": "texture-first-blender",
+      "builderScript": "scripts/blender/build_v303_supermarket_strip_texture_first.py",
+      "referenceSheet": "docs/art-direction/v302-wave-b-img2model/supermarket-strip/likeness-cli/01-whole-six-view.png",
+      "wave": "B",
+      "gateState": "MECHANICALLY_VALIDATED",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "boundsAuthoringM": {
+          "min": [
+            -19.0,
+            -12.25,
+            0.0
+          ],
+          "max": [
+            19.0,
+            12.25,
+            7.545
+          ]
+        },
+        "dimensionsMeasuredM": [
+          38.0,
+          24.5,
+          7.545
+        ],
+        "triangles": 59375,
+        "materials": 39,
+        "materialNames": [
+          "anodised aluminium",
+          "asphalt",
+          "auto door glass transparent",
+          "black rubber",
+          "bluestone plinth textured",
+          "canopy board formed metal A21",
+          "caution black",
+          "commercial shopfront glass",
+          "cream brick textured",
+          "cream render textured",
+          "dark service steel",
+          "deep green steel",
+          "entry mat charcoal",
+          "entry mat rib",
+          "fluorescent diffuser",
+          "formed concrete",
+          "glass board reflection A21",
+          "glass dielectric outer A18",
+          "glass highlight",
+          "glass parallax coat A17",
+          "heritage green powdercoat",
+          "interior warm lit",
+          "market sign black",
+          "membrane grime A16",
+          "membrane photographic wet coat A19",
+          "membrane pond core A17",
+          "membrane pond sheen A18",
+          "membrane ponding stain",
+          "membrane roof textured",
+          "membrane seam A18",
+          "plant stained dark steel A21",
+          "plant stained galvanised A21",
+          "product cream",
+          "product warm",
+          "red trolley plastic",
+          "safety yellow",
+          "sign white",
+          "trolley zinc A21",
+          "warm soffit light"
+        ],
+        "criticalFeatureEvidence": {
+          "broad flat roof": true,
+          "screened plant deck": true,
+          "multi-bay shopfront": true,
+          "continuous green canopy": true,
+          "trolley-bay canopy": true,
+          "rear loading shutter": true
+        },
+        "textureFirstFeatures": {
+          "automaticDoorGlassLeaves": 2,
+          "trolleyBayWithNestedTrolleys": 16,
+          "plantStainedGalvanisedAssignmentsA21": 210,
+          "plantStainedDarkSteelAssignmentsA21": 144,
+          "canopyBoardFormedMetalAssignmentsA21": 238,
+          "shopfrontBoardReflectionAssignmentsA21": 5,
+          "trolleyBrushedZincAssignmentsA21": 1024
+        },
+        "forbiddenObjects": [],
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z after 180deg Z map export",
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportBoundsM": {
+          "min": [
+            -19.0,
+            -12.25,
+            0.0
+          ],
+          "max": [
+            19.0,
+            12.25,
+            7.545
+          ]
+        },
+        "cleanImportTriangles": 59375,
+        "cleanImportMaterials": 39,
+        "glbBytes": 26218912,
+        "textureFirstAttempt": 21,
+        "exactTriangleLock": true
+      },
+      "promotionNote": "A21 texture-first map GLB; footprint 3\u00d71 street-front quota 1 (no dual stamp + mid terrace).",
+      "currentExportObservation": {
+        "recordedAt": "2026-09-15",
+        "scope": "Current binary identity and glTF JSON observations only. Existing promotionNote and measuredGateValues are retained historical A21 records, not current-export measurements.",
+        "path": "mvp/assets/models/supermarket-strip.glb",
+        "bytes": 25385008,
+        "sha256": "7873ccd88d1c6ad23f5255447f0dd9d34ce5a8893a2e22a3aeeae7b9904c7211",
+        "gltfVersion": "2.0",
+        "generator": "Khronos glTF Blender I/O v5.1.20",
+        "embeddedImageCount": 18,
+        "embeddedImageNames": [
+          "powdercoat-green-a22-normal",
+          "powdercoat-green-a22-albedo",
+          "plant-dark-steel-a22-normal",
+          "plant-dark-steel-a22-albedo",
+          "canopy-formed-metal-a22-normal",
+          "canopy-formed-metal-a22-albedo",
+          "plant-galvanised-a22-normal",
+          "plant-galvanised-a22-albedo",
+          "trolley-zinc-a21-normal",
+          "trolley-zinc-a21-albedo",
+          "cream-brick-normal",
+          "cream-brick-albedo",
+          "cream-render-normal",
+          "cream-render-albedo",
+          "bluestone-a22-normal",
+          "bluestone-a22-albedo",
+          "membrane-roof-a23-normal",
+          "membrane-roof-a23-albedo"
+        ],
+        "glassMaterials": [
+          {
+            "name": "auto door glass transparent",
+            "textureBindings": []
+          },
+          {
+            "name": "commercial shopfront glass",
+            "textureBindings": []
+          }
+        ],
+        "reflectionObservation": "No named reflection image is present. Both listed glass materials have no texture bindings. This does not establish pixel provenance of other embedded images.",
+        "generationReceipt": null,
+        "permissionRecord": null,
+        "historicalRecordPreserved": true
+      }
+    },
+    {
+      "id": "school-primary",
+      "file": "school-primary.glb",
+      "footprintTiles": [
+        1,
+        2
+      ],
+      "storeys": 2,
+      "heightM": 6.4,
+      "triangles": 488,
+      "materials": 6,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v302_lowpoly_assets.py",
+      "referenceSheet": "docs/art-direction/v302-lowpoly/references/school-primary-six-view.png",
+      "wave": "B",
+      "gateState": "MECHANICALLY_VALIDATED",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "boundsAuthoringM": {
+          "min": [
+            -6.545,
+            -14.245,
+            0.0
+          ],
+          "max": [
+            6.545,
+            15.2,
+            7.885341
+          ]
+        },
+        "dimensionsMeasuredM": [
+          13.09,
+          29.445,
+          7.885341
+        ],
+        "triangles": 488,
+        "materials": 6,
+        "materialNames": [
+          "V300 bluestone",
+          "V300 brick",
+          "V300 glass",
+          "V300 render",
+          "V300 roof-iron",
+          "V300 timber"
+        ],
+        "openingCount": 12,
+        "openingSchedule": [
+          {
+            "id": "front-classroom-01-01",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -3.8,
+              13.055,
+              1.75
+            ],
+            "size": [
+              1.45,
+              1.55
+            ]
+          },
+          {
+            "id": "front-classroom-01-02",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              0.0,
+              13.055,
+              1.75
+            ],
+            "size": [
+              1.45,
+              1.55
+            ]
+          },
+          {
+            "id": "front-classroom-01-03",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              3.8,
+              13.055,
+              1.75
+            ],
+            "size": [
+              1.45,
+              1.55
+            ]
+          },
+          {
+            "id": "rear-classroom-01-01",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              -3.8,
+              -3.055,
+              1.75
+            ],
+            "size": [
+              1.45,
+              1.55
+            ]
+          },
+          {
+            "id": "rear-classroom-01-02",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              0.0,
+              -3.055,
+              1.75
+            ],
+            "size": [
+              1.45,
+              1.55
+            ]
+          },
+          {
+            "id": "rear-classroom-01-03",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              3.8,
+              -3.055,
+              1.75
+            ],
+            "size": [
+              1.45,
+              1.55
+            ]
+          },
+          {
+            "id": "front-classroom-02-01",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -3.8,
+              13.055,
+              4.95
+            ],
+            "size": [
+              1.45,
+              1.55
+            ]
+          },
+          {
+            "id": "front-classroom-02-02",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              0.0,
+              13.055,
+              4.95
+            ],
+            "size": [
+              1.45,
+              1.55
+            ]
+          },
+          {
+            "id": "front-classroom-02-03",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              3.8,
+              13.055,
+              4.95
+            ],
+            "size": [
+              1.45,
+              1.55
+            ]
+          },
+          {
+            "id": "rear-classroom-02-01",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              -3.8,
+              -3.055,
+              4.95
+            ],
+            "size": [
+              1.45,
+              1.55
+            ]
+          },
+          {
+            "id": "rear-classroom-02-02",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              0.0,
+              -3.055,
+              4.95
+            ],
+            "size": [
+              1.45,
+              1.55
+            ]
+          },
+          {
+            "id": "rear-classroom-02-03",
+            "elevation": "rear",
+            "kind": "window",
+            "center": [
+              3.8,
+              -3.055,
+              4.95
+            ],
+            "size": [
+              1.45,
+              1.55
+            ]
+          }
+        ],
+        "criticalFeatureEvidence": {
+          "covered walkway": [
+            "school-walkway-roof"
+          ],
+          "fenced yard": [
+            "school-yard-post-01-01",
+            "school-yard-post-01-02",
+            "school-yard-post-01-03",
+            "school-yard-post-01-04",
+            "school-yard-post-01-05",
+            "school-yard-post-01-06",
+            "school-yard-post-02-01",
+            "school-yard-post-02-02",
+            "school-yard-post-02-03",
+            "school-yard-post-02-04",
+            "school-yard-post-02-05",
+            "school-yard-post-02-06",
+            "school-yard-post-03-01",
+            "school-yard-post-03-02",
+            "school-yard-post-03-03",
+            "school-yard-post-03-04",
+            "school-yard-post-03-05",
+            "school-yard-post-03-06",
+            "school-yard-rail-01",
+            "school-yard-rail-02",
+            "school-yard-rail-03",
+            "school-yard-surface"
+          ],
+          "shallow school roof": [
+            "roof-gable"
+          ]
+        },
+        "elementCounts": {
+          "box": 40,
+          "canopy": 1,
+          "fence": 1,
+          "gable-roof": 1,
+          "mesh": 1,
+          "opening": 12
+        },
+        "forbiddenObjects": [],
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z",
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportBoundsM": {
+          "min": [
+            -6.545,
+            -15.2,
+            0.0
+          ],
+          "max": [
+            6.545,
+            14.245,
+            7.885341
+          ]
+        },
+        "cleanImportTriangles": 488,
+        "cleanImportMaterials": 6,
+        "glbBytes": 51748
+      }
+    },
+    {
+      "id": "factory-light",
+      "file": "factory-light.glb",
+      "footprintTiles": [
+        1,
+        2
+      ],
+      "storeys": 2,
+      "heightM": 6.4,
+      "triangles": 320,
+      "materials": 5,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v302_lowpoly_assets.py",
+      "referenceSheet": "docs/art-direction/v302-lowpoly/references/factory-light-six-view.png",
+      "wave": "B",
+      "gateState": "MECHANICALLY_VALIDATED",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "boundsAuthoringM": {
+          "min": [
+            -6.9875,
+            -14.4,
+            0.0
+          ],
+          "max": [
+            6.9875,
+            15.5,
+            12.4
+          ]
+        },
+        "dimensionsMeasuredM": [
+          13.974999,
+          29.9,
+          12.4
+        ],
+        "triangles": 320,
+        "materials": 5,
+        "materialNames": [
+          "V300 bluestone",
+          "V300 brick",
+          "V300 glass",
+          "V300 roof-iron",
+          "V300 timber"
+        ],
+        "openingCount": 18,
+        "openingSchedule": [
+          {
+            "id": "front-loading",
+            "elevation": "front",
+            "kind": "loading-door",
+            "center": [
+              0.0,
+              14.455,
+              2.2
+            ],
+            "size": [
+              4.2,
+              4.0
+            ]
+          },
+          {
+            "id": "front-service",
+            "elevation": "front",
+            "kind": "door",
+            "center": [
+              4.8,
+              14.455,
+              1.25
+            ],
+            "size": [
+              0.9,
+              2.1
+            ]
+          },
+          {
+            "id": "east-industrial-01-01",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              -11.4,
+              2.0
+            ],
+            "size": [
+              1.5,
+              1.55
+            ]
+          },
+          {
+            "id": "east-industrial-01-02",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              -3.8,
+              2.0
+            ],
+            "size": [
+              1.5,
+              1.55
+            ]
+          },
+          {
+            "id": "east-industrial-01-03",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              3.8,
+              2.0
+            ],
+            "size": [
+              1.5,
+              1.55
+            ]
+          },
+          {
+            "id": "east-industrial-01-04",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              11.4,
+              2.0
+            ],
+            "size": [
+              1.5,
+              1.55
+            ]
+          },
+          {
+            "id": "west-industrial-01-01",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              -11.4,
+              2.0
+            ],
+            "size": [
+              1.5,
+              1.55
+            ]
+          },
+          {
+            "id": "west-industrial-01-02",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              -3.8,
+              2.0
+            ],
+            "size": [
+              1.5,
+              1.55
+            ]
+          },
+          {
+            "id": "west-industrial-01-03",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              3.8,
+              2.0
+            ],
+            "size": [
+              1.5,
+              1.55
+            ]
+          },
+          {
+            "id": "west-industrial-01-04",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              11.4,
+              2.0
+            ],
+            "size": [
+              1.5,
+              1.55
+            ]
+          },
+          {
+            "id": "east-industrial-02-01",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              -11.4,
+              5.2
+            ],
+            "size": [
+              1.5,
+              1.55
+            ]
+          },
+          {
+            "id": "east-industrial-02-02",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              -3.8,
+              5.2
+            ],
+            "size": [
+              1.5,
+              1.55
+            ]
+          },
+          {
+            "id": "east-industrial-02-03",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              3.8,
+              5.2
+            ],
+            "size": [
+              1.5,
+              1.55
+            ]
+          },
+          {
+            "id": "east-industrial-02-04",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.955,
+              11.4,
+              5.2
+            ],
+            "size": [
+              1.5,
+              1.55
+            ]
+          },
+          {
+            "id": "west-industrial-02-01",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              -11.4,
+              5.2
+            ],
+            "size": [
+              1.5,
+              1.55
+            ]
+          },
+          {
+            "id": "west-industrial-02-02",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              -3.8,
+              5.2
+            ],
+            "size": [
+              1.5,
+              1.55
+            ]
+          },
+          {
+            "id": "west-industrial-02-03",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              3.8,
+              5.2
+            ],
+            "size": [
+              1.5,
+              1.55
+            ]
+          },
+          {
+            "id": "west-industrial-02-04",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -6.955,
+              11.4,
+              5.2
+            ],
+            "size": [
+              1.5,
+              1.55
+            ]
+          }
+        ],
+        "criticalFeatureEvidence": {
+          "sawtooth roof": [
+            "roof-sawtooth-01",
+            "roof-sawtooth-02",
+            "roof-sawtooth-03",
+            "roof-sawtooth-04"
+          ],
+          "tall flue": [
+            "factory-flue"
+          ],
+          "loading dock": [
+            "loading-dock"
+          ]
+        },
+        "elementCounts": {
+          "box": 21,
+          "cylinder": 1,
+          "mesh": 4,
+          "opening": 18,
+          "sawtooth-roof": 1
+        },
+        "forbiddenObjects": [],
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z",
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportBoundsM": {
+          "min": [
+            -6.9875,
+            -15.5,
+            0.0
+          ],
+          "max": [
+            6.9875,
+            14.4,
+            12.4
+          ]
+        },
+        "cleanImportTriangles": 320,
+        "cleanImportMaterials": 5,
+        "glbBytes": 35824
+      }
+    },
+    {
+      "id": "cafe-corner",
+      "file": "cafe-corner.glb",
+      "footprintTiles": [
+        1,
+        1
+      ],
+      "storeys": 1,
+      "heightM": 3.2,
+      "triangles": 2492,
+      "materials": 7,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v302_lowpoly_assets.py",
+      "referenceSheet": "docs/art-direction/v302-lowpoly/references/cafe-corner-six-view.png",
+      "wave": "B",
+      "gateState": "MECHANICALLY_VALIDATED",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "boundsAuthoringM": {
+          "min": [
+            -8.325,
+            -6.375,
+            0.0
+          ],
+          "max": [
+            6.53,
+            7.7,
+            4.79
+          ]
+        },
+        "dimensionsMeasuredM": [
+          14.855,
+          14.075,
+          4.79
+        ],
+        "triangles": 2492,
+        "materials": 7,
+        "materialNames": [
+          "V300 awning-dark",
+          "V300 brick-red",
+          "V300 glass",
+          "V300 render",
+          "V300 roof-iron",
+          "V300 tile-green",
+          "V300 timber"
+        ],
+        "openingCount": 9,
+        "openingSchedule": [
+          {
+            "id": "front-servery",
+            "elevation": "front",
+            "kind": "shopfront",
+            "center": [
+              4.4,
+              5.555,
+              1.95
+            ],
+            "size": [
+              2.5,
+              1.75
+            ]
+          },
+          {
+            "id": "front-mid-glass",
+            "elevation": "front",
+            "kind": "shopfront",
+            "center": [
+              2.2,
+              5.555,
+              1.95
+            ],
+            "size": [
+              1.9,
+              1.75
+            ]
+          },
+          {
+            "id": "front-door",
+            "elevation": "front",
+            "kind": "door",
+            "center": [
+              0.15,
+              5.555,
+              1.4
+            ],
+            "size": [
+              0.82,
+              2.4
+            ]
+          },
+          {
+            "id": "front-right-glass-a",
+            "elevation": "front",
+            "kind": "shopfront",
+            "center": [
+              -1.55,
+              5.555,
+              1.95
+            ],
+            "size": [
+              2.3,
+              1.75
+            ]
+          },
+          {
+            "id": "front-right-glass-b",
+            "elevation": "front",
+            "kind": "shopfront",
+            "center": [
+              -3.7,
+              5.555,
+              1.95
+            ],
+            "size": [
+              2.2,
+              1.75
+            ]
+          },
+          {
+            "id": "front-right-glass-c",
+            "elevation": "front",
+            "kind": "shopfront",
+            "center": [
+              -4.7,
+              5.555,
+              1.95
+            ],
+            "size": [
+              0.85,
+              1.75
+            ]
+          },
+          {
+            "id": "east-corner-glass",
+            "elevation": "west",
+            "kind": "shopfront",
+            "center": [
+              -6.455,
+              1.85,
+              1.95
+            ],
+            "size": [
+              2.2,
+              1.7
+            ]
+          },
+          {
+            "id": "rear-service",
+            "elevation": "rear",
+            "kind": "door",
+            "center": [
+              3.5,
+              -5.555,
+              1.3
+            ],
+            "size": [
+              0.95,
+              2.15
+            ]
+          },
+          {
+            "id": "west-high-window",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              6.455,
+              -1.5,
+              2.1
+            ],
+            "size": [
+              1.0,
+              0.9
+            ]
+          }
+        ],
+        "criticalFeatureEvidence": {
+          "corner awning": [
+            "corner-awning-east",
+            "corner-awning-east-fascia",
+            "corner-awning-front",
+            "corner-awning-front-fascia",
+            "corner-awning-front-fascia-join",
+            "corner-awning-front-lip",
+            "corner-awning-return",
+            "corner-awning-side-lip"
+          ],
+          "servery opening": [
+            "opening-front-servery"
+          ],
+          "outdoor-table zone": [
+            "outdoor-table-01-base",
+            "outdoor-table-01-post",
+            "outdoor-table-01-seat",
+            "outdoor-table-01b-base",
+            "outdoor-table-01b-post",
+            "outdoor-table-01b-seat",
+            "outdoor-table-02-base",
+            "outdoor-table-02-post",
+            "outdoor-table-02-seat",
+            "outdoor-table-02b-base",
+            "outdoor-table-02b-post",
+            "outdoor-table-02b-seat",
+            "outdoor-table-03",
+            "outdoor-table-03-base",
+            "outdoor-table-03-leg"
+          ]
+        },
+        "elementCounts": {
+          "awning": 1,
+          "box": 189,
+          "cylinder": 8,
+          "opening": 9
+        },
+        "forbiddenObjects": [],
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z",
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportBoundsM": {
+          "min": [
+            -8.325,
+            -7.7,
+            0.0
+          ],
+          "max": [
+            6.53,
+            6.375,
+            4.79
+          ]
+        },
+        "cleanImportTriangles": 2492,
+        "cleanImportMaterials": 7,
+        "glbBytes": 241640
+      }
+    },
+    {
+      "id": "stock-exchange",
+      "file": "stock-exchange.glb",
+      "footprintTiles": [
+        1,
+        2
+      ],
+      "storeys": 2,
+      "heightM": 6.4,
+      "triangles": 3604,
+      "materials": 7,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v302_lowpoly_assets.py",
+      "referenceSheet": "docs/art-direction/v302-lowpoly/references/stock-exchange-orbit.png",
+      "wave": "B",
+      "gateState": "MECHANICALLY_VALIDATED",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "boundsAuthoringM": {
+          "min": [
+            -7.26,
+            -13.74,
+            0.0
+          ],
+          "max": [
+            7.26,
+            13.69,
+            6.4
+          ]
+        },
+        "dimensionsMeasuredM": [
+          14.52,
+          27.429999,
+          6.4
+        ],
+        "triangles": 3604,
+        "materials": 7,
+        "materialNames": [
+          "V300 awning-dark",
+          "V300 brick-red",
+          "V300 glass",
+          "V300 ground",
+          "V300 render",
+          "V300 roof-iron",
+          "V300 timber"
+        ],
+        "openingCount": 28,
+        "openingSchedule": [
+          {
+            "id": "wing-west-lower-01",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -7.055,
+              -8.25,
+              1.75
+            ],
+            "size": [
+              1.12,
+              1.46
+            ]
+          },
+          {
+            "id": "wing-west-upper-01",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -7.055,
+              -8.25,
+              4.35
+            ],
+            "size": [
+              1.12,
+              1.34
+            ]
+          },
+          {
+            "id": "wing-west-lower-02",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -7.055,
+              -4.4,
+              1.75
+            ],
+            "size": [
+              1.12,
+              1.46
+            ]
+          },
+          {
+            "id": "wing-west-upper-02",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -7.055,
+              -4.4,
+              4.35
+            ],
+            "size": [
+              1.12,
+              1.34
+            ]
+          },
+          {
+            "id": "wing-west-lower-03",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -7.055,
+              -0.55,
+              1.75
+            ],
+            "size": [
+              1.12,
+              1.46
+            ]
+          },
+          {
+            "id": "wing-west-upper-03",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -7.055,
+              -0.55,
+              4.35
+            ],
+            "size": [
+              1.12,
+              1.34
+            ]
+          },
+          {
+            "id": "wing-west-lower-04",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -7.055,
+              3.3,
+              1.75
+            ],
+            "size": [
+              1.12,
+              1.46
+            ]
+          },
+          {
+            "id": "wing-west-upper-04",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -7.055,
+              3.3,
+              4.35
+            ],
+            "size": [
+              1.12,
+              1.34
+            ]
+          },
+          {
+            "id": "wing-west-lower-05",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -7.055,
+              7.15,
+              1.75
+            ],
+            "size": [
+              1.12,
+              1.46
+            ]
+          },
+          {
+            "id": "wing-west-upper-05",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -7.055,
+              7.15,
+              4.35
+            ],
+            "size": [
+              1.12,
+              1.34
+            ]
+          },
+          {
+            "id": "wing-west-lower-06",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -7.055,
+              11.0,
+              1.75
+            ],
+            "size": [
+              1.12,
+              1.46
+            ]
+          },
+          {
+            "id": "wing-west-upper-06",
+            "elevation": "west",
+            "kind": "window",
+            "center": [
+              -7.055,
+              11.0,
+              4.35
+            ],
+            "size": [
+              1.12,
+              1.34
+            ]
+          },
+          {
+            "id": "wing-east-lower-01",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              7.055,
+              -8.25,
+              1.75
+            ],
+            "size": [
+              1.12,
+              1.46
+            ]
+          },
+          {
+            "id": "wing-east-upper-01",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              7.055,
+              -8.25,
+              4.35
+            ],
+            "size": [
+              1.12,
+              1.34
+            ]
+          },
+          {
+            "id": "wing-east-lower-02",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              7.055,
+              -4.4,
+              1.75
+            ],
+            "size": [
+              1.12,
+              1.46
+            ]
+          },
+          {
+            "id": "wing-east-upper-02",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              7.055,
+              -4.4,
+              4.35
+            ],
+            "size": [
+              1.12,
+              1.34
+            ]
+          },
+          {
+            "id": "wing-east-lower-03",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              7.055,
+              -0.55,
+              1.75
+            ],
+            "size": [
+              1.12,
+              1.46
+            ]
+          },
+          {
+            "id": "wing-east-upper-03",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              7.055,
+              -0.55,
+              4.35
+            ],
+            "size": [
+              1.12,
+              1.34
+            ]
+          },
+          {
+            "id": "wing-east-lower-04",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              7.055,
+              3.3,
+              1.75
+            ],
+            "size": [
+              1.12,
+              1.46
+            ]
+          },
+          {
+            "id": "wing-east-upper-04",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              7.055,
+              3.3,
+              4.35
+            ],
+            "size": [
+              1.12,
+              1.34
+            ]
+          },
+          {
+            "id": "wing-east-lower-05",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              7.055,
+              7.15,
+              1.75
+            ],
+            "size": [
+              1.12,
+              1.46
+            ]
+          },
+          {
+            "id": "wing-east-upper-05",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              7.055,
+              7.15,
+              4.35
+            ],
+            "size": [
+              1.12,
+              1.34
+            ]
+          },
+          {
+            "id": "wing-east-lower-06",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              7.055,
+              11.0,
+              1.75
+            ],
+            "size": [
+              1.12,
+              1.46
+            ]
+          },
+          {
+            "id": "wing-east-upper-06",
+            "elevation": "east",
+            "kind": "window",
+            "center": [
+              7.055,
+              11.0,
+              4.35
+            ],
+            "size": [
+              1.12,
+              1.34
+            ]
+          },
+          {
+            "id": "front-wing-west-lower",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -5.075,
+              13.555,
+              1.75
+            ],
+            "size": [
+              1.22,
+              1.46
+            ]
+          },
+          {
+            "id": "front-wing-west-upper",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -5.075,
+              13.555,
+              4.35
+            ],
+            "size": [
+              1.22,
+              1.34
+            ]
+          },
+          {
+            "id": "front-wing-east-lower",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              5.075,
+              13.555,
+              1.75
+            ],
+            "size": [
+              1.22,
+              1.46
+            ]
+          },
+          {
+            "id": "front-wing-east-upper",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              5.075,
+              13.555,
+              4.35
+            ],
+            "size": [
+              1.22,
+              1.34
+            ]
+          }
+        ],
+        "criticalFeatureEvidence": {
+          "portico-pediment": [
+            "portico-column-01",
+            "portico-column-02",
+            "portico-column-03",
+            "portico-column-04",
+            "portico-column-base-01",
+            "portico-column-base-02",
+            "portico-column-base-03",
+            "portico-column-base-04",
+            "portico-column-cap-01",
+            "portico-column-cap-02",
+            "portico-column-cap-03",
+            "portico-column-cap-04",
+            "portico-column-flute-01-1",
+            "portico-column-flute-01-2",
+            "portico-column-flute-01-3",
+            "portico-column-flute-01-4",
+            "portico-column-flute-02-1",
+            "portico-column-flute-02-2",
+            "portico-column-flute-02-3",
+            "portico-column-flute-02-4",
+            "portico-column-flute-03-1",
+            "portico-column-flute-03-2",
+            "portico-column-flute-03-3",
+            "portico-column-flute-03-4",
+            "portico-column-flute-04-1",
+            "portico-column-flute-04-2",
+            "portico-column-flute-04-3",
+            "portico-column-flute-04-4",
+            "portico-column-neck-01",
+            "portico-column-neck-02",
+            "portico-column-neck-03",
+            "portico-column-neck-04",
+            "portico-pediment",
+            "portico-pediment-rake-east",
+            "portico-pediment-rake-west"
+          ],
+          "courtyard": [
+            "courtyard-centre-plinth",
+            "courtyard-lawn",
+            "courtyard-lawn-deep",
+            "courtyard-opening-east-lower-01",
+            "courtyard-opening-east-lower-02",
+            "courtyard-opening-east-lower-03",
+            "courtyard-opening-east-lower-04",
+            "courtyard-opening-east-lower-05",
+            "courtyard-opening-east-lower-06",
+            "courtyard-opening-east-upper-01",
+            "courtyard-opening-east-upper-02",
+            "courtyard-opening-east-upper-03",
+            "courtyard-opening-east-upper-04",
+            "courtyard-opening-east-upper-05",
+            "courtyard-opening-east-upper-06",
+            "courtyard-opening-west-lower-01",
+            "courtyard-opening-west-lower-02",
+            "courtyard-opening-west-lower-03",
+            "courtyard-opening-west-lower-04",
+            "courtyard-opening-west-lower-05",
+            "courtyard-opening-west-lower-06",
+            "courtyard-opening-west-upper-01",
+            "courtyard-opening-west-upper-02",
+            "courtyard-opening-west-upper-03",
+            "courtyard-opening-west-upper-04",
+            "courtyard-opening-west-upper-05",
+            "courtyard-opening-west-upper-06",
+            "courtyard-paving-inner-east",
+            "courtyard-paving-inner-front",
+            "courtyard-paving-inner-rear",
+            "courtyard-paving-inner-west",
+            "courtyard-paving-outer-east",
+            "courtyard-paving-outer-front",
+            "courtyard-paving-outer-rear",
+            "courtyard-paving-outer-west"
+          ],
+          "wing-window-bays": [
+            "opening-front-wing-east-lower",
+            "opening-front-wing-east-upper",
+            "opening-front-wing-west-lower",
+            "opening-front-wing-west-upper",
+            "opening-wing-east-lower-01",
+            "opening-wing-east-lower-02",
+            "opening-wing-east-lower-03",
+            "opening-wing-east-lower-04",
+            "opening-wing-east-lower-05",
+            "opening-wing-east-lower-06",
+            "opening-wing-east-upper-01",
+            "opening-wing-east-upper-02",
+            "opening-wing-east-upper-03",
+            "opening-wing-east-upper-04",
+            "opening-wing-east-upper-05",
+            "opening-wing-east-upper-06",
+            "opening-wing-west-lower-01",
+            "opening-wing-west-lower-02",
+            "opening-wing-west-lower-03",
+            "opening-wing-west-lower-04",
+            "opening-wing-west-lower-05",
+            "opening-wing-west-lower-06",
+            "opening-wing-west-upper-01",
+            "opening-wing-west-upper-02",
+            "opening-wing-west-upper-03",
+            "opening-wing-west-upper-04",
+            "opening-wing-west-upper-05",
+            "opening-wing-west-upper-06"
+          ]
+        },
+        "elementCounts": {
+          "beam": 2,
+          "box": 285,
+          "cylinder": 4,
+          "mesh": 1,
+          "opening": 28
+        },
+        "forbiddenObjects": [],
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z",
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportBoundsM": {
+          "min": [
+            -7.26,
+            -13.69,
+            0.0
+          ],
+          "max": [
+            7.26,
+            13.74,
+            6.4
+          ]
+        },
+        "cleanImportTriangles": 3604,
+        "cleanImportMaterials": 7,
+        "glbBytes": 358688
+      }
+    },
+    {
+      "id": "hospital-district",
+      "file": "hospital-district.glb",
+      "footprintTiles": [
+        1,
+        2
+      ],
+      "storeys": 6,
+      "heightM": 19.2,
+      "triangles": 2112,
+      "materials": 7,
+      "source": "procedural-blender",
+      "builderScript": "scripts/blender/build_v302_lowpoly_assets.py",
+      "referenceSheet": "docs/art-direction/v302-lowpoly/references/hospital-district-current.png",
+      "wave": "B",
+      "gateState": "MECHANICALLY_VALIDATED",
+      "measuredGateValues": {
+        "originM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "groundContactZM": 0.0,
+        "boundsAuthoringM": {
+          "min": [
+            -6.95,
+            -12.0,
+            0.0
+          ],
+          "max": [
+            6.94,
+            15.450001,
+            19.200001
+          ]
+        },
+        "dimensionsMeasuredM": [
+          13.89,
+          27.450001,
+          19.200001
+        ],
+        "triangles": 2112,
+        "materials": 7,
+        "materialNames": [
+          "V300 awning-dark",
+          "V300 brick-red",
+          "V300 glass",
+          "V300 ground",
+          "V300 render",
+          "V300 roof-iron",
+          "V300 timber"
+        ],
+        "openingCount": 5,
+        "openingSchedule": [
+          {
+            "id": "ward-front-01-01",
+            "elevation": "front",
+            "kind": "window",
+            "center": [
+              -4.85,
+              7.255,
+              4.72
+            ],
+            "size": [
+              1.18,
+              1.48
+            ]
+          },
+          {
+            "id": "public-lobby-pane-03",
+            "elevation": "front",
+            "kind": "shopfront",
+            "center": [
+              3.45,
+              9.37,
+              1.49
+            ],
+            "size": [
+              1.072,
+              2.44
+            ]
+          },
+          {
+            "id": "ed-bay-mouth-01",
+            "elevation": "front",
+            "kind": "shopfront",
+            "center": [
+              -4.96,
+              13.08,
+              1.56
+            ],
+            "size": [
+              2.1,
+              2.4
+            ]
+          },
+          {
+            "id": "ed-bay-mouth-02",
+            "elevation": "front",
+            "kind": "shopfront",
+            "center": [
+              -1.88,
+              13.08,
+              1.56
+            ],
+            "size": [
+              2.1,
+              2.4
+            ]
+          },
+          {
+            "id": "rear-service-01",
+            "elevation": "rear",
+            "kind": "door",
+            "center": [
+              0.0,
+              -11.855,
+              1.35
+            ],
+            "size": [
+              1.3,
+              2.2
+            ]
+          }
+        ],
+        "criticalFeatureEvidence": {
+          "ward-window-grid": [
+            "opening-ward-front-01-01",
+            "ward-window-glass-01-02",
+            "ward-window-glass-01-03",
+            "ward-window-glass-01-04",
+            "ward-window-glass-01-05",
+            "ward-window-glass-01-06",
+            "ward-window-glass-02-01",
+            "ward-window-glass-02-02",
+            "ward-window-glass-02-03",
+            "ward-window-glass-02-04",
+            "ward-window-glass-02-05",
+            "ward-window-glass-02-06",
+            "ward-window-glass-03-01",
+            "ward-window-glass-03-02",
+            "ward-window-glass-03-03",
+            "ward-window-glass-03-04",
+            "ward-window-glass-03-05",
+            "ward-window-glass-03-06",
+            "ward-window-glass-04-01",
+            "ward-window-glass-04-02",
+            "ward-window-glass-04-03",
+            "ward-window-glass-04-04",
+            "ward-window-glass-04-05",
+            "ward-window-glass-04-06",
+            "ward-window-glass-05-01",
+            "ward-window-glass-05-02",
+            "ward-window-glass-05-03",
+            "ward-window-glass-05-04",
+            "ward-window-glass-05-05",
+            "ward-window-glass-05-06",
+            "ward-window-rear-01-01",
+            "ward-window-rear-01-02",
+            "ward-window-rear-01-03",
+            "ward-window-rear-01-04",
+            "ward-window-rear-02-01",
+            "ward-window-rear-02-02",
+            "ward-window-rear-02-03",
+            "ward-window-rear-02-04",
+            "ward-window-rear-03-01",
+            "ward-window-rear-03-02",
+            "ward-window-rear-03-03",
+            "ward-window-rear-03-04",
+            "ward-window-rear-04-01",
+            "ward-window-rear-04-02",
+            "ward-window-rear-04-03",
+            "ward-window-rear-04-04",
+            "ward-window-rear-05-01",
+            "ward-window-rear-05-02",
+            "ward-window-rear-05-03",
+            "ward-window-rear-05-04",
+            "ward-window-recess-01-01",
+            "ward-window-recess-01-02",
+            "ward-window-recess-01-03",
+            "ward-window-recess-01-04",
+            "ward-window-recess-01-05",
+            "ward-window-recess-01-06",
+            "ward-window-recess-02-01",
+            "ward-window-recess-02-02",
+            "ward-window-recess-02-03",
+            "ward-window-recess-02-04",
+            "ward-window-recess-02-05",
+            "ward-window-recess-02-06",
+            "ward-window-recess-03-01",
+            "ward-window-recess-03-02",
+            "ward-window-recess-03-03",
+            "ward-window-recess-03-04",
+            "ward-window-recess-03-05",
+            "ward-window-recess-03-06",
+            "ward-window-recess-04-01",
+            "ward-window-recess-04-02",
+            "ward-window-recess-04-03",
+            "ward-window-recess-04-04",
+            "ward-window-recess-04-05",
+            "ward-window-recess-04-06",
+            "ward-window-recess-05-01",
+            "ward-window-recess-05-02",
+            "ward-window-recess-05-03",
+            "ward-window-recess-05-04",
+            "ward-window-recess-05-05",
+            "ward-window-recess-05-06",
+            "ward-window-side-glass-east-01-01",
+            "ward-window-side-glass-east-01-02",
+            "ward-window-side-glass-east-02-01",
+            "ward-window-side-glass-east-02-02",
+            "ward-window-side-glass-east-03-01",
+            "ward-window-side-glass-east-03-02",
+            "ward-window-side-glass-east-04-01",
+            "ward-window-side-glass-east-04-02",
+            "ward-window-side-glass-east-05-01",
+            "ward-window-side-glass-east-05-02",
+            "ward-window-side-glass-west-01-01",
+            "ward-window-side-glass-west-01-02",
+            "ward-window-side-glass-west-02-01",
+            "ward-window-side-glass-west-02-02",
+            "ward-window-side-glass-west-03-01",
+            "ward-window-side-glass-west-03-02",
+            "ward-window-side-glass-west-04-01",
+            "ward-window-side-glass-west-04-02",
+            "ward-window-side-glass-west-05-01",
+            "ward-window-side-glass-west-05-02",
+            "ward-window-side-recess-east-01-01",
+            "ward-window-side-recess-east-01-02",
+            "ward-window-side-recess-east-02-01",
+            "ward-window-side-recess-east-02-02",
+            "ward-window-side-recess-east-03-01",
+            "ward-window-side-recess-east-03-02",
+            "ward-window-side-recess-east-04-01",
+            "ward-window-side-recess-east-04-02",
+            "ward-window-side-recess-east-05-01",
+            "ward-window-side-recess-east-05-02",
+            "ward-window-side-recess-west-01-01",
+            "ward-window-side-recess-west-01-02",
+            "ward-window-side-recess-west-02-01",
+            "ward-window-side-recess-west-02-02",
+            "ward-window-side-recess-west-03-01",
+            "ward-window-side-recess-west-03-02",
+            "ward-window-side-recess-west-04-01",
+            "ward-window-side-recess-west-04-02",
+            "ward-window-side-recess-west-05-01",
+            "ward-window-side-recess-west-05-02"
+          ],
+          "public-entry-lobby": [
+            "opening-public-lobby-pane-03",
+            "public-lobby-bar-01",
+            "public-lobby-bar-02",
+            "public-lobby-bar-03",
+            "public-lobby-bar-04",
+            "public-lobby-bar-horizontal-01",
+            "public-lobby-bar-horizontal-02",
+            "public-lobby-canopy-fascia",
+            "public-lobby-canopy-post-01",
+            "public-lobby-canopy-post-02",
+            "public-lobby-canopy-post-03",
+            "public-lobby-canopy-roof",
+            "public-lobby-floor",
+            "public-lobby-glass-pane-01",
+            "public-lobby-glass-pane-02",
+            "public-lobby-glass-pane-04",
+            "public-lobby-glass-pane-05",
+            "public-lobby-reveal-east",
+            "public-lobby-reveal-head",
+            "public-lobby-reveal-west",
+            "public-lobby-void"
+          ],
+          "ed-bay": [
+            "ed-apron-line-01",
+            "ed-apron-line-02",
+            "ed-apron-line-03",
+            "ed-apron-main",
+            "ed-apron-stop-01",
+            "ed-apron-stop-02",
+            "ed-bay-centre-pier",
+            "ed-bay-east-cheek",
+            "ed-bay-hatch-band",
+            "ed-bay-mouth-void-01",
+            "ed-bay-mouth-void-02",
+            "ed-bay-roof-cap",
+            "ed-bay-volume",
+            "ed-bay-west-cheek"
+          ]
+        },
+        "elementCounts": {
+          "box": 171,
+          "cylinder": 1,
+          "opening": 5
+        },
+        "forbiddenObjects": [],
+        "frontAxisBlender": "+Y",
+        "frontAxisGltf": "+Z",
+        "cleanImportGroundContactZM": 0.0,
+        "cleanImportBoundsM": {
+          "min": [
+            -6.95,
+            -15.450001,
+            0.0
+          ],
+          "max": [
+            6.94,
+            12.0,
+            19.200001
+          ]
+        },
+        "cleanImportTriangles": 2112,
+        "cleanImportMaterials": 7,
+        "glbBytes": 210964
+      }
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+/* Keep layout measurable during boot; hide unfinished values and inert controls. */
+.province-body[data-world-phase]:not([data-world-phase="ready"]) > .province { visibility: hidden; opacity: 0; }
+.world-loading { position: fixed; inset: 0; z-index: 3000; display: grid; place-items: center; padding: 24px; overflow: auto; color: #ecedde; background: radial-gradient(ellipse at 50% 45%, #203942 0, #12242d 42%, #0a151e 100%); font: 15px/1.6 "DD Body", system-ui, sans-serif; }
+.world-loading[hidden] { display: none; }
+.world-loading-card { width: min(100%, 430px); text-align: center; }
+.world-loading-kicker { margin: 0 0 34px; color: #c7b58e; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; }
+.world-loading h1 { margin: 30px 0 12px; font: 500 34px/1.2 "DD Display", system-ui, sans-serif; letter-spacing: .02em; }
+#world-loading-status { min-height: 3.2em; margin: 0; color: #c3d0d2; }
+.world-loading-globe { position: relative; width: 94px; height: 94px; margin: auto; border: 1px solid #b9a779; border-radius: 50%; box-shadow: inset -15px -8px 28px #0a1821, 0 0 42px #6b9bac19; background: radial-gradient(circle at 30% 30%, #46666a, #172f3b 70%); }
+.world-loading-globe::before, .world-loading-globe::after, .world-loading-globe i { content: ""; position: absolute; border: 1px solid #b9a77980; border-radius: 50%; }
+.world-loading-globe::before { inset: 0 24px; }
+.world-loading-globe::after { inset: 24px 0; }
+.world-loading-globe i:first-child { inset: 44px 0; }
+.world-loading-globe i:last-child { inset: -9px; border-color: transparent; border-top-color: #c7b58e; animation: world-loading-orbit 3s linear infinite; }
+.world-loading-actions { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 14px; margin-top: 24px; }
+.world-loading-actions :is(a, button) { min-height: 40px; box-sizing: border-box; padding: 8px 14px; border: 1px solid #627a7d; border-radius: 3px; background: #19323c; color: #ede6d4; font: inherit; font-size: 13px; cursor: pointer; text-decoration: none; }
+.world-loading-actions :is(a, button):hover { border-color: #d3c093; background: #28434b; }
+.world-loading-actions :is(a, button):focus-visible { outline: 2px solid #ede6d4; outline-offset: 4px; }
+.province-body[data-world-phase="failed"] .world-loading-globe i:last-child { animation: none; border-top-color: #c78c67; }
+@keyframes world-loading-orbit { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .world-loading-globe i:last-child { animation: none; } }
+
+/* Keep the port decision visible while its supporting detail scrolls. */
+.province-body .province-dossier { box-sizing: border-box; width: 334px; overflow: hidden; max-height: calc(100dvh - 108px); }
+.province-body .v4-dossier-layout { display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow: hidden; }
+.province-dossier > .v4-dossier-layout { flex: 1 1 auto; }
+.province-body .v4-dossier-heading { flex: 0 0 auto; }
+.province-body .v4-dossier-heading h2 { margin: 5px 0 0; }
+.province-body .v4-dossier-heading .province-resource-desk { margin: 0 0 4px; }
+.province-body .v4-dossier-heading .province-resource-desk-name { font: 650 20px/1.2 system-ui; letter-spacing: .01em; text-transform: none; }
+.province-body .v4-dossier-heading .province-resource-name { font-size: 14px; }
+.province-body .v4-dossier-heading .province-resource-loc { font-size: 11px; }
+.province-body .v4-port-introduction { display: block; margin: 0 0 12px; color: #c5d1cd; font: 13px/1.45 system-ui; }
+.province-body .v4-dossier-description { flex: 1 1 auto; min-height: 48px; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: #b2c5ca #18242b; }
+.province-body .v4-dossier-description > :first-child { margin-top: 0; }
+.province-body .v4-dossier-description:focus-visible { outline: 2px solid #b5dbe6; outline-offset: -2px; }
+.province-body .v4-dossier-actions { flex: 0 0 auto; padding-top: 10px; border-top: 2px solid #829b9e; background: #142027; box-shadow: 0 -7px 10px -8px #000; }
+.province-body .v4-dossier-actions[hidden] { display: none; }
+.province-body .v4-dossier-actions .province-book[hidden] { display: none; }
+.province-body .v4-book-picker { display: grid; gap: 3px; font-size: 12px; }
+.province-body .v4-book-picker select { width: 100%; min-height: 32px; padding: 4px 6px; color: #edf2e7; background: #182a32; border: 1px solid #8caaaa; font: inherit; }
+.province-body .v4-dossier-actions :is(.province-resource-zone-actions,.province-resource-actions) { margin: 0; padding: 0; }
+.province-body .v4-dossier-actions :is(.province-working-band,.province-shut-band,.province-book-actions,.province-force-orders,.province-ambition-rail-actions) { margin-top: 5px; }
+.province-body .v4-dossier-actions :is(button,summary) { min-height: 34px; }
+.province-body .v4-dossier-actions .province-shut-band[open] ul { max-height: 120px; overflow-y: auto; }
+.province-body .v4-port-picker { display: grid; gap: 4px; margin-top: 9px; font: 12px/1.25 system-ui; color: #d8e4e2; }
+.province-body .v4-port-picker select { width: 100%; min-height: 32px; padding: 4px 7px; border: 1px solid #8caaaa; border-radius: 3px; background: #112129; color: #f3f3df; font: inherit; }
+.province-body .province-city-label[data-hovered="true"] { background: #f0d792; color: #17282d; border-color: #fff0c1; z-index: 1200 !important; }
+.province-body .province-mast { padding-bottom: 10px; }
+.province-body .province-yard { top: 194px; max-height: calc(100dvh - 282px); }
+.province-body .v4-yard-content { display: contents; }
+.province-body .v4-yard-toggle { display: none; }
+#province-dossier .province-resource-desk { display: flex; align-items: center; justify-content: space-between; }
+#province-dossier .province-resource-desk-name { font: 650 20px/1.2 system-ui; text-transform: none; }
+#province-dossier .v4-recenter-port { min-height: 28px; padding: 3px 7px; border: 1px solid #6a858b; background: transparent; color: #d5e6e4; font: 12px/1.3 system-ui; }
+#province-dossier .v4-book-recurring { padding: 5px 0; color: #ebd29b; font: 600 12px/1.35 system-ui; }
+#province-dossier .province-book:not([hidden]) button:not(:disabled) { background: #d0b477; color: #152027; border-color: #ead19b; }
+#province-dossier .province-book button:disabled { background: #253238; color: #b6c1bf; border-color: #5e7479; }
+.province-body .province-city-leader[data-selected="true"] { height: 2px; background: #fff0bc; box-shadow: 0 1px 2px #000; z-index: 1050; }
+@media (max-width: 860px) {
+  .province-body .province-dossier { width: 274px; max-height: min(470px, calc(100dvh - 208px)); padding: 12px; overflow: hidden; }
+  .province-body .v4-dossier-description { max-height: 120px; min-height: 44px; }
+  .province-body .v4-dossier-description::before { content: 'DETAILS · SCROLL'; display: block; position: sticky; top: 0; z-index: 1; padding: 3px 0; background: #192730; color: #abc2c6; font: 10px/1.3 system-ui; letter-spacing: .06em; }
+  .province-body .v4-dossier-actions p { font-size: 12px; line-height: 1.35; margin: 5px 0; }
+  .province-body .province-yard { top: 198px; max-height: calc(100dvh - 286px); }
+  .province-body .v4-yard-toggle { display: block; width: 100%; min-height: 36px; padding: 6px; border: 1px solid #829b9e; background: #17272e; color: #e9d4a4; font: 600 12px/1.4 system-ui; text-align: left; }
+  .province-body .v4-yard-toggle::after { content: '+'; float: right; }
+  .province-body .v4-yard-toggle[aria-expanded="true"]::after { content: '−'; }
+  .province-body .province-yard:not([data-expanded="1"]) { bottom: auto; }
+  .province-body .province-yard:not([data-expanded="1"]) .v4-yard-content { display: none; }
+  .province-body .v4-dossier-actions .province-resource-books-heading { display: none; }
+  .province-body .v4-dossier-actions .province-book p { font: 12px/1.4 system-ui; }
+}
+@media (max-width: 560px) {
+  .province-body .province-dossier { top: 176px; max-height: 42dvh; }
+  .province-body .province-yard { top: auto; max-height: 22dvh; }
+}
+
+/* Short portrait phone mode, measured and cleared by dossier-layout.js.
+   Keep the key and port picker visible above a real map band, then one decision row. */
+.province-body .province-mast[data-compact-globe] { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--chrome-space-1) var(--chrome-space-2); width: auto; right: max(var(--chrome-space-2), env(safe-area-inset-right)); padding: var(--chrome-space-1) var(--chrome-space-3); }
+.province-body .province-mast[data-compact-globe] .province-kicker { grid-column: 1; grid-row: 1; align-self: end; margin: 0; }
+.province-body .province-mast[data-compact-globe] h1 { grid-column: 1; grid-row: 2; }
+.province-body .province-mast[data-compact-globe] .v4-port-picker { grid-column: 2; grid-row: 1 / span 2; margin-top: 0; min-width: 0; }
+.province-body .province-mast[data-compact-globe] .v4-port-picker select { min-width: 0; }
+.province-body .province-mast[data-compact-globe] .province-key { grid-column: 1 / -1; grid-row: 3; margin-top: 0; padding-top: var(--chrome-space-1); gap: var(--chrome-space-1) var(--chrome-space-2); line-height: 1.2; }
+.province-body .province-dossier[data-compact-globe] { --phone-map-band: calc(12 * var(--chrome-space-3)); --phone-sheet-limit: calc(10 * var(--chrome-space-3)); --phone-heading-display: grid; --phone-close-margin: 0; padding: var(--chrome-space-2); gap: var(--chrome-space-1); }
+.province-body .province-dossier[data-compact-globe] .v4-dossier-layout { gap: var(--chrome-space-1); }
+.province-body .province-dossier[data-compact-globe] .v4-dossier-heading { grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; column-gap: var(--chrome-space-1); }
+.province-body .province-dossier[data-compact-globe] .v4-dossier-heading h2 { grid-column: 1; grid-row: 1; margin: 0; }
+.province-body .province-dossier[data-compact-globe] .province-status { grid-column: 2; grid-row: 1; }
+.province-body .province-dossier[data-compact-globe] .v4-dossier-close { grid-column: 3; grid-row: 1; }
+.province-body .province-dossier[data-compact-globe] .v4-dossier-actions { padding-top: var(--chrome-space-1); }

@@ -1,0 +1,110 @@
+{
+  "layout": "RGBA: linear neutral albedo, normal X, normal Y, roughness; NoColorSpace",
+  "gpuBytesIncludingMipmaps": 44739242.666666664,
+  "tiles": [
+    {
+      "file": "r7b-brick-red.png",
+      "source": "_reviews/imagen/r3/materials/tile-brick-red.png",
+      "sourceSHA256": "e2129acb55e97c5efe4c21f2c382dd991ec3c1fc4980ea863f3be8cd270561e6",
+      "sha256": "3950847baabdd03ffec9ca3a020e6d2d159c777c80b282234344480546c065d1",
+      "size": [
+        1024,
+        1024
+      ],
+      "tileResolution": 1024,
+      "roughnessBias": 0.82,
+      "normalStrength": 0.45
+    },
+    {
+      "file": "r7b-render-cream.png",
+      "source": "_reviews/imagen/r3/materials/tile-render-cream.png",
+      "sourceSHA256": "3bb4e939f834c3043416de9d6eb591b206d864b51660388ecbdaf83786b3d5e5",
+      "sha256": "32f4a816d311f4ad7da7e00b94e4aad76cb60c37487254b8e5161b66a8e1e535",
+      "size": [
+        1024,
+        1024
+      ],
+      "tileResolution": 1024,
+      "roughnessBias": 0.88,
+      "normalStrength": 0.45
+    },
+    {
+      "file": "r7b-terracotta-roof.png",
+      "source": "_reviews/imagen/r3/materials/tile-terracotta-roof.png",
+      "sourceSHA256": "42b893e970a09915b08e4ae592f90630f2acd3183632abc6b2d4d89f202570fb",
+      "sha256": "2910849e140228f9e1e751f80f6997460f1010797bf08e1e4e289a88ce4db389",
+      "size": [
+        1024,
+        1024
+      ],
+      "tileResolution": 1024,
+      "roughnessBias": 0.84,
+      "normalStrength": 0.45
+    },
+    {
+      "file": "r7b-metal-roof.png",
+      "source": "_reviews/imagen/r3/materials/tile-metal-roof.png",
+      "sourceSHA256": "01d7b7790afc255221615b6b0057811e9726432d248e7b1a6c0e0024b59c16f1",
+      "sha256": "6224dfa6d4b5ecea9d782a8fbd62029e7942abecb8d650088610bb5b90449619",
+      "size": [
+        1024,
+        1024
+      ],
+      "tileResolution": 1024,
+      "roughnessBias": 0.67,
+      "normalStrength": 0.45
+    },
+    {
+      "file": "r7b-membrane-roof.png",
+      "source": "_reviews/imagen/r3/materials/tile-membrane-roof.png",
+      "sourceSHA256": "e3012ad50542bba26344fc23c75d1cf5189c07e41d066ba730ce622a24284eae",
+      "sha256": "d1dec52c849b2114da338ea3d298ab52e9c3d43814d4d34b0c4ef0138d23c8cf",
+      "size": [
+        1024,
+        1024
+      ],
+      "tileResolution": 1024,
+      "roughnessBias": 0.91,
+      "normalStrength": 0.45
+    },
+    {
+      "file": "r7b-asphalt.png",
+      "source": "_reviews/imagen/r3/materials/tile-asphalt.png",
+      "sourceSHA256": "1cbea4891b4cdf2dddaf45337afcd74745f219a0e99cc2425bec02ce3bb625ed",
+      "sha256": "2823f6db187f279cf4b14b158f312ff5996f70e2a2005d343b612fe252218b27",
+      "size": [
+        1024,
+        1024
+      ],
+      "tileResolution": 1024,
+      "roughnessBias": 0.94,
+      "normalStrength": 0.45
+    },
+    {
+      "file": "r7b-pavement.png",
+      "source": "_reviews/imagen/r3/materials/tile-pavement.png",
+      "sourceSHA256": "9ae5e3f847036b76f962b6f2d14ab21557bd71f18d94059ff8d6c32c69627068",
+      "sha256": "b9d1411901c9ada447df4fac7cb9c3ad25c8920cbe19d5197226815742e93d9a",
+      "size": [
+        1024,
+        1024
+      ],
+      "tileResolution": 1024,
+      "roughnessBias": 0.88,
+      "normalStrength": 0.45
+    },
+    {
+      "file": "r7b-weatherboard.png",
+      "source": "_reviews/imagen/r3/materials/tile-weatherboard.png",
+      "sourceSHA256": "b315bf41507b6a53eb889de945c6f3fc97035d03ac1dc3c43cf9169b256e7e99",
+      "sha256": "c1cdabe1c0325328bb56491195c052f8d73249e767c7200be9a5fe36f94dac87",
+      "size": [
+        1024,
+        1024
+      ],
+      "tileResolution": 1024,
+      "roughnessBias": 0.79,
+      "normalStrength": 0.45
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "tile-concrete-panel": { "file": "tile-concrete-panel.png", "intendedSurface": "HUD chrome and dock panels" },
+  "tile-steel-tab": { "file": "tile-steel-tab.png", "intendedSurface": "rail tabs and status counters" },
+  "tile-manila-folder": { "file": "tile-manila-folder.png", "intendedSurface": "property deed folder" },
+  "tile-blueprint-sheet": { "file": "tile-blueprint-sheet.png", "intendedSurface": "planning and redevelop sections" },
+  "tile-carbon-invoice": { "file": "tile-carbon-invoice.png", "intendedSurface": "ledger, settlement, and toast dockets" },
+  "tile-site-hoarding": { "file": "tile-site-hoarding.png", "intendedSurface": "landing-page hoarding and dark chrome" },
+  "frame-video-window": { "file": "frame-video-window.png", "intendedSurface": "person dossier and site-cam video stages" },
+  "frame-order-form": { "file": "frame-order-form.png", "intendedSurface": "renovate and redevelop works-order sheet" }
+}

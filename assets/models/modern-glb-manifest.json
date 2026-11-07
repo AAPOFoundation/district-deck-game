@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "district-deck.modern-glb.v1",
+  "generatedAt": "2026-08-19T14:55:53.727Z",
+  "source": "mvp/src/render/residential/modern",
+  "assets": [
+    {
+      "id": "house-modern-skillion",
+      "file": "house-modern-skillion.glb",
+      "bytes": 781184,
+      "parts": 9,
+      "openings": 5,
+      "size": [
+        15,
+        7.256,
+        15
+      ]
+    },
+    {
+      "id": "house-modern-pavilion",
+      "file": "house-modern-pavilion.glb",
+      "bytes": 733000,
+      "parts": 9,
+      "openings": 3,
+      "size": [
+        15,
+        8.619,
+        15
+      ]
+    },
+    {
+      "id": "townhouse-modern-brick",
+      "file": "townhouse-modern-brick.glb",
+      "bytes": 959516,
+      "parts": 8,
+      "openings": 9,
+      "size": [
+        15,
+        11.78,
+        15
+      ]
+    },
+    {
+      "id": "townhouse-modern-render",
+      "file": "townhouse-modern-render.glb",
+      "bytes": 842236,
+      "parts": 9,
+      "openings": 6,
+      "size": [
+        15,
+        7.836,
+        15
+      ]
+    },
+    {
+      "id": "apartment-modern-courtyard",
+      "file": "apartment-modern-courtyard.glb",
+      "bytes": 1916556,
+      "parts": 9,
+      "openings": 13,
+      "size": [
+        15,
+        15.691,
+        15
+      ]
+    },
+    {
+      "id": "apartment-modern-bar",
+      "file": "apartment-modern-bar.glb",
+      "bytes": 1835768,
+      "parts": 9,
+      "openings": 11,
+      "size": [
+        15,
+        19.24,
+        15
+      ]
+    }
+  ]
+}

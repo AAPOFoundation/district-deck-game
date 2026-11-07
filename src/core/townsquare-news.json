@@ -1,0 +1,250 @@
+{
+  "version": 1,
+  "live": false,
+  "source": "sample",
+  "generated": "2026-08-17T00:00:00.000Z",
+  "daySeed": "DD-20260817",
+  "notice": "SAMPLE DATA. No live feed is wired. These items are invented for the game's own fictional Melbourne and are attributed to invented outlets on purpose — putting made-up headlines under a real masthead would be a fake news feed, which is worse than an honest empty one. This file is a POOL: the board draws six of them for the day, deterministically, so the square is not the same board every morning. Replace this file by running: node mvp/scripts/townsquare-refresh-news.mjs --live (see that script's header for the key, host and cadence the owner must supply first).",
+  "items": [
+    {
+      "id": "sample-rates-hold",
+      "outlet": "The Ledger (in-game)",
+      "handle": "@theledger",
+      "headline": "Cash rate held again; four of nine economists now expect a cut before Christmas",
+      "summary": "The board left the rate where it was for a fourth meeting and said very little about the fifth. Fixed-rate expiries continue to roll through the inner north.",
+      "tags": ["rates", "market"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-rates-rolloff",
+      "outlet": "The Ledger (in-game)",
+      "handle": "@theledger",
+      "headline": "Half the fixed book written in the boom rolls off this year, and it rolls off at today's rate",
+      "summary": "Lenders are writing to borrowers earlier than they used to. Two have moved their hardship teams onto the same floor as retentions.",
+      "tags": ["rates"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-rates-serviceability",
+      "outlet": "Trade Counter (in-game)",
+      "handle": "@tradecounter",
+      "headline": "Serviceability buffer stays at three points; brokers report deals failing on the stress test alone",
+      "summary": "Applications that clear on income are falling over on the assessment rate. Nobody wants to be the first to argue about the buffer in public.",
+      "tags": ["rates", "market"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-planning-objection",
+      "outlet": "Council Watch (in-game)",
+      "handle": "@councilwatch",
+      "headline": "Fitzroy North objection period closes with fourteen pages from the residents' association",
+      "summary": "Two towers on the corridor advanced to hearing. A third was sent back over overshadowing of a laneway that the applicant describes as a service lane and the objectors describe as a street.",
+      "tags": ["planning", "heritage"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-planning-shadow",
+      "outlet": "Council Watch (in-game)",
+      "handle": "@councilwatch",
+      "headline": "Shadow diagrams requested a second time on an application already twenty weeks old",
+      "summary": "The applicant supplied the diagrams in week one at a different scale. The clock does not stop while the scale is argued about.",
+      "tags": ["planning", "construction"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-planning-permit",
+      "outlet": "Corridor Notes (in-game)",
+      "handle": "@corridornotes",
+      "headline": "Permit issued on the corner site; the vendor lists it the following Tuesday",
+      "summary": "Eleven months of process, and the site changed hands before a shovel touched it. The buyer is described in the contract as a nominee.",
+      "tags": ["planning", "auction"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-materials-timber",
+      "outlet": "Trade Counter (in-game)",
+      "handle": "@tradecounter",
+      "headline": "Structural timber up again; suppliers move to seven-day quote validity",
+      "summary": "Merchants report quotes expiring before they are accepted. Steel is flat. Concrete is flat and everyone is suspicious about it.",
+      "tags": ["construction", "market"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-materials-variation",
+      "outlet": "Trade Counter (in-game)",
+      "handle": "@tradecounter",
+      "headline": "Variations now average nine per cent of contract value on inner-city renovations",
+      "summary": "Builders say the number is honest and clients say it is a second contract. Both are describing the same spreadsheet.",
+      "tags": ["construction"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-materials-labour",
+      "outlet": "Trade Counter (in-game)",
+      "handle": "@tradecounter",
+      "headline": "Formwork crews booked out to the end of the quarter; two sites stood down waiting",
+      "summary": "A concrete pour that misses its crew does not simply move. It moves everything behind it, and the crane hire keeps invoicing.",
+      "tags": ["construction", "market"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-auction-clearance",
+      "outlet": "Saturday Results (in-game)",
+      "handle": "@saturdayresults",
+      "headline": "Clearance rate 68 per cent on 612 reported auctions; three inner-north sales above reserve by more than 20 per cent",
+      "summary": "Volumes are up on the same weekend last year. Passed-in stock is being negotiated within the week rather than relisted.",
+      "tags": ["auction", "market"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-auction-passedin",
+      "outlet": "Saturday Results (in-game)",
+      "handle": "@saturdayresults",
+      "headline": "A fifth of Saturday's passed-in stock is under contract by Tuesday afternoon",
+      "summary": "The board reports Saturday. The money reports Tuesday. Only one of those two numbers gets printed on Sunday.",
+      "tags": ["auction"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-auction-quote",
+      "outlet": "Saturday Results (in-game)",
+      "handle": "@saturdayresults",
+      "headline": "Quoted ranges drift within reach of the result for a third consecutive weekend",
+      "summary": "Agents describe this as a return to discipline. Vendors describe it as a soft market. The ranges themselves are simply less wrong than usual.",
+      "tags": ["auction", "market"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-heritage-overlay",
+      "outlet": "The Ledger (in-game)",
+      "handle": "@theledger",
+      "headline": "Heritage overlay extended over two more streets; six pending applications caught",
+      "summary": "The extension was recommended by the council's own consultant and opposed by every applicant it touches. One of them has owned the site for eleven days.",
+      "tags": ["heritage", "planning"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-heritage-facade",
+      "outlet": "Council Watch (in-game)",
+      "handle": "@councilwatch",
+      "headline": "Facade retention approved on the bank building; the rear is consented for demolition",
+      "summary": "What is being kept is a wall and a parapet. What is being lost is the banking chamber, which is the only part anyone ever photographed.",
+      "tags": ["heritage"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-heritage-bluestone",
+      "outlet": "Corridor Notes (in-game)",
+      "handle": "@corridornotes",
+      "headline": "Bluestone cellar found under a slab in Richmond halts works for three weeks",
+      "summary": "The stone was catalogued, lifted and sold. The report notes that this outcome is both legal and slightly sad.",
+      "tags": ["heritage", "construction"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-transport-tram",
+      "outlet": "Corridor Notes (in-game)",
+      "handle": "@corridornotes",
+      "headline": "Tram route extension confirmed to the northern end of the corridor, works from next quarter",
+      "summary": "Stops move, one is removed, and the affected block loses kerbside parking for three quarters. Frontages along the route are already being quietly assembled.",
+      "tags": ["transport", "planning"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-transport-parking",
+      "outlet": "Corridor Notes (in-game)",
+      "handle": "@corridornotes",
+      "headline": "Kerbside parking removed on two blocks; traders petition, then reprice",
+      "summary": "Footfall counts published a quarter later show the traders were right about the fortnight and wrong about the year.",
+      "tags": ["transport", "market"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-transport-stop",
+      "outlet": "Council Watch (in-game)",
+      "handle": "@councilwatch",
+      "headline": "The stop being removed serves more people than the two being added, according to the objectors' own count",
+      "summary": "The department has not disputed the count. It has disputed what the count means, which is a longer argument.",
+      "tags": ["transport"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-market-volume",
+      "outlet": "The Ledger (in-game)",
+      "handle": "@theledger",
+      "headline": "Listing volumes up eleven per cent; credit growth flat for the third month",
+      "summary": "One of those two numbers is describing intent and the other is describing capacity. They have not agreed since March.",
+      "tags": ["market"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-market-rents",
+      "outlet": "The Ledger (in-game)",
+      "handle": "@theledger",
+      "headline": "Advertised rents flat in the inner north for the first quarter in two years",
+      "summary": "Vacancy is unchanged. What has changed is how long a listing sits before the price on it changes.",
+      "tags": ["market"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-market-yield",
+      "outlet": "Trade Counter (in-game)",
+      "handle": "@tradecounter",
+      "headline": "Commercial yields widen a quarter point; three funds mark their books and one does not",
+      "summary": "The fund that did not mark its book has the most confident newsletter of the three.",
+      "tags": ["market", "rates"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-planning-vcat",
+      "outlet": "Council Watch (in-game)",
+      "handle": "@councilwatch",
+      "headline": "Tribunal list runs eight months; applicants begin costing the wait into the offer",
+      "summary": "A site with a permit and a site with a hearing date are now two different assets with two different buyers.",
+      "tags": ["planning", "market"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-construction-defects",
+      "outlet": "Trade Counter (in-game)",
+      "handle": "@tradecounter",
+      "headline": "Waterproofing tops the defect list again; the same three details account for most of it",
+      "summary": "None of the three details is difficult. All three are the first thing removed when a job is value-engineered.",
+      "tags": ["construction", "heritage"],
+      "url": null,
+      "sample": true
+    },
+    {
+      "id": "sample-auction-reserve",
+      "outlet": "Saturday Results (in-game)",
+      "handle": "@saturdayresults",
+      "headline": "A result twenty per cent above reserve tells you about the reserve",
+      "summary": "The valuer's file, obtained by nobody, would say the same thing in less interesting language.",
+      "tags": ["auction", "rates"],
+      "url": null,
+      "sample": true
+    }
+  ]
+}

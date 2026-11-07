@@ -1,0 +1,10 @@
+{
+  "asset": "r72-mineral-plaster-v1.png",
+  "status": "original generated candidate; not integrated or visually accepted in game",
+  "created": "2026-09-26",
+  "method": "built-in image_gen tool",
+  "source": "Original generated material, no external game texture input",
+  "originalPath": "~/.codex/generated_images/01a08f6c-463a-7173-92c7-3a011b271e9b/exec-45517846-6cda-424b-a880-8d71b51e686f.png",
+  "prompt": "Use case: photorealistic-natural. Asset type: original tileable base-colour texture for mineral lime plaster on a Melbourne Beaux-Arts building in a Three.js strategy game. Create ONE square 1024 x 1024 diffuse/albedo texture, a straight-on orthographic material scan covering approximately 2 x 2 metres of mature warm-grey buff lime render. Rich but restrained physical surface character: irregular trowel islands, fine sand aggregate, small exposed mineral flecks, sparse shallow worn patches and gentle warm/cool mineral variation across hand-sized areas. It must read as real mineral plaster at medium game-camera distance, with clean broad areas between details. Mid-value warm stone-grey overall, not white or pale cream. Seamless matching opposite edges, no recognizable repeating motif. Completely flat neutral illumination: no cast shadows, highlights, ambient occlusion, perspective, directional gradient, vignette, or baked depth lighting. No masonry courses, bricks, windows, building, text, labels, border, large cracks, moss, graffiti, grunge clouds, soot streaks or rectangular stains. Fill the entire image edge to edge with this one original material; no panel collage or PBR map sheet. This is a new asset, not a copy of any existing game texture.",
+  "limitations": "Generated base-colour texture, not a measured material scan. Seam continuity, mip filtering, reflectance and in-game scale require review. No geometry, normal or roughness map derived from its brightness."
+}

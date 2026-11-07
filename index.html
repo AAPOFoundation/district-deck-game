@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>District Deck — Build Melbourne, quarter by quarter</title>
+<!-- COPY-DRAFT: default win-rule tagline, also applied by landing.js. -->
+<meta name="description" content="A property strategy game set in miniature Melbourne. Six districts, forty quarters, one disclosed rival. Finish quarter 40 with a higher NAV than Roman Petridis.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%230a0c0e'/><rect x='6' y='14' width='8' height='12' fill='%23d8a24a'/><rect x='18' y='8' width='8' height='18' fill='%23ece6da'/></svg>">
+<link rel="stylesheet" href="./src/ui/styles.css">
+<link rel="stylesheet" href="./src/ui/landing-aaa.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three/three.module.js",
+    "three/addons/": "./vendor/three/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body class="landing-body">
+<div class="landing-grain" aria-hidden="true"></div>
+<main class="landing" id="landing">
+
+  <canvas id="landing-board" aria-label="Live, non-playable miniature district"></canvas>
+
+  <header class="landing-chrome" data-landing-hero>
+    <div class="landing-masthead" data-masthead>
+      <h1 class="landing-wordmark landing-hero__title" aria-label="District Deck">
+        <span>District</span>
+        <span>Deck</span>
+      </h1>
+      <!-- COPY-DRAFT: no-script fallback for the default rule call. -->
+      <p class="landing-hero__tagline">Finish quarter 40 with a higher NAV than Roman Petridis.</p>
+    </div>
+
+    <nav class="landing-rack" data-landing-rack aria-label="The rack">
+      <button class="landing-plate landing-plate--new landing-plate--primary" id="rack-new" data-plate="new" type="button">
+        <span class="landing-plate__label">New District</span>
+      </button>
+      <a class="landing-plate landing-plate--online" href="./online.html"><span class="landing-plate__label">Online play</span></a>
+      <a class="landing-plate landing-plate--continue" id="continue-run" data-plate="continue" aria-disabled="true" tabindex="-1">
+        <span class="landing-plate__label">Continue</span>
+        <span class="landing-plate__meta" id="continue-meta"></span>
+      </a>
+      <button class="landing-plate landing-plate--daily" id="rack-daily" data-plate="daily" type="button">
+        <span class="landing-plate__label">Daily District</span>
+      </button>
+      <button class="landing-plate landing-plate--how" id="rack-how" data-plate="how" type="button">
+        <span class="landing-plate__label">How it plays</span>
+      </button>
+    </nav>
+  </header>
+
+  <div class="landing-scrim" data-landing-scrim hidden></div>
+  <div class="landing-departure" data-landing-departure aria-hidden="true"></div>
+
+  <section class="landing-overlay landing-overlay--start" id="overlay-new" data-overlay="new" hidden role="dialog" aria-modal="true" aria-labelledby="overlay-new-title">
+    <div class="landing-overlay__sheet">
+      <header class="landing-overlay__bar">
+        <h2 id="overlay-new-title">New District</h2>
+        <button class="landing-overlay__close" type="button" data-overlay-close aria-label="Close">×</button>
+      </header>
+
+      <div class="landing-overlay__paper">
+        <section class="landing-panel invalid-save" id="invalid-save" role="status" hidden>
+          <div class="panel-heading"><span>Invalid save retained</span></div>
+          <p id="invalid-save-reason"></p>
+          <p>The evidence has not been overwritten.</p>
+          <button class="text-action" id="discard-invalid-save" type="button">Discard invalid save</button>
+        </section>
+
+        <section class="landing-panel invalid-save" id="replace-save" role="status" hidden>
+          <div class="panel-heading"><span>Saved run will be replaced</span></div>
+          <p id="replace-save-detail"></p>
+          <a class="text-action" id="replace-save-continue" href="#">Continue saved run</a>
+        </section>
+
+        <form class="launcher-form" id="launcher-form" novalidate>
+          <fieldset class="landing-modes">
+            <legend>Mode</legend>
+            <label class="landing-mode">
+              <input type="radio" name="launch-kind" value="solo" checked>
+              <strong>Solo</strong>
+              <small>You against Roman Petridis, the disclosed rival. Forty quarters.</small>
+            </label>
+            <label class="landing-mode">
+              <input type="radio" name="launch-kind" value="daily">
+              <strong>Daily District</strong>
+              <small>Today's seed. Same city as everyone who plays today.</small>
+            </label>
+          </fieldset>
+
+          <label class="landing-seed" for="seed-input">
+            <span>Seed</span>
+            <input
+              id="seed-input"
+              name="seed"
+              type="text"
+              inputmode="numeric"
+              autocomplete="off"
+              placeholder="0"
+              aria-describedby="seed-error"
+            >
+          </label>
+          <p class="field-error" id="seed-error" aria-live="polite"></p>
+
+          <fieldset class="landing-operators-field" id="persona-field">
+            <legend>Choose your operator</legend>
+            <div class="landing-operators persona-grid"></div>
+          </fieldset>
+
+        </form>
+      </div>
+      <footer class="landing-overlay__footer">
+        <button class="landing-action landing-action--start landing-hero__stamp" id="start-district" type="submit" form="launcher-form">
+          Start
+        </button>
+        <p id="start-note" hidden>One player</p>
+      </footer>
+    </div>
+  </section>
+
+  <section class="landing-overlay" id="overlay-how" data-overlay="how" hidden role="dialog" aria-modal="true" aria-labelledby="overlay-how-title">
+    <div class="landing-overlay__sheet">
+      <header class="landing-overlay__bar">
+        <h2 id="overlay-how-title">How it plays</h2>
+      </header>
+      <div class="landing-overlay__paper">
+        <div class="landing-how" id="how">
+          <span class="landing-pitch-slug"><img src="assets/img/ui-icons/verb-survey.png" alt="" width="28" height="28">Four actions a quarter</span>
+          <span class="landing-pitch-slug"><img src="assets/img/ui-icons/verb-redevelop.png" alt="" width="28" height="28">You move. Then Roman.</span>
+          <span class="landing-pitch-slug"><img src="assets/img/ui-icons/verb-merge.png" alt="" width="28" height="28">The map is the board</span>
+          <span class="landing-pitch-slug"><img src="assets/img/ui-icons/verb-forecast.png" alt="" width="28" height="28">Forty quarters. One city.</span>
+        </div>
+        <p class="landing-how__quip landing-how__goal">Finish quarter 40 with a higher NAV than Roman Petridis. NAV is your cash plus the value of your holdings, less debt.</p>
+        <p class="landing-how__quip">Roman already has a solicitor.</p>
+      </div>
+      <footer class="landing-overlay__footer">
+        <button class="landing-overlay__close landing-overlay__close--footer" type="button" data-overlay-close aria-label="Close">×</button>
+      </footer>
+    </div>
+  </section>
+
+  <section class="landing-overlay landing-overlay--office" id="overlay-office" data-overlay="office" hidden role="dialog" aria-modal="true" aria-labelledby="overlay-office-title">
+    <div class="landing-overlay__sheet">
+      <header class="landing-overlay__bar">
+        <h2 id="overlay-office-title">The Office</h2>
+        <button class="landing-overlay__close" type="button" data-overlay-close aria-label="Close">×</button>
+      </header>
+      <div class="landing-overlay__paper">
+        <div class="landing-cast-strip" data-cast-strip>
+          <article class="site-pass" data-role="property-agent">
+            <div class="site-pass__frame">
+              <img src="assets/img/people/property-agent-portrait.png" alt="Terry Mangoulias">
+              <video muted loop playsinline preload="none" poster="assets/img/people/property-agent-portrait.png" data-src="assets/img/people/property-agent-loop.mp4"></video>
+              <span class="media-bezel" aria-hidden="true"></span>
+            </div>
+            <h3>Terry Mangoulias</h3>
+            <p>Sales consultant</p>
+          </article>
+          <article class="site-pass" data-role="cheap-builder">
+            <div class="site-pass__frame">
+              <img src="assets/img/people/cheap-builder-portrait.png" alt="Wozza Kelleher">
+              <video muted loop playsinline preload="none" poster="assets/img/people/cheap-builder-portrait.png" data-src="assets/img/people/cheap-builder-loop.mp4"></video>
+              <span class="media-bezel" aria-hidden="true"></span>
+            </div>
+            <h3>Wozza Kelleher</h3>
+            <p>The builder</p>
+          </article>
+          <article class="site-pass" data-role="architect">
+            <div class="site-pass__frame">
+              <img src="assets/img/people/architect-portrait.png" alt="Saskia Holt">
+              <video muted loop playsinline preload="none" poster="assets/img/people/architect-portrait.png" data-src="assets/img/people/architect-loop.mp4"></video>
+              <span class="media-bezel" aria-hidden="true"></span>
+            </div>
+            <h3>Saskia Holt</h3>
+            <p>The architect</p>
+          </article>
+          <article class="site-pass" data-role="mortgage-broker">
+            <div class="site-pass__frame">
+              <img src="assets/img/people/mortgage-broker-portrait.png" alt="Vinh Truong">
+              <video muted loop playsinline preload="none" poster="assets/img/people/mortgage-broker-portrait.png" data-src="assets/img/people/mortgage-broker-loop.mp4"></video>
+              <span class="media-bezel" aria-hidden="true"></span>
+            </div>
+            <h3>Vinh Truong</h3>
+            <p>The broker</p>
+          </article>
+          <article class="site-pass" data-role="rival-developer">
+            <div class="site-pass__frame">
+              <img src="assets/img/people/rival-developer-portrait.png" alt="Roman Petridis">
+              <video muted loop playsinline preload="none" poster="assets/img/people/rival-developer-portrait.png" data-src="assets/img/people/rival-developer-loop.mp4"></video>
+              <span class="media-bezel" aria-hidden="true"></span>
+            </div>
+            <h3>Roman Petridis</h3>
+            <p>The rival</p>
+          </article>
+        </div>
+        <section class="landing-minute" id="minute-section" data-minute-band>
+          <div class="landing-minute__inner">
+            <figure class="landing-minute__desk" data-reveal>
+              <img src="assets/img/ui-plates/bulletin/plate-desk-minute.png" alt="" width="1536" height="1024">
+              <div class="landing-minute__sheet">
+                <p>Q1 · Richmond desk<br> Reserve still holds.<br> File before you buy.</p>
+              </div>
+              <svg class="landing-minute__leaders" viewBox="0 0 1500 1000" preserveAspectRatio="none" aria-hidden="true">
+                <line x1="320" y1="400" x2="500" y2="560"/>
+                <line x1="1040" y1="300" x2="980" y2="430"/>
+                <line x1="1120" y1="790" x2="1210" y2="740"/>
+              </svg>
+              <ol class="landing-minute__pins">
+                <li data-pin="news">News</li>
+                <li data-pin="macro">Macro</li>
+                <li data-pin="earn">Ways to earn</li>
+              </ol>
+            </figure>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section class="continue-panel" id="continue-panel" hidden></section>
+  <footer class="landing-release-links"><span>District Deck · V4</span><a href="./credits.html">Credits & release notes</a></footer>
+
+</main>
+
+<script type="module">
+  import { mountLanding } from './src/ui/landing.js';
+
+  let landing;
+  let departed = false;
+  window.addEventListener('pagehide', () => { departed = true; landing?.dispose(); }, { once: true });
+  mountLanding(document.getElementById('landing')).then(controller => {
+    landing = controller;
+    if (departed) landing?.dispose();
+  }).catch((error) => {
+    console.warn('[district-deck] landing board unavailable', error);
+    document.getElementById('landing-board')?.remove();
+  });
+</script>
+</body>
+</html>

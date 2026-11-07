@@ -1,0 +1,20 @@
+Generated water and sand textures — source and permission record
+
+This record applies only to the three PNGs in assets/water/foam and the two
+PNGs in assets/water/sand listed in assets/water/generated-textures-provenance.json.
+
+They are existing project-generated runtime textures. Retained authoring logs
+record all five final SHA256 hashes, which match the promoted files exactly.
+The foam log records its original grayscale/curve preparation; the sand log
+records its original resizing to 1024 pixels. This promotion changes no pixels.
+Prompts, generation logs and integration records remain in the source project.
+
+The records identify OpenAI authoring sessions. Historical directory names do
+not independently establish the image generator model. No external photograph
+or source image is named in the retained text prompts.
+
+Permission status: reversible use of these existing assets in the local review
+build is authorized. No separate asset licence, verified service/account terms
+at creation, or independent public-distribution clearance is supplied by this
+record. Those permission records remain a public-launch review item. This text
+does not grant an open-source asset licence or assert a new third-party right.

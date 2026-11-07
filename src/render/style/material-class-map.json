@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "classes": [
+    "brick",
+    "render-light-paint",
+    "weatherboard",
+    "corrugated-iron",
+    "pre-painted-steel",
+    "terracotta-tile",
+    "slate",
+    "concrete",
+    "asphalt",
+    "stone",
+    "raw-timber",
+    "painted-steel",
+    "identity-paint",
+    "safety",
+    "dark-glass",
+    "rubber-trim"
+  ],
+  "family": {
+    "brick": "brick",
+    "render": "render-light-paint",
+    "weatherboard": "weatherboard",
+    "corrugated": "corrugated-iron",
+    "slate": "slate",
+    "tile": "terracotta-tile",
+    "asphalt": "asphalt",
+    "limestone": "stone",
+    "concrete": "concrete",
+    "glass": "dark-glass",
+    "painted_metal": "painted-steel",
+    "timber": "raw-timber"
+  },
+  "className": {
+    "identity-paint": "identity-paint",
+    "safety": "safety",
+    "painted-steel": "painted-steel",
+    "dark-glass": "dark-glass",
+    "rubber-trim": "rubber-trim",
+    "brick": "brick",
+    "render-light-paint": "render-light-paint",
+    "weatherboard": "weatherboard",
+    "corrugated-iron": "corrugated-iron",
+    "pre-painted-steel": "pre-painted-steel",
+    "terracotta-tile": "terracotta-tile",
+    "slate": "slate",
+    "concrete": "concrete",
+    "asphalt": "asphalt",
+    "stone": "stone",
+    "raw-timber": "raw-timber"
+  },
+  "outOfScope": [
+    "sand",
+    "foliage",
+    "water"
+  ],
+  "groups": [
+    "grass"
+  ],
+  "bands": {
+    "brick": {
+      "V": [
+        40,
+        58
+      ],
+      "S": [
+        35,
+        55
+      ],
+      "source": "B2 proposal, ruling 60"
+    },
+    "render-light-paint": {
+      "V": [
+        72,
+        82
+      ],
+      "S": [
+        6,
+        12
+      ],
+      "source": "B2 proposal, ruling 60"
+    },
+    "weatherboard": {
+      "V": [
+        76,
+        84
+      ],
+      "S": [
+        4,
+        10
+      ],
+      "source": "B2 proposal, ruling 60"
+    },
+    "corrugated-iron": {
+      "V": [
+        52,
+        60
+      ],
+      "S": [
+        4,
+        10
+      ],
+      "source": "B2 proposal, ruling 60"
+    },
+    "pre-painted-steel": {
+      "V": null,
+      "S": [
+        4,
+        30
+      ],
+      "source": "B2 proposal, ruling 60"
+    },
+    "terracotta-tile": {
+      "V": null,
+      "S": null,
+      "source": "B2 proposal, ruling 60"
+    },
+    "slate": {
+      "V": null,
+      "S": null,
+      "source": "B2 proposal, ruling 60"
+    },
+    "concrete": {
+      "V": [
+        62,
+        70
+      ],
+      "S": [
+        5,
+        10
+      ],
+      "source": "B2 proposal, ruling 60"
+    },
+    "asphalt": {
+      "V": [
+        28,
+        32
+      ],
+      "S": [
+        2,
+        6
+      ],
+      "source": "B2 proposal, ruling 60"
+    },
+    "stone": {
+      "V": [
+        60,
+        70
+      ],
+      "S": [
+        15,
+        28
+      ],
+      "source": "B2 proposal, ruling 60"
+    },
+    "raw-timber": {
+      "V": [
+        50,
+        58
+      ],
+      "S": [
+        40,
+        52
+      ],
+      "source": "B2 proposal, ruling 60"
+    },
+    "painted-steel": {
+      "V": [
+        66,
+        82
+      ],
+      "S": [
+        3,
+        10
+      ],
+      "source": "B2 vehicle pilots, ruling 53"
+    },
+    "identity-paint": {
+      "V": [
+        30,
+        85
+      ],
+      "S": [
+        35,
+        75
+      ],
+      "source": "B2 vehicle pilots, ruling 53"
+    },
+    "safety": {
+      "V": [
+        30,
+        85
+      ],
+      "S": [
+        55,
+        85
+      ],
+      "source": "B2 vehicle pilots, ruling 53"
+    },
+    "dark-glass": {
+      "V": [
+        10,
+        20
+      ],
+      "S": [
+        10,
+        35
+      ],
+      "source": "B2 vehicle pilots, ruling 53"
+    },
+    "rubber-trim": {
+      "V": [
+        10,
+        16
+      ],
+      "S": [
+        0,
+        8
+      ],
+      "source": "B2 vehicle pilots, ruling 53"
+    }
+  },
+  "roles": {
+    "metal-roof-sheet": { "v": [20, 82], "s": [0, 12], "provisional": true, "source": "ruling 69" },
+    "metal-joinery": { "v": [15, 40], "s": null, "provisional": true, "source": "ruling 69" },
+    "metal-railing": { "v": [12, 30], "s": null, "provisional": true, "source": "ruling 69" },
+    "metal-trim": { "v": [60, 82], "s": [0, 12], "provisional": true, "source": "ruling 69" },
+    "metal-fallback": { "v": [12, 85], "s": null, "provisional": true, "source": "ruling 69" },
+    "legacy-ao": { "v": null, "s": null, "provisional": true, "source": "ruling 69", "statistics": false }
+  },
+  "schemeShadow": [
+    "#38434f",
+    "#3b4855",
+    "#48474a",
+    "#3e4b58",
+    "#4a4a4c",
+    "#3a4754",
+    "#364350",
+    "#3b4853",
+    "#37434c"
+  ]
+}

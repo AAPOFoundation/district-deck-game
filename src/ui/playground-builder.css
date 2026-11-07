@@ -1,0 +1,245 @@
+/* Playground Builder — voxel workbench. Scoped to .pgb. */
+
+.pgb {
+  --pgb-ink: #1b2530;
+  --pgb-cream: #f2ecd9;
+  --pgb-sky: #6f96b8;
+  --pgb-sun: #e2b74a;
+  --pgb-lime: #7fae56;
+  --pgb-warn: #c9705a;
+  position: absolute;
+  inset: 10px 10px 118px 10px;
+  z-index: 43;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(232px, 306px);
+  grid-template-rows: 46px minmax(0, 1fr);
+  grid-template-areas: "bar bar" "stage side";
+  background: linear-gradient(180deg, #33526b 0 12px, #22384a 12px);
+  border: 5px solid var(--pgb-cream);
+  border-radius: 22px;
+  box-shadow: 0 0 0 3px #101a22, 0 22px 50px #000a, inset 0 -10px 0 #16242f;
+  color: var(--pgb-ink);
+  font-family: "Trebuchet MS", "Avenir Next", "Nunito", "Helvetica Neue", sans-serif;
+  pointer-events: auto;
+  overflow: hidden;
+}
+.pgb[hidden] { display: none !important; }
+@media (max-width: 900px) {
+  .pgb {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 46px minmax(0, 1fr) auto;
+    grid-template-areas: "bar" "stage" "side";
+  }
+}
+
+.pgb__bar {
+  grid-area: bar;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 12px 0 10px;
+  background: linear-gradient(180deg, #f0dfa8, #d8b45a);
+  border-bottom: 3px solid #8a6a24;
+  box-shadow: inset 0 2px 0 #fff6;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.pgb__mark {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  border-radius: 4px;
+  background:
+    linear-gradient(135deg, var(--pgb-lime) 0 50%, var(--pgb-sky) 50%);
+  box-shadow: 0 1px 0 #fff8, 0 2px 0 #1b2530;
+}
+.pgb__brand {
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 13px;
+  text-shadow: 0 1px 0 #fff6;
+}
+.pgb__tag {
+  background: #1b2530;
+  color: #f0dfa8;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+.pgb__spacer { flex: 1 1 auto; }
+.pgb__chip {
+  background: #fff8e8;
+  border: 2px solid #8a6a24;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.pgb__chip--save { background: #cfe6a8; }
+.pgb__chip--save.is-dirty { background: #e6c07a; }
+.pgb__chip--vibe[data-vibe="love"] { background: #f0b4a4; }
+.pgb__chip--vibe[data-vibe="sadness"] { background: #b7c7d8; }
+.pgb__chip--vibe[data-vibe="mixed"] { background: #e6d39a; }
+.pgb__x {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #8a6a24;
+  background: #fff8e8;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.pgb__stage { grid-area: stage; position: relative; min-height: 260px; }
+.pgb__stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+.pgb__hint {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  background: #0f1a22cc;
+  color: #eaf2f8;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  pointer-events: none;
+}
+.pgb__hint.is-bad { background: #7d3a2ccc; }
+
+.pgb__keys {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  font-size: 10px;
+  color: #dfe8ef;
+  opacity: 0.82;
+  pointer-events: none;
+  max-width: 92%;
+}
+.pgb__keys b {
+  background: #0f1a22aa;
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-right: 3px;
+}
+
+.pgb__flash {
+  position: absolute;
+  left: 50%;
+  bottom: 44px;
+  transform: translateX(-50%);
+  background: #0f1a22ee;
+  color: #eaf2f8;
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 6px 18px #0008;
+  pointer-events: none;
+  max-width: 78%;
+  text-align: center;
+}
+.pgb__flash.is-bad { background: #8a3f2eee; }
+
+.pgb__side {
+  grid-area: side;
+  display: grid;
+  grid-template-rows: auto auto auto auto auto minmax(0, 1fr) auto auto;
+  gap: 9px;
+  min-height: 0;
+  margin: 10px 10px 10px 0;
+  padding: 10px;
+  background: #f7f1de;
+  border: 3px solid #8a6a24;
+  border-radius: 14px;
+  box-shadow: inset 0 -6px 0 #e0d3ae;
+}
+@media (max-width: 900px) { .pgb__side { margin: 0 10px 10px; } }
+
+.pgb__palette { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.pgb__piece {
+  display: grid;
+  gap: 1px;
+  padding: 6px 3px;
+  border-radius: 8px;
+  border: 2px solid #b09a5f;
+  background: #fffaea;
+  cursor: pointer;
+  font: inherit;
+  color: var(--pgb-ink);
+}
+.pgb__piece b { font-size: 10px; line-height: 1.1; }
+.pgb__piece span { font-size: 9px; opacity: 0.55; }
+.pgb__piece.is-on { background: var(--pgb-sky); color: #fff; border-color: #2f4b63; }
+
+.pgb__variants { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
+.pgb__variant {
+  padding: 4px 6px;
+  border-radius: 7px;
+  border: 2px solid #b09a5f;
+  background: #fffaea;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--pgb-ink);
+}
+.pgb__variant.is-on { background: var(--pgb-lime); color: #142016; border-color: #3d5a28; }
+
+.pgb__colours { display: flex; gap: 6px; }
+.pgb__swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  border: 2px solid #8a6a24;
+  cursor: pointer;
+}
+.pgb__swatch.is-on { box-shadow: 0 0 0 3px #1b2530; }
+
+.pgb__note { margin: 0; font-size: 11px; line-height: 1.35; opacity: 0.85; min-height: 30px; }
+
+.pgb__marks { display: grid; gap: 3px; }
+.pgb__mark-row { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 6px; align-items: center; font-size: 10px; }
+.pgb__mark-row i {
+  display: block;
+  height: 7px;
+  border-radius: 4px;
+  background: #e0d3ae;
+  overflow: hidden;
+}
+.pgb__mark-row i b { display: block; height: 100%; background: var(--pgb-lime); }
+
+.pgb__advice {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 11px;
+  line-height: 1.35;
+  overflow: auto;
+  min-height: 0;
+}
+.pgb__advice li { margin-bottom: 3px; }
+
+.pgb__row { display: grid; grid-template-columns: 1fr auto auto; gap: 6px; }
+.pgb__btn {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 2px solid #2f4b63;
+  background: #fffaea;
+  font: inherit;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--pgb-ink);
+}
+.pgb__btn--go { background: var(--pgb-sun); }
+.pgb__btn--warn { border-color: var(--pgb-warn); color: #7d3a2c; }
+
+.pgb__fine { margin: 0; font-size: 10px; opacity: 0.62; line-height: 1.3; }

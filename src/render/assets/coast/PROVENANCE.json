@@ -1,0 +1,303 @@
+{
+ "schema": 1,
+ "note": "Luminance and mask packs. Colour is never taken from these files; shaders multiply a token hue by the luminance.",
+ "builtBy": "scripts/qa/taste/textures/pack-lum.py (deterministic: no seeds, no timestamps)",
+ "date": "2026-10-06",
+ "packs": {
+  "coast": {
+   "file": "coast-lum.png",
+   "size": 1024,
+   "kind": "lum",
+   "channels": {
+    "sandDry": {
+     "source": "gen/run1/orig/pp-beach-sand.png",
+     "sourceSha256_16": "c7b4b09250934d46",
+     "generated": true,
+     "tool": "Codex CLI built-in image_generation (GPT Image 2.0, ChatGPT plan seat); no API key",
+     "prompt": "Fine pale quartz sand of a Port Phillip Bay beach seen from directly above, even grain, with shallow wind ripples running diagonally across the whole frame at a regular pitch of about one tenth of the frame width, each ripple a soft ridge with a faint darker trough, sparse tiny crushed shell grit and a few flat shell fragments, a few dark mineral grains. Pale buff, low saturation, no pebbles larger than a grain of rice, no seaweed, no footprints.",
+     "post": {
+      "crop": [
+       188,
+       188,
+       1066,
+       1066
+      ],
+      "overlap": 150,
+      "suppress": [
+       8,
+       100,
+       0.8
+      ],
+      "flatten": [
+       0.16666666666666666,
+       0.08333333333333333,
+       0.041666666666666664
+      ]
+     }
+    },
+    "sandWet": {
+     "source": "gen/run1/orig/pp-wet-foreshore.png",
+     "sourceSha256_16": "5674561a4669b2a9",
+     "generated": true,
+     "tool": "Codex CLI built-in image_generation (GPT Image 2.0, ChatGPT plan seat); no API key",
+     "prompt": "Wet compacted sand of an ebbing foreshore seen from directly above: a smooth damp surface with faint swash lines curving across it, tiny drainage rills, sparse small shell fragments and worm casts, a few short dark fragments of dried seagrass, and a darker glossy-looking dampness with finer detail than dry sand. Mid grey-brown, low saturation, uniform tone across the frame, no standing water, no foam, no footprints.",
+     "post": {
+      "overlap": 200,
+      "flatten": [
+       0.16666666666666666,
+       0.08333333333333333,
+       0.041666666666666664
+      ]
+     }
+    },
+    "seabed": {
+     "source": "src/pr/waterbed-albedo.jpg",
+     "sourceSha256_16": "82bd3e86267622b4",
+     "generated": false,
+     "tool": "District Deck mvp/assets/water/foam (read-only copy)",
+     "post": {
+      "flatten": [
+       0.16666666666666666,
+       0.08333333333333333,
+       0.041666666666666664,
+       0.03125,
+       0.020833333333333332
+      ],
+      "crop": [
+       184,
+       184,
+       840,
+       840
+      ],
+      "overlap": 100
+     }
+    }
+   }
+  },
+  "ground": {
+   "file": "ground-lum.png",
+   "size": 1024,
+   "kind": "lum",
+   "channels": {
+    "pastureDry": {
+     "source": "gen/run1/orig/basalt-dry-pasture.png",
+     "sourceSha256_16": "84cc0647b3c979cd",
+     "generated": true,
+     "tool": "Codex CLI built-in image_generation (GPT Image 2.0, ChatGPT plan seat); no API key",
+     "prompt": "Dry summer pasture of the Western District basalt plains seen from directly above: bleached straw-gold grass of mixed height with some matted lying stems, patches of exposed grey-brown clay soil showing through, small scattered basalt stones the size of a fist with a dark weathered skin, a few dry seed heads and clumps of tussock. Straw-gold to tan, low saturation, no green, no flowers, no tracks, even density.",
+     "post": {
+      "overlap": 200,
+      "flatten": [
+       0.16666666666666666,
+       0.08333333333333333,
+       0.041666666666666664,
+       0.025
+      ]
+     }
+    },
+    "meadow": {
+     "source": "src/pr/meadow-albedo.jpg",
+     "sourceSha256_16": "525cd35cf8e457fe",
+     "generated": false,
+     "tool": "District Deck mvp/assets/water/foam (read-only copy)",
+     "post": {
+      "clip_sd": 2.0,
+      "flatten": [
+       0.16666666666666666,
+       0.08333333333333333,
+       0.041666666666666664
+      ],
+      "crop": [
+       184,
+       184,
+       840,
+       840
+      ],
+      "overlap": 100
+     }
+    },
+    "earth": {
+     "source": "src/pr/dry-earth-albedo.jpg",
+     "sourceSha256_16": "166552fd999cb7e3",
+     "generated": false,
+     "tool": "District Deck mvp/assets/water/foam (read-only copy)",
+     "post": {
+      "flatten": [
+       0.16666666666666666,
+       0.08333333333333333,
+       0.041666666666666664,
+       0.03125,
+       0.020833333333333332
+      ],
+      "crop": [
+       164,
+       164,
+       864,
+       864
+      ],
+      "overlap": 140
+     }
+    }
+   }
+  },
+  "rock": {
+   "file": "rock-lum.png",
+   "size": 512,
+   "kind": "lum",
+   "channels": {
+    "strata": {
+     "source": "gen/run1/orig/portcampbell-strata.png",
+     "sourceSha256_16": "5645c2691af37b4c",
+     "generated": true,
+     "tool": "Codex CLI built-in image_generation (GPT Image 2.0, ChatGPT plan seat); no API key",
+     "prompt": "A straight-on view of a weathered Miocene limestone sea cliff: pale cream to buff horizontal beds, each bed a different thickness from a hand to half the frame height, separated by recessed dark partings, with fine vertical joints, honeycomb pitting, small marl bands and faint orange iron staining from above. Salt-weathered, matte, even light, no vegetation, no sea, no sky. Left and right edges wrap seamlessly.",
+     "post": {
+      "crop": [
+       177,
+       177,
+       1057,
+       1057
+      ],
+      "overlap": 180,
+      "overlap_axes": "both",
+      "tile": "h",
+      "flatten_axes": "both",
+      "flatten": [
+       0.16666666666666666,
+       0.1,
+       0.0625,
+       0.041666666666666664,
+       0.025
+      ]
+     }
+    },
+    "rock": {
+     "source": "src/pr/rock-albedo.jpg",
+     "sourceSha256_16": "57c3c8f22bd87b68",
+     "generated": false,
+     "tool": "District Deck mvp/assets/water/foam (read-only copy)",
+     "post": {
+      "flatten": [
+       0.16666666666666666,
+       0.08333333333333333,
+       0.041666666666666664
+      ],
+      "crop": [
+       184,
+       184,
+       840,
+       840
+      ],
+      "overlap": 100
+     }
+    },
+    "drystone": {
+     "source": "src/pr/drystone-albedo.jpg",
+     "sourceSha256_16": "ffafc1344257d6fa",
+     "generated": false,
+     "tool": "District Deck mvp/assets/water/foam (read-only copy)",
+     "post": {
+      "flatten": [
+       0.16666666666666666,
+       0.08333333333333333,
+       0.041666666666666664
+      ],
+      "crop": [
+       184,
+       184,
+       840,
+       840
+      ],
+      "overlap": 100
+     }
+    }
+   }
+  },
+  "foam": {
+   "file": "foam-lace.png",
+   "size": 512,
+   "kind": "mask",
+   "channels": {
+    "breaker": {
+     "source": "gen/run1/orig/foam-breaker.png",
+     "sourceSha256_16": "e6e31f30a4c000d3",
+     "generated": true,
+     "tool": "Codex CLI built-in image_generation (GPT Image 2.0, ChatGPT plan seat); no API key",
+     "prompt": "Sea foam seen from directly above on black: a dense band of breaking-wave lace across the whole frame, thick white ropes that split into tongues and holes, even density, pure white on pure black, no water colour, no sand, no perspective.",
+     "post": {
+      "overlap": 200,
+      "blur": 1.0,
+      "coverage": 0.52,
+      "edge": 30
+     }
+    },
+    "fleck": {
+     "source": "gen/run1/orig/foam-fleck.png",
+     "sourceSha256_16": "4c246f3dd5e03f04",
+     "generated": true,
+     "tool": "Codex CLI built-in image_generation (GPT Image 2.0, ChatGPT plan seat); no API key",
+     "prompt": "Sparse elongated white foam flecks on black seen from directly above, each a short streak three to six times longer than wide with a faint thinning tail, all aligned the same way, about forty across the frame, even density, pure white on pure black.",
+     "post": {
+      "overlap": 200,
+      "blur": 1.0,
+      "coverage": 0.075,
+      "edge": 30
+     }
+    },
+    "swash": {
+     "source": "gen/run1/orig/foam-swash.png",
+     "sourceSha256_16": "5eee19b62cc43090",
+     "generated": true,
+     "tool": "Codex CLI built-in image_generation (GPT Image 2.0, ChatGPT plan seat); no API key",
+     "prompt": "Thin stranded sea-foam lace on black seen from directly above: fine connected bubble threads forming open cells of mixed size, several broken curved lines running across the frame, even density, pure white on pure black.",
+     "post": {
+      "overlap": 200,
+      "blur": 1.5,
+      "coverage": 0.25,
+      "edge": 30
+     }
+    }
+   }
+  },
+  "foliage": {
+   "file": "foliage-lum.png",
+   "size": 512,
+   "kind": "lum",
+   "channels": {
+    "leafFine": "R: leaf clusters, luminance mean 128 SD 34",
+    "leafBroad": "G: broad clumps, mean 128 SD 30",
+    "relief": "B: leaf-stack height, mean 128 SD 40"
+   },
+   "source": "Pocket Reserve game-v2/public/assets/textures/civ7/leaf-broadleaf-albedo.jpg and leaf-broadleaf-alpha.jpg",
+   "generated": true,
+   "origin": "Made with SI image generation tools by the game's author (The Naturalist Atlas), per game-v2/public/THIRD-PARTY-NOTICES.txt section 4; the author's own work, no stock or purchased art. The pack re-arranges the four leaf clusters of that atlas over a wrapping canvas.",
+   "builtBy": "scripts/qa/taste/textures/pack-foliage.py (deterministic: fixed seed 1905)",
+   "date": "2026-10-10",
+   "wave": "W19-A"
+  },
+  "crown": {
+   "file": "crown-cards.png",
+   "size": 512,
+   "kind": "cards",
+   "channels": {
+    "mask": "R: leaf-mass alpha of four cluster cards in 2 by 2 cells of 256 px (ragged outline, holes), inside a disc of 0.46 of the cell",
+    "tone": "G: cluster tone, mean 128 over the mass, the gap filled with the mean",
+    "depth": "B: blurred mask, deep inside a mass and small at its rim"
+   },
+   "source": "Pocket Reserve game-v2/public/assets/textures/civ7/leaf-broadleaf-albedo.jpg, leaf-broadleaf-alpha.jpg, leaf-hedgerow-albedo.jpg and leaf-hedgerow-alpha.jpg",
+   "generated": true,
+   "origin": "Made with SI image generation tools by the game's author (The Naturalist Atlas), per game-v2/public/THIRD-PARTY-NOTICES.txt section 4; the author's own work, no stock or purchased art. The pack re-arranges the clusters of those atlases into four cards.",
+   "builtBy": "scripts/qa/taste/textures/pack-crown-cards.py (deterministic: fixed seed 2101)",
+   "date": "2026-10-10",
+   "wave": "W21-A"
+  }
+ },
+ "imageSeat": {
+  "job": "scripts/qa/taste/textures/codex-texture.sh jobs-w14t.txt (one Codex job, seven images, gpt-5.6-sol, built-in image_generation only)",
+  "requestedSize": "1024x1024",
+  "returnedSize": "1254x1254 (originals kept; the job also wrote a 1024 resample with sips that the packs do not use)",
+  "register": "AAA miniature-city strategy game in the visual register of Civilization VII ... Mid-value, low-saturation, narrow hue range, no strong colour accents, so it can be used as a grey detail layer. Exceptions: strata uses the straight-on cliff register; the three foam jobs use no register block.",
+  "date": "2026-10-06",
+  "tiling": "overlap crossfade with variance-preserving weights (pack-lum.py overlap_tile); texture-post.py cross-fade measured ncc max 0.91 to 0.93 between 128 px crops and was not used for the packs"
+ }
+}

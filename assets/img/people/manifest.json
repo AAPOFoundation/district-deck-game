@@ -1,0 +1,23 @@
+{
+  "schema": "district-deck.person-media.v1",
+  "register": "painted-tabletop-miniature / Monopoly Plus figurine",
+  "portraits": {
+    "cheap-builder": "cheap-builder-portrait.png",
+    "property-agent": "property-agent-portrait.png",
+    "architect": "architect-portrait.png",
+    "mortgage-broker": "mortgage-broker-portrait.png",
+    "rival-developer": "rival-developer-portrait.png",
+    "arsonist": "arsonist-portrait.png",
+    "squatter": "squatter-portrait.png",
+    "policeman": "policeman-portrait.png",
+    "family": "family-portrait.png",
+    "dog": "dog-portrait.png"
+  },
+  "loops": {
+    "cheap-builder": "cheap-builder-loop.mp4",
+    "property-agent": "property-agent-loop.mp4",
+    "architect": "architect-loop.mp4",
+    "mortgage-broker": "mortgage-broker-loop.mp4",
+    "rival-developer": "rival-developer-loop.mp4"
+  }
+}

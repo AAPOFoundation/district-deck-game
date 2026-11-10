@@ -6,6 +6,48 @@ import { WORLD_CURVE_STATE } from './world-curve.js';
 import { classifyPhotoCaster } from './photo-shadow-registration.js';
 import { P23_LIGHT_PHOTO } from './v4-p1-polish.js';
 
+export function readGraphDiet(search = '') {
+  return new URLSearchParams(search).get('graphDiet') === 'on';
+}
+
+// G1: one live walk before both cascades, then Three skips caster-free branches.
+// Layers do not prune Three's child recursion. Reparenting a flat caster list
+// would disturb ownership, visibility hooks and nested casters; a cached list
+// would miss async additions, receiver-budget changes and proxy ejections.
+// Keep the original graph/order and all caster ancestry, including non-proxy
+// exclusions (cutouts, index-visibility meshes, LOD and dynamic actors).
+function shadowGraphDiet() {
+  const hidden = [];
+  function collect(node) {
+    if (node.visible === false) return false;
+    const start = hidden.length;
+    let casts = !!(node.castShadow && (node.isMesh || node.isLine || node.isPoints));
+    for (const child of node.children) casts = collect(child) || casts;
+    if (!casts && node.children.length) {
+      // Retain just the highest caster-free root, not each of its descendants.
+      hidden.length = start;
+      hidden.push(node, node.visible);
+    }
+    return casts;
+  }
+  return function(shadowMap, render, lights, world, camera) {
+    // VSM also draws receivers; G1 is the existing PCF CSM path only. Preserve
+    // Three's skipped-pass behaviour and do no extra walk on an idle shadow map.
+    if (shadowMap.type === THREE.VSMShadowMap || !lights.some(light => light.shadow
+      && !(light.shadow.autoUpdate === false && light.shadow.needsUpdate === false))) {
+      return render.call(shadowMap, lights, world, camera);
+    }
+    try {
+      collect(world);
+      for (let i = 0; i < hidden.length; i += 2) hidden[i].visible = false;
+      return render.call(shadowMap, lights, world, camera);
+    } finally {
+      for (let i = 0; i < hidden.length; i += 2) hidden[i].visible = hidden[i + 1];
+      hidden.length = 0;
+    }
+  };
+}
+
 function visible(mesh, scene) {
   if (mesh.material.visible === false) return false;
   let onScene = false;
@@ -92,6 +134,7 @@ function positionRepresentatives(geometry) {
 export function buildStaticShadowProxy(scene, batch, {
   layer = SHADOW_LAYER, tileM = 96, maxVerts = 65535,
   extent = { x: 272, z: 272 }, photoCSM = null, farTiny = new WeakSet(), renderer = null,
+  graphDiet = readGraphDiet(typeof location !== 'undefined' ? location.search : ''),
 } = {}) {
   if (scene.userData.staticShadowProxy) return scene.userData.staticShadowProxy;
   const root = new THREE.Group(); root.name = 'p09:shadow-proxy';
@@ -194,7 +237,9 @@ export function buildStaticShadowProxy(scene, batch, {
   // the main camera's layers stay untouched, including during reflections.
   if (renderer) {
     const shadowMap = renderer.shadowMap, previous = shadowMap.render;
+    const renderDiet = graphDiet ? shadowGraphDiet() : null;
     const cameraView = { layers: new THREE.Layers() };
+    let renderingDiet = false;
     proxy.shadowMap = shadowMap; proxy.previousShadowRender = previous;
     // renderer.render calls shadowMap.render for every scene in the frame
     // (world, reflection, foliage mask, and each post quad). Three's
@@ -206,10 +251,18 @@ export function buildStaticShadowProxy(scene, batch, {
     // Every other call delegates unchanged.
     proxy.shadowRender = function(lights, world, camera) {
       if (world !== proxy.scene) return previous.call(this, lights, world, camera);
+      // A nested shadow callback must not sync sources against the outer
+      // pass's temporary visibility, or restore that pass's hidden roots.
+      if (renderingDiet) return previous.call(this, lights, world, cameraView);
       const draws = this.enabled !== false && !(this.autoUpdate === false && this.needsUpdate === false);
       if (draws) syncStaticShadowProxy(proxy);
       Object.setPrototypeOf(cameraView, camera);
       cameraView.layers.mask = camera.layers.mask | (1 << layer);
+      if (draws && renderDiet) {
+        renderingDiet = true;
+        try { return renderDiet(this, previous, lights, world, cameraView); }
+        finally { renderingDiet = false; }
+      }
       return previous.call(this, lights, world, cameraView);
     };
     shadowMap.render = proxy.shadowRender;

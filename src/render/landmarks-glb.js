@@ -8,6 +8,9 @@
 // v4-p1-polish.js and the two public-tree-pit modules, none of which leads back to assets.js or core/city.js; the load
 // test in tests/l2a-airport-clear.test.mjs holds that.
 import * as THREE from 'three';
+import { SOUTHERN_CROSS_MODELS } from './landmarks-southern-cross-models.js';
+import { albertParkModels } from './landmark-albert-park.js';
+import { portLandmarkModels } from './landmark-port.js';
 import {
   FoliageLayer, buildSpeciesGeometry, mixStreetSpecies, treeFrame, seasonForPlacement, spatialFormClass, SPECIES_FORM,
   INSTANCE_LEAF_PALETTE, AUTUMN_LEAF_PALETTE, WINTER_LEAF_PALETTE, FOLIAGE_SIZE_CLASS, BARK_VALUE_SPREAD,
@@ -68,10 +71,19 @@ export const AIRPORT_DEFAULT_VARIANT = 'h122';
 // stays out of the jobs. L1 D6: airport-lod1.glb (scene key `airport-far`) is the far copy placeAirportLandmark
 // switches to at AIRPORT_LOD_DISTANCE.
 export const AIRPORT_LOD1_URL = './assets/models/landmarks/airport-lod1.glb';
+export const ROD_LAVER_LOD1_URL = './assets/models/landmarks/rod-laver-lod1.glb';
+// R127: use the existing L2b prop scene. AssetRegistry deduplicates this id
+// when airport and Rod Laver are selected together.
+export const PARKED_CARS_JOB = Object.freeze({ id: 'parked-cars', url: './assets/models/props/parked-cars.glb', source: 'prop-scene' });
 export const LANDMARK_MODELS = [
   { id: 'kit-board', url: './assets/models/landmarks/kit-board.glb', source: 'landmark-blender' },
   { id: 'airport', url: AIRPORT_VARIANTS[AIRPORT_DEFAULT_VARIANT], source: 'landmark-blender', variants: AIRPORT_VARIANTS },
   { id: 'airport-far', switch: 'airport', url: AIRPORT_LOD1_URL, source: 'landmark-blender', lod: 1 },
+  { id: 'rod-laver', url: './assets/models/landmarks/rod-laver.glb', source: 'landmark-blender' },
+  { id: 'rod-laver-far', switch: 'rod-laver', url: ROD_LAVER_LOD1_URL, source: 'landmark-blender', lod: 1 },
+  ...SOUTHERN_CROSS_MODELS,
+  ...albertParkModels(),
+  ...portLandmarkModels(),
 ];
 
 /** `?landmarkVariant=` when it names a known variant, else null. */
@@ -86,10 +98,12 @@ export function landmarkJobs(search = globalThis.location?.search ?? '') {
   const selected = parseLandmarkSwitch(search);
   if (!selected.size) return [];
   const variant = landmarkVariant(search);
-  return LANDMARK_MODELS
+  const jobs = LANDMARK_MODELS
     .filter(row => selected.has(row.switch ?? row.id))
     .map(row => ({ id: row.id, url: (variant && row.variants?.[variant]) || row.url, source: row.source }))
     .filter(job => typeof job.url === 'string' && job.url);
+  if (selected.has('rod-laver')) jobs.push(PARKED_CARS_JOB);
+  return jobs;
 }
 
 /**
@@ -409,25 +423,37 @@ export function cityTreeMaterials({ quality = 'high', reducedMotion = false } = 
 const unitFromKey = key => (hashSeed(key) >>> 0) / 4294967296;
 const SEASON_PALETTE = { autumn: AUTUMN_LEAF_PALETTE, winter: WINTER_LEAF_PALETTE, green: INSTANCE_LEAF_PALETTE };
 
+// R131: smallest existing city size class, then the least outward radial move
+// for 0.5 m clearance at both LODs. Keep the source-site form, yaw and colour.
+// Measured old/new sites and minimum moves are pinned in the Rod Laver spec/tests.
+const ROD_LAVER_TREE_MOVES = Object.freeze({
+  'fringe:rod-laver-form-trees:cypress:0:0': 1.3977,
+  'fringe:rod-laver-form-trees:cypress:0:1': 9.3389,
+  'fringe:rod-laver-form-trees:cypress:2:1': 0.745,
+  'fringe:rod-laver-form-trees:eucalypt:2:1': 0.7996,
+  'fringe:rod-laver-form-trees:plane:1:3': 19.1304,
+  'fringe:rod-laver-form-trees:plane:2:autumn:0': 2.9335,
+});
+
 /**
  * Plant the city's species at the airport trunks: one InstancedMesh per species for the trunk, the canopy and the
  * canopy's fall layer, built from buildSpeciesGeometry with the city's materials, and posed and coloured as
  * FoliageLayer's instance loop does (size law, form class, lean, season palette, leaf bias, bark spread). No crown fit,
  * district tint, pit or contact blob: the airport has no parcels and its trees stand in turf.
  */
-function plantCityTrees(root, trunks, { quality = 'high', reducedMotion = false } = {}) {
+function plantCityTrees(root, trunks, { quality = 'high', reducedMotion = false, landmark = 'airport', fallLayer = true } = {}) {
   const group = new THREE.Group();
-  group.name = AIRPORT_CITY_TREES;
-  group.userData.airportCityTrees = true;
+  group.name = landmark === 'airport' ? AIRPORT_CITY_TREES : 'fringe:rod-laver-city-trees';
+  group.userData[landmark === 'airport' ? 'airportCityTrees' : 'rodLaverCityTrees'] = true;
   const report = { planted: [], meshes: 0, triangles: 0, calls: 0, quality };
   if (!trunks.length) return { group, report };
   const materials = cityTreeMaterials({ quality, reducedMotion });
-  const placements = trunks.map(({ name, kind, x, y, z }) => {
-    const speciesId = AIRPORT_TREE_SPECIES[kind] ?? 'plane';
-    const salt = `airport:${name}`;
+  const placements = trunks.map(({ name, kind, species, x, y, z, sourceCrownRadius }) => {
+    const speciesId = species ?? AIRPORT_TREE_SPECIES[kind] ?? 'plane';
+    const salt = `${landmark}:${name}`;
     const sizeClass = Math.floor(unitFromKey(`t12-size:${salt}`) * 4) % 4;
     const formClass = spatialFormClass(x, z);
-    return { name, speciesId, x, y, z, salt, sizeClass, scale: FOLIAGE_SIZE_CLASS[sizeClass], formClass,
+    return { name, speciesId, x, y, z, sourceCrownRadius, salt, sizeClass, scale: FOLIAGE_SIZE_CLASS[sizeClass], formClass,
       yaw: (unitFromKey(`tree-yaw:${salt}`) - 0.5) * 1.2 + formClass * 0.37, season: seasonForPlacement(speciesId, salt) };
   });
   // FoliageLayer's neighbour rule (same species, size and season within 20 m steps the season, then the size).
@@ -460,19 +486,20 @@ function plantCityTrees(root, trunks, { quality = 'high', reducedMotion = false 
     built.leaf.computeBoundingBox();
     const unitTop = built.leaf.boundingBox.max.y;
     const { wood: woodMat, leaf: leafMat } = materials[speciesId];
-    const meshes = [[built.wood, woodMat, 'trunk'], [built.leaf, leafMat, 'canopy'], ...(built.leafDrop ? [[built.leafDrop, leafMat, 'canopy-drop']] : [])]
+    const meshes = [[built.wood, woodMat, 'trunk'], [built.leaf, leafMat, 'canopy'], ...(fallLayer && built.leafDrop ? [[built.leafDrop, leafMat, 'canopy-drop']] : [])]
       .map(([geometry, material, part]) => {
         geometry.setAttribute('aTap', new THREE.InstancedBufferAttribute(new Float32Array(batch.length), 1));
         const mesh = new THREE.InstancedMesh(geometry, material, batch.length);
         // The city's mesh names, so the style class and LOD families read them as street trees.
         mesh.name = `nature:foliage:${speciesId}:${part}`;
         mesh.userData.ownsGeometry = true;
-        mesh.userData.airportCityTree = speciesId;
+        mesh.userData[landmark === 'airport' ? 'airportCityTree' : 'rodLaverCityTree'] = speciesId;
         mesh.castShadow = quality !== 'low';
         mesh.receiveShadow = true;
         mesh.raycast = () => {};
         return mesh;
       });
+    if (!fallLayer) built.leafDrop?.dispose();
     const form = SPECIES_FORM[speciesId];
     const speciesBark = new THREE.Color(form.bark);
     batch.forEach((p, i) => {
@@ -491,8 +518,33 @@ function plantCityTrees(root, trunks, { quality = 'high', reducedMotion = false 
       const barkK = 1 - BARK_VALUE_SPREAD * 0.5 + unitFromKey(`bark:${speciesId}:${p.salt}`) * BARK_VALUE_SPREAD;
       barkColor.setRGB(speciesBark.r * barkK, speciesBark.g * barkK, speciesBark.b * barkK);
 
-      const frame = treeFrame(p, speciesId, unitTop);
-      position.set(p.x, p.y, p.z);
+      const radialMove = landmark === 'rod-laver' ? ROD_LAVER_TREE_MOVES[p.name] : undefined;
+      // R139: measure every existing class in this site's unchanged form/yaw.
+      // R131's six clearance sites retain their smallest class and radial move.
+      let crownChoice = null;
+      if (landmark === 'rod-laver') {
+        const point = new THREE.Vector3(), leaf = built.leaf.attributes.position;
+        const variants = FOLIAGE_SIZE_CLASS.map((sizeScale, sizeClass) => {
+          const f = treeFrame({ ...p, sizeClass, scale: sizeScale }, speciesId, unitTop);
+          euler.y = p.yaw; quaternion.setFromEuler(euler);
+          leanAxis.set(Math.cos(f.leanDir), 0, Math.sin(f.leanDir));
+          quaternion.premultiply(leanQuat.setFromAxisAngle(leanAxis, f.leanAmt));
+          matrix.compose(position.set(0, 0, 0), quaternion, scale.set(f.h * f.girthX, f.h * f.stretch, f.h * f.girthZ));
+          let radius = 0;
+          for (let v = 0; v < leaf.count; v += 1) {
+            point.fromBufferAttribute(leaf, v).applyMatrix4(matrix);
+            radius = Math.max(radius, Math.hypot(point.x, point.z));
+          }
+          return { sizeClass, radius };
+        });
+        crownChoice = radialMove === undefined
+          ? variants.reduce((a, b) => Math.abs(b.radius - p.sourceCrownRadius) < Math.abs(a.radius - p.sourceCrownRadius) ? b : a)
+          : variants[0];
+      }
+      const sizeClass = crownChoice?.sizeClass ?? p.sizeClass;
+      const frame = treeFrame({ ...p, sizeClass, scale: FOLIAGE_SIZE_CLASS[sizeClass] }, speciesId, unitTop);
+      const radialScale = radialMove === undefined ? 1 : 1 + radialMove / Math.hypot(p.x, p.z);
+      position.set(p.x * radialScale, p.y, p.z * radialScale);
       euler.y = p.yaw;
       quaternion.setFromEuler(euler);
       leanAxis.set(Math.cos(frame.leanDir), 0, Math.sin(frame.leanDir));
@@ -501,8 +553,10 @@ function plantCityTrees(root, trunks, { quality = 'high', reducedMotion = false 
       scale.set(frame.h * frame.girthX, frame.h * frame.stretch, frame.h * frame.girthZ);
       matrix.compose(position, quaternion, scale);
       meshes.forEach((mesh, k) => { mesh.setMatrixAt(i, matrix); mesh.setColorAt(i, k === 0 ? barkColor : leafColor); });
-      report.planted.push({ tree: p.name, species: speciesId, season: p.season, x: +p.x.toFixed(2), z: +p.z.toFixed(2),
-        height: +(frame.h * unitTop * frame.stretch).toFixed(2) });
+      report.planted.push({ tree: p.name, species: speciesId, season: p.season, x: +position.x.toFixed(2), z: +position.z.toFixed(2),
+        height: +(frame.h * unitTop * frame.stretch).toFixed(2),
+        ...(crownChoice ? { sizeClass, sourceCrownRadius: p.sourceCrownRadius, crownRadius: crownChoice.radius,
+          crownResidualM: crownChoice.radius - p.sourceCrownRadius, clearanceException: radialMove !== undefined } : {}) });
     });
     for (const mesh of meshes) {
       mesh.instanceMatrix.needsUpdate = true;
@@ -663,20 +717,27 @@ function deckHeight(up, x, z, near) {
   return best;
 }
 
+/** One type of the loaded parked-car GLB: { paint, detail, box, wheels, paints } (node-local), or null. */
+function parkedCarPart(scene, info, type) {
+  if (!scene || !info) return null;
+  const node = scene.getObjectByName(`parked-car:${type}`);
+  const meshes = [];
+  node?.traverse((m) => { if (m.isMesh) meshes.push(m); });
+  const paint = meshes.find(m => !m.geometry.attributes.color);
+  const detail = meshes.find(m => m.geometry.attributes.color);
+  const t = info.types?.[type];
+  if (!paint || !detail || !t || !info.paints?.[type]?.length) return null;
+  return { paint, detail, box: t.box, wheels: t.wheels, paints: info.paints[type] };
+}
+
 /** The parked-car types the loaded GLB carries: { type: { paint, detail, box, wheels, paints } } (node-local). */
 export function parkedCarKit(scene) {
   const info = scene?.userData?.dd_parked_cars;
   if (!info) return null;
   const kit = {};
   for (const type of PARKED_CAR_TYPES) {
-    const node = scene.getObjectByName(`parked-car:${type}`);
-    const meshes = [];
-    node?.traverse((m) => { if (m.isMesh) meshes.push(m); });
-    const paint = meshes.find(m => !m.geometry.attributes.color);
-    const detail = meshes.find(m => m.geometry.attributes.color);
-    const t = info.types?.[type];
-    if (!paint || !detail || !t || !info.paints?.[type]?.length) return null;
-    kit[type] = { paint, detail, box: t.box, wheels: t.wheels, paints: info.paints[type] };
+    kit[type] = parkedCarPart(scene, info, type);
+    if (!kit[type]) return null;
   }
   return kit;
 }
@@ -687,8 +748,10 @@ export function parkedCarKit(scene) {
  * them, nose-in and centred, at 1.0. A bay whose car box would cross any GLB triangle (a stair core, light pole or
  * upstand) is left out. The seed ranks the open bays and fills the first AIRPORT_PARKED_COUNT; it also picks each car's
  * type and the city paint. One InstancedMesh per type and primitive (paint, detail): at most six calls.
+ * L2c: `kerb` (posed kerb cars of the same types) rides the same InstancedMeshes as the last instances of its type
+ * (`userData.airportKerbCars` counts them); the report's figures stay the bay cars'; `kerbReport` takes theirs.
  */
-function placeParkedCars(root, parkNodes, scene) {
+function placeParkedCars(root, parkNodes, scene, kerb = [], kerbReport = null) {
   const report = { placed: 0, bays: 0, open: 0, perDeck: {}, types: {}, rejected: [], cars: [], meshes: 0, calls: 0,
     triangles: 0, reason: null };
   const kit = parkedCarKit(scene);
@@ -759,12 +822,13 @@ function placeParkedCars(root, parkNodes, scene) {
   const matrix = new THREE.Matrix4(), unit = new THREE.Vector3(1, 1, 1), colour = new THREE.Color();
   for (const type of PARKED_CAR_TYPES) {
     const cars = chosen.filter(car => car.type === type);
-    if (!cars.length) continue;
+    const extra = kerb.filter(car => car.type === type);
+    if (!cars.length && !extra.length) continue;
     const { paint, detail } = kit[type];
     for (const [source, part, shadow] of [[paint, 'paint', true], [detail, 'detail', false]]) {
-      const mesh = new THREE.InstancedMesh(source.geometry, source.material, cars.length);
+      const mesh = new THREE.InstancedMesh(source.geometry, source.material, cars.length + extra.length);
       mesh.name = `${AIRPORT_PARKED_CARS}:${type}-${part}`;
-      cars.forEach((car, i) => {
+      [...cars, ...extra].forEach((car, i) => {
         matrix.compose(car.position, car.quaternion, unit);
         mesh.setMatrixAt(i, matrix);
         if (part === 'paint') mesh.setColorAt(i, colour.set(car.paint));
@@ -775,14 +839,22 @@ function placeParkedCars(root, parkNodes, scene) {
       mesh.receiveShadow = true;
       mesh.raycast = () => {};
       mesh.userData.airportParkedCar = type;
+      if (extra.length) mesh.userData.airportKerbCars = extra.length;
       mesh.computeBoundingSphere();
       group.add(mesh);
-      const { triangles } = meshTriangles(mesh);
-      report.meshes += 1;
-      report.calls += 1;
-      report.triangles += triangles;
+      const g = source.geometry;
+      const each = Math.floor((g.index ? g.index.count : g.attributes.position.count) / 3);
+      if (cars.length) {
+        report.meshes += 1;
+        report.calls += 1;
+        report.triangles += each * cars.length;
+      } else if (kerbReport) {
+        kerbReport.meshes += 1;
+        kerbReport.calls += 1;
+      }
+      if (kerbReport) kerbReport.triangles += each * extra.length;
     }
-    report.types[type] = cars.length;
+    if (cars.length) report.types[type] = cars.length;
   }
   for (const car of chosen) {
     report.perDeck[car.bay.park] = (report.perDeck[car.bay.park] ?? 0) + 1;
@@ -791,7 +863,203 @@ function placeParkedCars(root, parkNodes, scene) {
       contacts: car.contacts.map(p => +p.y.toFixed(3)) });
   }
   report.placed = chosen.length;
-  return { group: chosen.length ? group : null, report, chosen };
+  return { group: chosen.length || kerb.length ? group : null, report, chosen };
+}
+
+// ---------------------------------------------------------------- L2c: the airport's ground furniture
+
+// L2c (scratch/pkg/l1-airport/l2c/spec-addendum.json and build-plan.md): five nodes of airport.glb and airport-lod1.glb
+// rebuild the JS ground furniture. Each goes under its JS parent in a THREE.LOD like the building nodes; a file without
+// them places none and the JS furniture still leaves.
+export const AIRPORT_FURNITURE_NODES = Object.freeze({
+  'fringe:tullamarine-hotel-forecourt': 'hotel',
+  'fringe:tullamarine-landside': 'root',
+  'fringe:tullamarine-frontage': 'root',
+  'fringe:tullamarine-airside-furniture': 'root',
+  'fringe:tullamarine-apron-edge': 'root',
+});
+// The addendum's runtime selector (PLAN-L2 amendment 4, ruling 101). airport.js is frozen (rulings 89 and 102), so it
+// reads no source lines: the root's material table, two mesh names, the hotel entrance group, the sign-text wraps and
+// root-local mesh boxes. Root-local metres; regions are [x0, x1, z0, z1] on the mesh box centre.
+const FURNITURE_MATS = new Set(['kerb', 'stoneDark', 'apronJoint', 'gravel', 'hedge', 'leafA', 'leafB', 'bloomA', 'bloomB',
+  'bloomC', 'concrete', 'dark', 'lampGlass', 'steel', 'white', 'soil', 'liveryTeal', 'copper', 'grass', 'grassAlt', 'yellow',
+  'rail', 'grimeDark', 'rust', 'rustDark', 'stain', 'scorch', 'aggA', 'aggB']);
+const FURNITURE_PLANT = new Set(['hedge', 'leafB', 'bloomA', 'bloomB', 'bloomC']);
+const FURNITURE_WEAR = new Set(['stain', 'scorch', 'aggA', 'aggB', 'grimeDark']);
+const FURNITURE_NAMED = Object.freeze(['fringe:tullamarine-windsock-mast', 'fringe:tullamarine-warning']);
+const FURNITURE_ENTRANCE = 'fringe:tullamarine-hotel-door';
+const FURNITURE_REGIONS = Object.freeze({
+  main: [-67.0, 52.5, -23.0, 25.0],
+  apronWest: [-59.0, -54.0, 15.5, 51.2],
+  apronEast: [46.4, 50.95, 15.5, 51.2],
+  apronAirside: [-59.0, 51.0, 47.5, 51.2],
+  windsock: [29.0, 31.0, 58.5, 59.7],
+  // Wear materials only, or a part within FURNITURE_MAST_REACH of a JS flood-mast site.
+  apronInterior: [-56.0, 48.0, 17.0, 48.3],
+});
+const FURNITURE_MAST_SITES = Object.freeze([[-38, 23], [37, 19.5], [-42, 43], [44, 42]]);
+const FURNITURE_MAST_REACH = 2.6;
+// The eight planters whose JS planting stays (7 frontage, 1 verge): centre x, z and half sizes, root-local.
+export const AIRPORT_KEPT_PLANTERS = Object.freeze([[-40, 20.4, 1.45, 0.725], [-33.4, 20.4, 1.45, 0.725],
+  [-26.8, 20.4, 1.45, 0.725], [-20.2, 20.4, 1.45, 0.725], [-7, 20.4, 1.45, 0.725], [-0.4, 20.4, 1.45, 0.725],
+  [19.4, 20.4, 1.45, 0.725], [28.1, -11.6, 1.1, 0.55]].map(Object.freeze));
+
+function insideSignText(mesh) {
+  for (let n = mesh.parent; n; n = n.parent) if (n.userData?.advance !== undefined) return true;
+  return false;
+}
+
+/**
+ * L2c: the JS meshes the furniture nodes replace and the classes L2c drops (apron wear, chain fence, warning plates,
+ * court lawn and planter), as a list of meshes under `root`. Read-only; placeAirportLandmark detaches them. Kept: the
+ * apron's own bay joints (29.8 m and 102.8 m), the shoulder rims (over 110 m), the stand marks (wear at 1.4-1.95 x 4.6 m
+ * and under 0.05 m high), the planting in the eight kept planters, the sign letters and the porch taxi paint.
+ */
+export function airportFurnitureSelection(root) {
+  const mats = root?.userData?.airport?.mats;
+  if (!mats) return [];
+  const keys = new Map(Object.entries(mats).map(([key, material]) => [material, key]));
+  const keyOf = m => (Array.isArray(m.material) ? m.material : [m.material]).map(x => keys.get(x) ?? '?').join('+');
+  root.updateWorldMatrix(true, true);
+  const toRoot = new THREE.Matrix4().copy(root.matrixWorld).invert();
+  const local = new THREE.Matrix4();
+  const box = new THREE.Box3(), c = new THREE.Vector3(), sz = new THREE.Vector3();
+  const inR = ([x0, x1, z0, z1]) => c.x >= x0 && c.x <= x1 && c.z >= z0 && c.z <= z1;
+  const out = [];
+  root.traverse((m) => {
+    if (!m.isMesh || !m.geometry?.attributes?.position) return;
+    const k = keyOf(m);
+    // The hotel entrance group: everything but its letters and the taxi paint.
+    let entrance = false;
+    for (let n = m.parent; n && n !== root; n = n.parent) if (n.name === FURNITURE_ENTRANCE) { entrance = true; break; }
+    if (entrance) { if (!insideSignText(m) && k !== 'taxi') out.push(m); return; }
+    if (m.parent !== root || (m.name && !FURNITURE_NAMED.includes(m.name))) return;
+    if (insideSignText(m) || !FURNITURE_MATS.has(k)) return;
+    if (!m.geometry.boundingBox) m.geometry.computeBoundingBox();
+    box.copy(m.geometry.boundingBox).applyMatrix4(local.multiplyMatrices(toRoot, m.matrixWorld));
+    box.getCenter(c);
+    box.getSize(sz);
+    if (k === 'apronJoint' && (Math.abs(sz.z - 29.8) < 0.05 || Math.abs(sz.x - 102.8) < 0.05)) return;
+    if (Math.max(sz.x, sz.z) > 110) return;
+    const wear = FURNITURE_WEAR.has(k);
+    const standMark = sz.x >= 1.4 && sz.x <= 1.95 && Math.abs(sz.z - 4.6) < 0.05 && sz.y < 0.05;
+    if (wear && standMark) return;
+    if (FURNITURE_PLANT.has(k) && AIRPORT_KEPT_PLANTERS.some(([x, z, hx, hz]) => Math.abs(c.x - x) <= hx && Math.abs(c.z - z) <= hz)) return;
+    const R = FURNITURE_REGIONS;
+    if (inR(R.main) || inR(R.apronWest) || inR(R.apronEast) || inR(R.apronAirside) || inR(R.windsock)) { out.push(m); return; }
+    if (inR(R.apronInterior) && (wear || FURNITURE_MAST_SITES.some(([x, z]) => Math.abs(c.x - x) <= FURNITURE_MAST_REACH
+      && Math.abs(c.z - z) <= FURNITURE_MAST_REACH))) out.push(m);
+  });
+  return out;
+}
+
+// Decision D4: the windsock mast moves to the turf east of the apron (the GLB airside-furniture node carries it), and
+// the JS orange sock follows by this root-local translation; its height, rotation and seed lean are unchanged.
+export const AIRPORT_WINDSOCK = Object.freeze({ name: 'fringe:tullamarine-windsock', move: Object.freeze([21.20, 0, -14.50]),
+  mast: Object.freeze({ x: 51.20, z: 44.60, top: 6.80 }) });
+
+// Decision D2: three kerb cars and three taxis from parked-cars.glb (L2b). The cars ride the bay cars' sedan, hatch and
+// wagon InstancedMeshes as one more instance each; the taxis take one InstancedMesh pair. Root-local x, z of the car
+// origin, the way its nose points along x (car +z is its nose) and the deck top it stands on (above y0): the road deck
+// 0.26, the hotel forecourt paving 0.44 (the JS porch taxis at lz 19.35 lie under the apron). L2c D6 (review 1 fix 2): the
+// forecourt taxi stands in front of the porte-cochere between the door and its east column, on the apron top flush with
+// the GLB forecourt slab, its wheels east of the apron's tone panel and joint and its box clear of the east hotel lamp;
+// under the porch deck at (30.4, 15.25) it was hidden at AC2.
+export const AIRPORT_KERB_VEHICLES = 6;
+export const AIRPORT_KERB_TAXIS = 'fringe:tullamarine-kerb-taxis';
+export const AIRPORT_KERB = Object.freeze([
+  { type: 'sedan', x: -40.00, z: -0.30, nose: 1, deck: 0.26, where: 'kerb' },
+  { type: 'hatch', x: -21.00, z: -3.70, nose: -1, deck: 0.26, where: 'kerb' },
+  { type: 'wagon', x: 14.00, z: -0.30, nose: 1, deck: 0.26, where: 'kerb' },
+  { type: 'taxi', x: -6.00, z: 0.60, nose: 1, deck: 0.26, where: 'rank' },
+  { type: 'taxi', x: 2.40, z: 0.60, nose: 1, deck: 0.26, where: 'rank' },
+  { type: 'taxi', x: 38.00, z: 20.30, nose: 1, deck: 0.44, where: 'porch' },
+].map(Object.freeze));
+
+/**
+ * The kerb vehicles posed at their sites, each car's box from BOX_LIFT above its wheels clear of every placed GLB node
+ * triangle (the L2b rule); a vehicle whose box crosses one is left out and reported. Kerb cars take their type's paint
+ * by mixedUnit('l2c-kerb:<i>'), taxis the taxi paint.
+ */
+function poseKerbVehicles(root, y0, cars, glbNodes) {
+  const report = { placed: 0, cars: 0, taxis: 0, meshes: 0, calls: 0, triangles: 0, vehicles: [], rejected: [], reason: null };
+  const info = cars?.userData?.dd_parked_cars;
+  const kit = {};
+  for (const type of [...PARKED_CAR_TYPES, 'taxi']) kit[type] = parkedCarPart(cars, info, type);
+  if (Object.values(kit).some(k => !k)) { report.reason = 'parked-cars GLB not loaded'; return { report, poses: [] }; }
+  root.updateWorldMatrix(true, true);
+  const toRoot = new THREE.Matrix4().copy(root.matrixWorld).invert();
+  const nodeBoxes = glbNodes.map(node => ({ node, box: new THREE.Box3().setFromObject(node).applyMatrix4(toRoot), tris: null }));
+  const up = new THREE.Vector3(0, 1, 0), corner = new THREE.Vector3();
+  const poses = [];
+  let kerbIndex = 0;
+  AIRPORT_KERB.forEach((site, i) => {
+    const k = kit[site.type];
+    const quaternion = new THREE.Quaternion().setFromAxisAngle(up, site.nose > 0 ? Math.PI / 2 : -Math.PI / 2);
+    const position = new THREE.Vector3(site.x, y0 + site.deck, site.z);
+    const box = new THREE.Box3();
+    for (const sx of [0, 1]) for (const sy of [0, 1]) for (const sz of [0, 1]) {
+      corner.set(sx ? k.box.max[0] : k.box.min[0], sy ? k.box.max[1] : k.box.min[1], sz ? k.box.max[2] : k.box.min[2])
+        .applyQuaternion(quaternion).add(position);
+      box.expandByPoint(corner);
+    }
+    box.min.y = position.y + BOX_LIFT;
+    let hit = null;
+    for (const entry of nodeBoxes) {
+      if (!entry.box.intersectsBox(box)) continue;
+      entry.tris ??= nodeTriangles(entry.node, toRoot).all;
+      if (entry.tris.some(t => box.intersectsTriangle(t))) { hit = entry.node.name; break; }
+    }
+    const paint = site.type === 'taxi' ? k.paints[0]
+      : k.paints[Math.floor(mixedUnit(`l2c-kerb:${kerbIndex++}`) * k.paints.length) % k.paints.length];
+    if (hit) { report.rejected.push({ site: i, type: site.type, where: site.where, why: `structure ${hit}` }); return; }
+    const contacts = k.wheels.map(([wx, wz]) => {
+      const p = new THREE.Vector3(wx, 0, wz).applyQuaternion(quaternion);
+      return { x: position.x + p.x, y: position.y, z: position.z + p.z };
+    });
+    poses.push({ site: i, type: site.type, where: site.where, paint, position, quaternion, contacts, box });
+    report.vehicles.push({ site: i, type: site.type, where: site.where, paint, x: +position.x.toFixed(3),
+      y: +position.y.toFixed(3), z: +position.z.toFixed(3), nose: site.nose });
+  });
+  report.placed = poses.length;
+  report.taxis = poses.filter(p => p.type === 'taxi').length;
+  report.cars = report.placed - report.taxis;
+  return { report, poses, kit };
+}
+
+/** The taxi pair: one InstancedMesh per primitive (paint, detail) holding every posed taxi. */
+function kerbTaxiGroup(poses, kit, report) {
+  const taxis = poses.filter(p => p.type === 'taxi');
+  if (!taxis.length) return null;
+  const group = new THREE.Group();
+  group.name = AIRPORT_KERB_TAXIS;
+  group.userData.airportParkedCars = true;
+  group.userData.airportKerbVehicles = true;
+  const matrix = new THREE.Matrix4(), unit = new THREE.Vector3(1, 1, 1), colour = new THREE.Color();
+  const { paint, detail } = kit.taxi;
+  for (const [source, part, shadow] of [[paint, 'paint', true], [detail, 'detail', false]]) {
+    const mesh = new THREE.InstancedMesh(source.geometry, source.material, taxis.length);
+    mesh.name = `${AIRPORT_KERB_TAXIS}:taxi-${part}`;
+    taxis.forEach((car, i) => {
+      matrix.compose(car.position, car.quaternion, unit);
+      mesh.setMatrixAt(i, matrix);
+      if (part === 'paint') mesh.setColorAt(i, colour.set(car.paint));
+    });
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    mesh.castShadow = shadow;
+    mesh.receiveShadow = true;
+    mesh.raycast = () => {};
+    mesh.userData.airportParkedCar = 'taxi';
+    mesh.userData.airportKerbCars = taxis.length;
+    mesh.computeBoundingSphere();
+    group.add(mesh);
+    const { triangles } = meshTriangles(mesh);
+    report.meshes += 1;
+    report.calls += 1;
+    report.triangles += triangles;
+  }
+  return group;
 }
 
 // L1 D6 item 3: the airport files carry KHR_mesh_quantization (positions as normalized shorts in a per-mesh cube, the
@@ -827,7 +1095,7 @@ export function bakedGeometry(geometry, matrix) {
   return out;
 }
 
-function landmarkNode(source, name) {
+function landmarkNode(source, name, landmark = 'airport') {
   let found = null;
   for (const child of source.children) if (child.name === name) { found = child; break; }
   if (!found) return null;
@@ -851,7 +1119,7 @@ function landmarkNode(source, name) {
     if (o !== node) { o.position.set(0, 0, 0); o.quaternion.identity(); o.scale.set(1, 1, 1); }
   });
   node.traverse((o) => {
-    o.userData.landmark = 'airport';
+    o.userData.landmark = landmark;
     if (o.isMesh) {
       o.castShadow = true;
       o.receiveShadow = true;
@@ -868,6 +1136,8 @@ function landmarkNode(source, name) {
  * switches to the `airport-far` copy at 400 m when that file is loaded) and remove the JS parts the nodes replace.
  * Called once at the end of addAirport. Without the switch it returns null and touches nothing; without the GLB the
  * JS stays as the fallback. The report is left on `root.userData.airportLandmark`.
+ * L2c: the furniture nodes the file carries go in the same way; the JS ground furniture and the dropped classes leave
+ * (airportFurnitureSelection), the windsock sock follows its mast, and the kerb vehicles stand at the kerbs and the porch.
  */
 export function placeAirportLandmark(root, {
   y0 = 0,
@@ -880,7 +1150,12 @@ export function placeAirportLandmark(root, {
   if (root.userData.airportLandmark?.placed) return root.userData.airportLandmark;
   const report = { placed: false, y0, variant: landmarkVariant(search) ?? AIRPORT_DEFAULT_VARIANT, nodes: 0, calls: 0,
     triangles: 0, callsFar: 0, trianglesFar: 0, removedMeshes: 0, lod1: false, hiddenTrees: [], cleared: null,
-    clearedMeshes: 0, cityTrees: null, parkedCars: null, reason: null };
+    clearedMeshes: 0, cityTrees: null, parkedCars: null, reason: null,
+    // L2c: the furniture nodes' own figures (the building nodes' stay above), the JS furniture removed, the sock's move
+    // and the kerb vehicles.
+    furniture: { nodes: 0, missing: [], calls: 0, triangles: 0, callsFar: 0, trianglesFar: 0, removedMeshes: 0,
+      removedTriangles: 0, removedFromHotel: 0 },
+    windsock: null, kerbVehicles: null };
   root.userData.airportLandmark = report;
   const source = scene?.getObjectByName?.(AIRPORT_ROOT_NODE);
   if (!source) { report.reason = 'airport GLB not loaded'; return report; }
@@ -898,6 +1173,10 @@ export function placeAirportLandmark(root, {
   const nodes = Object.keys(AIRPORT_NODES).map(name => [name, landmarkNode(source, name)]);
   missing.push(...nodes.filter(([, node]) => !node).map(([name]) => name));
   if (missing.length) { report.reason = `missing ${missing.join(', ')}`; return report; }
+  // L2c: the furniture nodes the file carries (none before the blockout); the JS furniture leaves either way.
+  const furniture = Object.keys(AIRPORT_FURNITURE_NODES).map(name => [name, landmarkNode(source, name)]);
+  report.furniture.missing = furniture.filter(([, node]) => !node).map(([name]) => name);
+  const placedFurniture = furniture.filter(([, node]) => node);
 
   // Remove the JS parts the GLB replaces. The terminal shell (a pick proxy) leaves terminal-body first.
   const { terminal, hotel, t2 } = parents;
@@ -924,20 +1203,28 @@ export function placeAirportLandmark(root, {
 
   // D5 item 4: the trees standing in a node's footprint, read while the nodes are still at the root-local identity.
   root.updateWorldMatrix(true, true);
-  report.hiddenTrees = hideTreesUnderNodes(root, nodes);
+  report.hiddenTrees = hideTreesUnderNodes(root, [...nodes, ...placedFurniture]);
   // L2a: the GSE, vehicles, figures, private jets and JS trees leave; the city's species stand at the trunks clear of
   // the GLB footprints (the trees just hidden are not replanted).
   const clear = clearAirport(root, new Set(report.hiddenTrees.map(h => h.tree)));
   report.cleared = clear.cleared;
   report.clearedMeshes = clear.removedMeshes;
   report.cityTrees = clear.cityTrees;
+  // L2c: the JS ground furniture and the dropped classes leave, detached (batching.js judges each mesh by its own flag).
+  for (const mesh of airportFurnitureSelection(root)) {
+    report.furniture.removedTriangles += meshTriangles(mesh).triangles;
+    if (isUnder(mesh, hotel)) report.furniture.removedFromHotel += 1;
+    mesh.userData.l2cRemoved = true; // tests and probes read the removal off the detached mesh
+    report.furniture.removedMeshes += dropObject(mesh);
+  }
 
   // Place each node in a LOD at its bbox centre, at the JS root's frame (root-local metres, y up from y0).
   const size = new THREE.Vector3();
   const centre = new THREE.Vector3();
   const at = new THREE.Matrix4();
-  for (const [name, node] of nodes) {
-    const parent = parents[AIRPORT_NODES[name]];
+  const placing = [...nodes.map(([name, node]) => [name, node, parents[AIRPORT_NODES[name]], report]),
+    ...placedFurniture.map(([name, node]) => [name, node, parents[AIRPORT_FURNITURE_NODES[name]], report.furniture])];
+  for (const [name, node, parent, tally] of placing) {
     const box = new THREE.Box3().setFromObject(node);
     box.getCenter(centre);
     box.getSize(size);
@@ -961,29 +1248,43 @@ export function placeAirportLandmark(root, {
     farNode?.traverse((o) => {
       if (!o.isMesh) return;
       const index = o.geometry.index;
-      report.trianglesFar += (index ? index.count : o.geometry.attributes.position.count) / 3;
-      if (shownFar) report.callsFar += 1;
+      tally.trianglesFar += (index ? index.count : o.geometry.attributes.position.count) / 3;
+      if (shownFar) tally.callsFar += 1;
     });
     at.copy(parent.matrixWorld).invert().multiply(root.matrixWorld)
       .multiply(new THREE.Matrix4().makeTranslation(centre.x, centre.y + y0, centre.z));
     at.decompose(lod.position, lod.quaternion, lod.scale);
     parent.add(lod);
-    report.nodes += 1;
+    tally.nodes += 1;
     let shown = true;
     for (let n = parent; n && n !== root.parent; n = n.parent) if (!n.visible) shown = false;
     node.traverse((o) => {
       if (!o.isMesh) return;
       const index = o.geometry.index;
-      report.triangles += (index ? index.count : o.geometry.attributes.position.count) / 3;
-      if (shown) report.calls += 1;
+      tally.triangles += (index ? index.count : o.geometry.attributes.position.count) / 3;
+      if (shown) tally.calls += 1;
     });
   }
+  // L2c, decision D4: the JS sock follows the windsock mast to its GLB site.
+  const sock = root.children.find(child => child.name === AIRPORT_WINDSOCK.name);
+  if (sock) {
+    const [dx, dy, dz] = AIRPORT_WINDSOCK.move;
+    sock.position.x += dx;
+    sock.position.y += dy;
+    sock.position.z += dz;
+    report.windsock = { x: +sock.position.x.toFixed(3), y: +sock.position.y.toFixed(3), z: +sock.position.z.toFixed(3) };
+  }
+  // L2c, decision D2: the kerb vehicles, clear of every GLB node just placed; the cars join the bay cars' meshes below.
+  const kerb = poseKerbVehicles(root, y0, cars, placing.map(([, node]) => node));
+  report.kerbVehicles = kerb.report;
   // L2b: the parked level of the city's cars in the roof bays of car parks A and B, on the GLB decks just placed.
   const parkNodes = ['a', 'b'].map(label => ({ label, park: parents[`car-park:${label}`],
     node: nodes.find(([name]) => name === `fringe:tullamarine-car-park-body:${label}`)[1] }));
-  const parked = placeParkedCars(root, parkNodes, cars);
+  const parked = placeParkedCars(root, parkNodes, cars, kerb.poses.filter(p => p.type !== 'taxi'), kerb.report);
   if (parked.group) root.add(parked.group);
   report.parkedCars = parked.report;
+  const taxis = kerb.kit ? kerbTaxiGroup(kerb.poses, kerb.kit, kerb.report) : null;
+  if (taxis) root.add(taxis);
   // Ruling 90: the totem letters at s 1.40, centred on the blank.
   const totem = terminal.getObjectByName(AIRPORT_TOTEM.name);
   if (totem) {
@@ -1136,4 +1437,188 @@ export function placeKitBoard(scene, registry, plan, {
   });
   scene.add(board);
   return board;
+}
+
+// ---------------------------------------------------------------- L4 Rod Laver (M0 section 5)
+// Both files use the precinct's local metres, including its 0.34 m ground lift, under this export root.
+export const ROD_LAVER_ROOT_NODE = 'fringe:rod-laver-buildings';
+export const ROD_LAVER_LOD_DISTANCE = 400;
+export const ROD_LAVER_NODES = Object.freeze(Object.fromEntries([
+  'arena-shell', 'bowl-court', 'roof-frame', 'roof-leaf-north', 'roof-leaf-south', 'show-court-a', 'show-court-b',
+  'court-fences', 'forecourt', 'paths-furniture', 'event-structures', 'signs-lights',
+].map(suffix => [`fringe:rod-laver-${suffix}`, 'root'])));
+
+// The frozen builder's structural markers identify each completed section before batching. Weak metadata leaves
+// the switch-off graph untouched. No source line numbers, stack parsing, mesh ordinals or approximate box tests.
+const ROD_LAVER_PARTS = new WeakMap();
+export function rodLaverPartMarker(root, courtPaint) {
+  return (part) => root.traverse((mesh) => {
+    if (!mesh.isMesh || ROD_LAVER_PARTS.has(mesh)) return;
+    const name = mesh.name;
+    const ancestry = [];
+    for (let p = mesh; p && p !== root; p = p.parent) ancestry.push(p.name);
+    let cls = part;
+    if (/crowd:|:i4-body$|precinct-people:/.test(name)) cls = 'keep:city-I4-figures';
+    else if (/form-trees:|rod-laver-trunks$|palm-(fronds|crowns)$/.test(name)) cls = 'remove:venue-tree-geometry';
+    else if (ancestry.some(n => /rod-laver-(cars$|car-cabins$|food-van:|lawn-van:)/.test(n))) cls = 'remove:bespoke-vehicles';
+    else if (/hedges|shrubs|blooms/.test(name)) cls = 'keep:terrain-and-planting';
+    else if (ancestry.some(n => /-letters(?:-|$)/.test(n))) cls = 'keep:lettering';
+    else if (name === 'fringe:rod-laver-plaza-ground-light' || /glow/.test(name)) cls = 'keep:light-effects';
+    else if (mesh.material === courtPaint || name === 'fringe:rod-laver-court') cls = 'keep:court-and-road-paint-pick';
+    else if (/lamp|flood|flag|banner|scoreboard/.test(name)) cls = 'glb:signs-lights';
+    else if (/kiosk|marquee/.test(name)) cls = 'glb:event-structures';
+    ROD_LAVER_PARTS.set(mesh, cls);
+  });
+}
+
+/** Exact, disjoint mesh removal units from the structural hooks; retained groups (letters, fountain light) stay. */
+export function rodLaverClearUnits(root) {
+  const units = [];
+  root?.traverse((mesh) => {
+    const cls = ROD_LAVER_PARTS.get(mesh);
+    if (mesh.isMesh && /^(glb|remove):/.test(cls ?? '')) units.push([mesh, cls]);
+  });
+  return units;
+}
+
+// Read the actual venue-kit instances after the boulevard and GP keep-outs. Their origins are M0's 26 trunk sites;
+// old palms have no form-tree entry and do not get replanted. This also follows a different venue frame or seed.
+function rodLaverTreeSites(root, units) {
+  root.updateWorldMatrix(true, true);
+  const inverse = root.matrixWorld.clone().invert(), local = new THREE.Matrix4(), instance = new THREE.Matrix4();
+  const trunks = [];
+  for (const [mesh, cls] of units) {
+    const match = /^fringe:rod-laver-form-trees:(plane|eucalypt|cypress):/.exec(mesh.name);
+    if (cls !== 'remove:venue-tree-geometry' || !mesh.isInstancedMesh || !match) continue;
+    for (let i = 0; i < mesh.count; i += 1) {
+      mesh.getMatrixAt(i, instance);
+      local.copy(inverse).multiply(mesh.matrixWorld).multiply(instance);
+      const at = new THREE.Vector3().setFromMatrixPosition(local);
+      const point = new THREE.Vector3(), positions = mesh.geometry.attributes.position;
+      let sourceCrownRadius = 0;
+      for (let v = 0; v < positions.count; v += 1) {
+        point.fromBufferAttribute(positions, v).applyMatrix4(local);
+        sourceCrownRadius = Math.max(sourceCrownRadius, Math.hypot(point.x - at.x, point.z - at.z));
+      }
+      trunks.push({ name: `${mesh.name}:${i}`, species: match[1], x: at.x, y: at.y, z: at.z, sourceCrownRadius });
+    }
+  }
+  return trunks;
+}
+
+export const ROD_LAVER_PARKED_CARS = 'fringe:rod-laver-parked-cars';
+export const ROD_LAVER_PARKED_COUNT = 8;
+
+/** R127.8: the L2b city kit at the existing JS parking sites. Eight evenly
+ * spaced occupied sites keep both precinct LOD totals inside the M0 caps.
+ * Reuse the two primitives per family, paint palette and wheel datum at 1:1.
+ */
+function placeRodLaverCars(root, scene) {
+  const report = { placed: 0, sourceSites: 0, calls: 0, triangles: 0, cars: [], reason: null };
+  const kit = parkedCarKit(scene), old = root.getObjectByName('fringe:rod-laver-cars');
+  if (!kit) { report.reason = 'parked-cars GLB not loaded'; return { group: null, report }; }
+  if (!old?.isInstancedMesh) { report.reason = 'source parking sites missing'; return { group: null, report }; }
+  root.updateWorldMatrix(true, true);
+  const inverse = root.matrixWorld.clone().invert(), local = new THREE.Matrix4(), instance = new THREE.Matrix4();
+  old.geometry.computeBoundingBox();
+  const contact = old.geometry.boundingBox.min.y;
+  report.sourceSites = old.count;
+  const chosen = [];
+  for (let j = 0; j < Math.min(ROD_LAVER_PARKED_COUNT, old.count); j++) {
+    const i = Math.round(j * (old.count - 1) / (Math.min(ROD_LAVER_PARKED_COUNT, old.count) - 1 || 1));
+    old.getMatrixAt(i, instance);
+    local.copy(inverse).multiply(old.matrixWorld).multiply(instance);
+    const position = new THREE.Vector3(0, contact, 0).applyMatrix4(local);
+    const quaternion = new THREE.Quaternion().setFromRotationMatrix(local);
+    const type = PARKED_CAR_TYPES[j % PARKED_CAR_TYPES.length], part = kit[type];
+    const paint = part.paints[Math.floor(mixedUnit(`rod-laver-parked:${i}`) * part.paints.length)];
+    chosen.push({ source: i, type, paint, position, quaternion });
+  }
+  const group = new THREE.Group(); group.name = ROD_LAVER_PARKED_CARS;
+  const matrix = new THREE.Matrix4(), unit = new THREE.Vector3(1, 1, 1), colour = new THREE.Color();
+  for (const type of PARKED_CAR_TYPES) {
+    const cars = chosen.filter(c => c.type === type);
+    if (!cars.length) continue;
+    const { paint, detail } = kit[type];
+    for (const [source, part, shadow] of [[paint, 'paint', true], [detail, 'detail', false]]) {
+      const mesh = new THREE.InstancedMesh(source.geometry, source.material, cars.length);
+      mesh.name = `${ROD_LAVER_PARKED_CARS}:${type}-${part}`;
+      cars.forEach((car, i) => {
+        matrix.compose(car.position, car.quaternion, unit); mesh.setMatrixAt(i, matrix);
+        if (part === 'paint') mesh.setColorAt(i, colour.set(car.paint));
+      });
+      mesh.instanceMatrix.needsUpdate = true;
+      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+      mesh.castShadow = shadow; mesh.receiveShadow = true; mesh.raycast = () => {};
+      mesh.userData.rodLaverParkedCar = type; mesh.computeBoundingSphere(); group.add(mesh);
+      report.calls++;
+      report.triangles += (source.geometry.index?.count ?? source.geometry.attributes.position.count) / 3 * cars.length;
+    }
+  }
+  report.placed = chosen.length;
+  report.cars = chosen.map(c => ({ source: c.source, type: c.type, paint: c.paint, position: c.position.toArray(), quaternion: c.quaternion.toArray() }));
+  return { group, report };
+}
+
+/**
+ * With the switch and all twelve LOD0 nodes present, detach M0's replacement/vehicle/tree classes, plant city-kit
+ * trees and attach independent LODs. The precinct hook runs after events' material/light register. Missing LOD0
+ * keeps the JS intact; missing LOD1 keeps the complete near copy. Reports contain measured removals, never pins.
+ */
+export function placeRodLaverLandmark(root, {
+  y0 = 0, quality = 'high', search = globalThis.location?.search ?? '',
+  scene = loadedLandmarkScene('rod-laver'), far = loadedLandmarkScene('rod-laver-far'),
+  cars = loadedLandmarkScene(PARKED_CARS_KEY),
+} = {}) {
+  if (!root || !parseLandmarkSwitch(search).has('rod-laver')) return null;
+  if (root.userData.rodLaverLandmark?.placed) return root.userData.rodLaverLandmark;
+  const report = { placed: false, reason: null, nodes: 0, lod1: false, removed: {}, removedMeshes: 0,
+    removedTriangles: 0, triangles: 0, trianglesFar: 0, cityTrees: null, parkedCars: null };
+  root.userData.rodLaverLandmark = report;
+  const source = scene?.getObjectByName(ROD_LAVER_ROOT_NODE);
+  const names = Object.keys(ROD_LAVER_NODES);
+  const missing = names.filter(name => !source?.children.some(o => o.name === name));
+  if (missing.length) { report.reason = `node missing: ${missing.join(', ')}`; return report; }
+  const farSource = far?.getObjectByName(ROD_LAVER_ROOT_NODE);
+  const fullFar = names.every(name => farSource?.children.some(o => o.name === name));
+  const nodes = names.map(name => [name, landmarkNode(source, name, 'rod-laver'),
+    fullFar ? landmarkNode(farSource, name, 'rod-laver') : null]);
+  const units = rodLaverClearUnits(root);
+  const trunks = rodLaverTreeSites(root, units);
+  const trees = plantCityTrees(root, trunks, { quality, landmark: 'rod-laver', fallLayer: false });
+  const parked = placeRodLaverCars(root, cars);
+  for (const [object, cls] of units) {
+    const measured = meshTriangles(object);
+    const row = report.removed[cls] ??= { meshes: 0, triangles: 0 };
+    row.meshes += measured.meshes; row.triangles += measured.triangles;
+    report.removedMeshes += dropObject(object);
+    report.removedTriangles += measured.triangles;
+  }
+  root.add(trees.group);
+  report.cityTrees = trees.report;
+  if (parked.group) root.add(parked.group);
+  report.parkedCars = parked.report;
+  for (const [name, node, farNode] of nodes) {
+    const centre = new THREE.Box3().setFromObject(node).getCenter(new THREE.Vector3());
+    const lod = new THREE.LOD();
+    lod.name = `${name}-lod`;
+    lod.userData.landmark = 'rod-laver';
+    lod.userData.dynamicVisibility = true; // batching must leave both copies inside their LOD
+    lod.position.copy(centre); lod.position.y += y0;
+    node.position.copy(centre).negate();
+    lod.addLevel(node, 0);
+    if (farNode) {
+      farNode.traverse(o => { if (o.name === name) o.name = airportFarName(name); });
+      farNode.position.copy(centre).negate();
+      lod.addLevel(farNode, ROD_LAVER_LOD_DISTANCE);
+      farNode.visible = false;
+      report.trianglesFar += meshTriangles(farNode).triangles;
+    }
+    root.add(lod);
+    report.nodes += 1;
+    report.triangles += meshTriangles(node).triangles;
+  }
+  report.lod1 = fullFar;
+  report.placed = true;
+  return report;
 }

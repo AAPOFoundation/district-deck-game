@@ -43,7 +43,8 @@ export function parseLead(text) {
   if (/tied/i.test(t)) return { kind: 'tie', figure: 'tied' };
   const m = /(You lead|Petridis leads)\s+(.+)$/i.exec(t);
   if (!m) return { kind: 'none', figure: '' };
-  return /^you/i.test(m[1]) ? { kind: 'lead', figure: `+${m[2]}` } : { kind: 'trail', figure: `−${m[2]}`.replace('−-', '−') };
+  // The rail's lead figure is an absolute magnitude for both sides.
+  return /^you/i.test(m[1]) ? { kind: 'lead', figure: `+${m[2]}` } : { kind: 'trail', figure: `−${m[2]}` };
 }
 
 /** A copy of the rail's markup keeps its element tree but not its class names: the legacy rail rules are keyed on them. */

@@ -420,10 +420,11 @@ function wireFromEvents(state) {
   return lines;
 }
 
+// COPY-DRAFT: next-quarter headlines are outlooks; the final quarter closes the run.
 function nextMacro(state) {
   const nextQuarter = (state.quarter ?? 1) + 1;
   if (nextQuarter > (state.quarters ?? RULES.quarters)) {
-    return { type: 'clear', headline: `Q${nextQuarter} CLEAR`, imply: MACRO_IMPLY.clear, severity: 0 };
+    return { type: 'clear', headline: `Q${state.quarter} CLEAR · RUN ENDS`, imply: MACRO_IMPLY.clear, severity: 0 };
   }
   const entry = state.macroPlan?.entries?.find(({ resolveQuarter }) => resolveQuarter === nextQuarter);
   // Floods are weather-armed now, so the forecast consults the same seeded
@@ -437,7 +438,7 @@ function nextMacro(state) {
     const label = String(planned.type).replace(/-/g, ' ').toUpperCase();
     return {
       type: planned.type,
-      headline: `${label} + FLASH FLOOD · Q${nextQuarter}`,
+      headline: `Q${nextQuarter} OUTLOOK · ${label} + FLASH FLOOD`,
       imply: `${MACRO_IMPLY[planned.type] ?? MACRO_IMPLY.clear} ${MACRO_IMPLY['flash-flood']}`,
       severity: Math.max(planned.severity ?? 0, 1),
     };
@@ -445,18 +446,18 @@ function nextMacro(state) {
   if (flood.armed) {
     return {
       type: 'flash-flood',
-      headline: `FLASH FLOOD · Q${nextQuarter}`,
+      headline: `Q${nextQuarter} OUTLOOK · FLASH FLOOD`,
       imply: MACRO_IMPLY['flash-flood'],
       severity: entry?.type === 'flash-flood' ? (entry.severity ?? 1) : 1,
     };
   }
   if (!planned) {
-    return { type: 'clear', headline: `Q${nextQuarter} CLEAR`, imply: MACRO_IMPLY.clear, severity: 0 };
+    return { type: 'clear', headline: `Q${nextQuarter} OUTLOOK · CLEAR`, imply: MACRO_IMPLY.clear, severity: 0 };
   }
   const label = String(planned.type).replace(/-/g, ' ').toUpperCase();
   return {
     type: planned.type,
-    headline: `${label} · Q${planned.resolveQuarter}`,
+    headline: `Q${nextQuarter} OUTLOOK · ${label}`,
     imply: MACRO_IMPLY[planned.type] ?? MACRO_IMPLY.clear,
     severity: planned.severity ?? 0,
   };

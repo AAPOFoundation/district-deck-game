@@ -6,6 +6,7 @@ import { noPick, edgeFrame, placeGroup } from './kit.js';
 import { alongLength } from '../shore.js';
 import { mats, applyTasteRegister } from './events/shared.js';
 import { addRodLaver } from './events/rod-laver.js';
+import { placeAlbertParkLandmark } from '../landmark-albert-park.js';
 import { addGrandPrix } from './events/grand-prix.js';
 import { addFallsCreek } from './events/falls-creek.js';
 
@@ -182,6 +183,8 @@ export function addEvents(parent, city, plan) {
   root.userData.tasteRegister = applyTasteRegister([
     rodLaver, root.getObjectByName('fringe:melbourne-park-approach'), grandPrix,
   ]);
+  rodLaver.userData.placeLandmark?.(); // L4: swap after the existing material and light registers.
+  placeAlbertParkLandmark(grandPrix, { quality: plan?.quality });
   return root;
 }
 

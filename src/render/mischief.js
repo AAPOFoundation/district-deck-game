@@ -491,26 +491,27 @@ function propComponents(target, variant) {
   }
   // R30u car — sedan mass with waist, greenhouse rake, tyre lips, lamps.
   if (id.includes('traffic-car') || id.includes('car-body') || id === 'car') {
-    const body = ['#e53935', '#1e88e5', '#fdd835', '#43a047'][variant % 4];
+    const livery = target.carColours ?? {};
+    const body = livery.body ?? ['#e53935', '#1e88e5', '#fdd835', '#43a047'][variant % 4];
     const kit = [
       part(0, 0.36, 0, 1.82, 0.52, 4.25, body), // lower hull
       part(0, 0.78, 0.04, 1.68, 0.24, 3.55, body), // waist / shoulder
-      part(0, 1.02, -0.1, 1.48, 0.48, 1.95, '#152230'), // greenhouse
+      part(0, 1.02, -0.1, 1.48, 0.48, 1.95, livery.glass ?? '#152230'), // greenhouse
       part(0, 1.32, -0.12, 1.22, 0.12, 1.55, body), // roof
       part(0, 0.68, 1.82, 1.62, 0.26, 0.62, body), // nose
       part(0, 0.66, -1.92, 1.58, 0.22, 0.48, body), // boot
-      part(0, 0.46, 2.14, 1.55, 0.12, 0.16, '#eef6f8'), // bumper
-      part(0, 0.48, -2.16, 1.48, 0.1, 0.14, '#c8d0d4'),
-      part(-0.9, 0.28, 1.22, 0.36, 0.52, 0.52, '#0a0a0c'),
-      part(0.9, 0.28, 1.22, 0.36, 0.52, 0.52, '#0a0a0c'),
-      part(-0.9, 0.28, -1.28, 0.36, 0.52, 0.52, '#0a0a0c'),
-      part(0.9, 0.28, -1.28, 0.36, 0.52, 0.52, '#0a0a0c'),
-      part(0.52, 0.7, 2.1, 0.26, 0.14, 0.12, '#ffffff'),
-      part(-0.52, 0.7, 2.1, 0.26, 0.14, 0.12, '#ffffff'),
-      part(0.52, 0.72, -2.14, 0.24, 0.12, 0.1, '#ff2634'),
-      part(-0.52, 0.72, -2.14, 0.24, 0.12, 0.1, '#ff2634'),
-      part(0.78, 0.58, 0.05, 0.08, 0.1, 2.4, '#f0f6f8'), // chrome strip
-      part(-0.78, 0.58, 0.05, 0.08, 0.1, 2.4, '#f0f6f8'),
+      part(0, 0.46, 2.14, 1.55, 0.12, 0.16, livery.trim ?? '#eef6f8'), // bumper
+      part(0, 0.48, -2.16, 1.48, 0.1, 0.14, livery.trim ?? '#c8d0d4'),
+      part(-0.9, 0.28, 1.22, 0.36, 0.52, 0.52, livery.tyre ?? '#0a0a0c'),
+      part(0.9, 0.28, 1.22, 0.36, 0.52, 0.52, livery.tyre ?? '#0a0a0c'),
+      part(-0.9, 0.28, -1.28, 0.36, 0.52, 0.52, livery.tyre ?? '#0a0a0c'),
+      part(0.9, 0.28, -1.28, 0.36, 0.52, 0.52, livery.tyre ?? '#0a0a0c'),
+      part(0.52, 0.7, 2.1, 0.26, 0.14, 0.12, livery.headLamp ?? '#ffffff'),
+      part(-0.52, 0.7, 2.1, 0.26, 0.14, 0.12, livery.headLamp ?? '#ffffff'),
+      part(0.52, 0.72, -2.14, 0.24, 0.12, 0.1, livery.tailLamp ?? '#ff2634'),
+      part(-0.52, 0.72, -2.14, 0.24, 0.12, 0.1, livery.tailLamp ?? '#ff2634'),
+      part(0.78, 0.58, 0.05, 0.08, 0.1, 2.4, livery.trim ?? '#f0f6f8'), // chrome strip
+      part(-0.78, 0.58, 0.05, 0.08, 0.1, 2.4, livery.trim ?? '#f0f6f8'),
     ];
     // Keep the scattered panels in the road plane instead of burying them
     // under a tipped root and leaving only a vertical hull slab visible.
@@ -1047,6 +1048,7 @@ export class Mischief {
         .sort((a, b) => a.damagedOrder - b.damagedOrder);
       if (damaged.length >= MISCHIEF_MAX_DAMAGED) this._instantRepair(damaged[0]);
       record.damagedOrder = ++this.order;
+      if (mischiefKindOf(record.target) === 'car') record.target.setStopped?.(true);
     }
 
     const previousStage = record.stage;
@@ -1115,8 +1117,10 @@ export class Mischief {
       });
     }
     if (record.stage >= 1 && !this.reducedMotion) {
-      this.vfx?.burst?.(fxAt, {
-        colour: isTree ? '#6a6240' : debris,
+      this.vfx?.burst?.(isTree ? { ...fxAt, y: position.y + (record.target.size?.y ?? 5.2) * 0.65 } : fxAt, {
+        colour: isTree ? record.target.canopyColour : debris,
+        leaf: isTree,
+        puff: record.target.kind === 'prop',
         count: record.stage >= 3 ? 22 : record.stage >= 2 ? 14 : 9,
         spread: record.stage >= 3 ? 3.2 : record.stage >= 2 ? 2.4 : 2.0,
       });
@@ -1537,17 +1541,24 @@ export class Mischief {
       const localMatrix = new THREE.Matrix4().compose(local, localRotation, partScale);
       const worldMatrix = root.clone().multiply(localMatrix);
       const c = component.colour.clone();
-      if (stage === 1) c.offsetHSL(0, 0, -0.04);
-      // Foliage does not go grey and brown when the tub it is in falls over; it stays the
-      // plant it was, a little dulled. Only the built parts take the full damage grade.
+      // Furniture and cars keep their source finish at every damage stage. The
+      // old 0.62 multiplier plus HSL subtraction crushed timber/iron to black.
+      const keepFinish = target.kind === 'prop';
+      const binding = target.renderBinding;
+      if (keepFinish && binding?.meshes?.[0]?.instanceColor) {
+        c.multiply(new THREE.Color().fromBufferAttribute(binding.meshes[0].instanceColor, binding.index));
+      }
+      if (stage === 1 && !keepFinish) c.offsetHSL(0, 0, -0.04);
+      // Tree/transit damage retains its existing finish; planted furniture keeps
+      // its leaf and blade colours along with the built parts above.
       const shape = component.shape ?? 'box';
       const soft = shape !== 'box';
-      if (stage === 2) {
+      if (stage === 2 && !keepFinish) {
         if (soft) c.multiplyScalar(0.92);
         else c.multiplyScalar(0.78).offsetHSL(0.02, -0.08, -0.06);
       }
-      // Keep ice-cream scoops bright; other debris darkens with damage.
-      if (stage >= 3 && !isIce) {
+      // Retain the existing tree/transit scatter grade.
+      if (stage >= 3 && !isIce && !keepFinish) {
         if (soft) c.multiplyScalar(0.80).offsetHSL(0, -0.05, -0.03);
         else c.multiplyScalar(0.62).offsetHSL(0.04, -0.12, -0.1);
       }

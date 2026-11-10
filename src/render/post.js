@@ -18,6 +18,7 @@ import * as THREE from 'three';
 import { P1_GROUNDING, P1_LIGHT, P4_GRUNGE, P23_LIGHT_PHOTO, R9_ATMOS } from './v4-p1-polish.js';
 import { LAND_EDGE, LAND_EDGE_UNIFORMS_GLSL, landFieldUniforms } from './land-edge.js';
 import { COAST_SPINE_GLSL } from './coast-spine.js';
+import { sceneSamples } from './frame-policy.js';
 
 // `aa` is the temporal stage the tier runs; `spatial` is the edge filter that runs on the
 // graded buffer on the way to screen. Round 1 shipped `high` with aa:'taa' and nothing
@@ -982,10 +983,12 @@ export function rainStreakScale(d) {
 export class PostChain {
   constructor(renderer, {
     quality = 'high', reducedMotion = false, width = 1, height = 1, grade = null,
+    msaa = null,
   } = {}) {
     this.renderer = renderer;
     this.quality = QUALITY_TIERS[quality] ? quality : 'high';
     this.tier = QUALITY_TIERS[this.quality];
+    this._msaa = msaa;
     this.reducedMotion = reducedMotion;
     this.width = Math.max(1, Math.floor(width));
     this.height = Math.max(1, Math.floor(height));
@@ -1298,7 +1301,8 @@ export class PostChain {
     // resolves both colour and the attached depth texture on read
     // (three.module.js:19381 blits DEPTH_BUFFER_BIT), so GTAO and DOF still get real depth.
     this.sceneTarget = makeTarget(width, height, {
-      type: sceneType, depthBuffer: true, name: 'dd-scene', samples: tier.msaa ?? 0,
+      type: sceneType, depthBuffer: true, name: 'dd-scene',
+      samples: sceneSamples(tier.msaa ?? 0, this._msaa, this.renderer?.capabilities?.maxSamples),
     });
     this.sceneTarget.depthTexture = new THREE.DepthTexture(width, height);
     this.sceneTarget.depthTexture.format = THREE.DepthFormat;

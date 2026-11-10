@@ -52,13 +52,17 @@ import { CLIMB_SPEED } from './people/city-wander.js';
 import { planEntertainmentKerbDressings } from './streetscape.js';
 import {
   makeP17EntertainmentPlateCamera, p17EntertainmentPlateContains,
-  PEDESTRIAN_KERB_YIELD_M, roadCellKind, sharedSignalPhase, signalPhaseRemaining,
+  CAR_PUBLISHED_BOX, PEDESTRIAN_KERB_YIELD_M, roadCellKind, sharedSignalPhase, signalPhaseRemaining,
 } from './traffic.js';
 import {
   FIGURE_ACCESSORIES, FIGURE_BUILDS, FIGURE_CONTACT, FIGURE_PALETTES, FIGURE_POSES,
   FIGURE_VIGNETTE_TYPES, applyTwoToneRamp, assignUniqueKits, censusFigureSet,
   clonePairsWithin, pickFigureKit, silhouetteKey,
 } from './figures.js';
+
+// Keep the mounted envelope 10 mm clear of the published car body, at either car scale.
+const CYCLIST_RADIUS = .23;
+const CYCLE_LANE_OFFSET = CAR_PUBLISHED_BOX.halfWidth + CYCLIST_RADIUS + .01;
 
 const CAREER_CLOTH = Object.freeze({
   'cheap-builder': '#c6d300',
@@ -1938,7 +1942,7 @@ export class AmbientLifeLayer {
     for(let i=1;i<route.length;i++) {
       const a=route[i-1],b=route[i],d=Math.hypot(b.x-a.x,b.z-a.z);
       if(d<.001)continue;
-      const ox=(b.z-a.z)/d*1.26,oz=-(b.x-a.x)/d*1.26;
+      const ox=(b.z-a.z)/d*CYCLE_LANE_OFFSET,oz=-(b.x-a.x)/d*CYCLE_LANE_OFFSET;
       edge.push({x:a.x+ox,z:a.z+oz},{x:b.x+ox,z:b.z+oz});
     }
     trip.route=edge;trip.routeIndex=1;trip.x=trip.park.x;trip.z=trip.park.z;
@@ -2001,7 +2005,8 @@ export class AmbientLifeLayer {
         Math.round((actor.x - CORRIDOR.kerbLow) / PITCH)));
       const parkingSlot = this.actors.filter(a => a.pedestrianVariant === 'cyclist').indexOf(actor);
       const start = ROAD + 8 + Math.max(0, parkingSlot) * 4;
-      trip = actor.cycleTrip = { x: lane * PITCH + CORRIDOR.kerbHigh - .24,
+      const laneCentre = (CORRIDOR.carriagewayB[0] + CORRIDOR.carriagewayB[1]) / 2;
+      trip = actor.cycleTrip = { x: lane * PITCH + laneCentre + CYCLE_LANE_OFFSET,
         z: start, end: this.city.blocksZ * PITCH - 8 - Math.max(0, parkingSlot) * 4,
         distance: 0, state: 'ride', walk: 0 };
       if (actor.agendaNow?.destination) {
@@ -2023,7 +2028,7 @@ export class AmbientLifeLayer {
         && roadCellKind(trip.x,trip.z).kind!=='junction';
       const blocked=entering && sharedSignalPhase(this.elapsed,axis)!=='green'
         || this.roadUsers.some(body=>[-.8,0,.8+step].some(d=>
-          pedestrianBodyOverlap(trip.x+Math.sin(yaw)*d,trip.z+Math.cos(yaw)*d,body,.23)));
+          pedestrianBodyOverlap(trip.x+Math.sin(yaw)*d,trip.z+Math.cos(yaw)*d,body,CYCLIST_RADIUS)));
       if (!blocked) {trip.x=x;trip.z=z;trip.distance+=step;if(distance<=step+.001)trip.routeIndex++;}
       if (trip.routeIndex>=trip.route.length) {
         trip.state='walk';trip.park={x:trip.x,z:trip.z,y:0,yaw};
@@ -2054,7 +2059,7 @@ export class AmbientLifeLayer {
           blocked = true; intent = 'wait-car';
         }
         for (const dz of [-.8, 0, .8 + step]) {
-          if (pedestrianBodyOverlap(x, z + dz, body, .23)) { blocked = true; intent = 'wait-car'; }
+          if (pedestrianBodyOverlap(x, z + dz, body, CYCLIST_RADIUS)) { blocked = true; intent = 'wait-car'; }
         }
       }
       for (const other of this.actors) {
@@ -2530,6 +2535,13 @@ export class AmbientLifeLayer {
     const shift = at(0, .89, -.13).sub(pose.pelvis.position);
     for (const position of new Set(['pelvis', 'chest', 'head', 'hair', 'upperArmL', 'upperArmR',
       'forearmL', 'forearmR'].map(name => pose[name].position))) position.add(shift);
+    // Centre the upper body over the saddle: the standing rig's lateral lean grows with
+    // stature and otherwise puts the chest outside the mounted 0.23 m half-width.
+    const lateral = new THREE.Vector3(1, 0, 0).applyQuaternion(q);
+    const lean = pose.chest.position.clone().sub(origin).dot(lateral);
+    for (const position of new Set(['chest', 'head', 'hair'].map(name => pose[name].position))) {
+      position.addScaledVector(lateral, -lean);
+    }
     // A road cyclist has a 0.44 m tucked shoulder envelope, rather than the
     // pedestrian kit's 0.61 m coat envelope. Geometry and collision width agree.
     for (const scale of new Set(['pelvis', 'chest', 'head', 'hair', 'upperArmL', 'upperArmR',

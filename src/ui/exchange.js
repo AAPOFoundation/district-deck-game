@@ -18,7 +18,7 @@ import {
 } from '../core/markets.js';
 import { canPlaceOrder, isLimitMarketable } from '../core/markets-orders.js';
 import { deskWire } from '../core/markets-narrative.js';
-import { escapeHtml, moneyExact } from '../core/format.js';
+import { escapeHtml, moneyExact, signedMoney } from '../core/format.js';
 
 const TYPES = [
   { id: 'market', label: 'MKT' },
@@ -36,14 +36,6 @@ function clsOf(bp) {
 function signedPct(bp) {
   if (!Number.isFinite(bp)) return '—';
   return `${bp >= 0 ? '+' : ''}${(bp / 100).toFixed(2)}%`;
-}
-
-function signedMoney(value) {
-  if (!Number.isFinite(value)) return '—';
-  const abs = moneyExact(Math.abs(Math.round(value)));
-  if (value > 0) return `+${abs}`;
-  if (value < 0) return `−${abs.replace('-', '')}`;
-  return abs;
 }
 
 function needsLimit(type) {
@@ -463,7 +455,7 @@ export class ExchangeDesk {
         chg.className = `num ${clsOf(bp)}`;
       }
       if (cash) {
-        cash.textContent = signedMoney(dollars);
+        cash.textContent = signedMoney(dollars, { exact: true });
         cash.className = `num ${clsOf(bp)}`;
       }
     }
@@ -504,7 +496,7 @@ export class ExchangeDesk {
       if (lastEl) lastEl.textContent = formatTickerPrice(live.tape, lot.class, lot.id);
       if (mktEl) mktEl.textContent = moneyExact(live.mkt);
       if (dolEl) {
-        dolEl.textContent = signedMoney(live.pnl);
+        dolEl.textContent = signedMoney(live.pnl, { exact: true });
         dolEl.className = `num ${tone}`;
       }
       if (pctEl) {
@@ -521,7 +513,7 @@ export class ExchangeDesk {
     if (navEl) navEl.textContent = moneyExact(book);
     if (nlvEl) nlvEl.textContent = moneyExact(cash + book);
     if (uplEl) {
-      uplEl.innerHTML = `${signedMoney(pnl)} <span class="tws__metric-sub">${signedPct(uBp)}</span>`;
+      uplEl.innerHTML = `${signedMoney(pnl, { exact: true })} <span class="tws__metric-sub">${signedPct(uBp)}</span>`;
     }
     if (uplWrap) {
       uplWrap.classList.toggle('tws__metric--up', pnl > 0);
@@ -567,7 +559,7 @@ export class ExchangeDesk {
       <div class="tws__metric"><small>Reserved</small><b>${moneyExact(a.reserved)}</b></div>
       <div class="tws__metric"><small>Buying power</small><b>${moneyExact(a.free)}</b></div>
       <div class="tws__metric" data-tws-nav><small>Listed NAV</small><b>${moneyExact(book)}</b></div>
-      <div class="tws__metric ${uCls}" data-tws-upl><small>Unrealized</small><b>${signedMoney(pnl)} <span class="tws__metric-sub">${signedPct(uBp)}</span></b></div>
+      <div class="tws__metric ${uCls}" data-tws-upl><small>Unrealized</small><b>${signedMoney(pnl, { exact: true })} <span class="tws__metric-sub">${signedPct(uBp)}</span></b></div>
       <div class="tws__metric" data-tws-nlv><small>Total NAV</small><b>${moneyExact((this.state.cash ?? 0) + book)}</b></div>
       <div class="tws__metric"><small>Working</small><b>${a.working}</b></div>
     `;
@@ -590,7 +582,7 @@ export class ExchangeDesk {
         return `<tr class="${on}" data-tws-asset="${escapeHtml(lot.id)}">
           <td><span class="sym">${escapeHtml(lot.id)}</span><div class="cls">${escapeHtml(lot.name)}</div></td>
           <td class="num" data-tws-px="${escapeHtml(lot.id)}">${formatTickerPrice(last, lot.class, lot.id)}</td>
-          <td class="num ${tone}" data-tws-chgd="${escapeHtml(lot.id)}">${signedMoney(tapeCash)}</td>
+          <td class="num ${tone}" data-tws-chgd="${escapeHtml(lot.id)}">${signedMoney(tapeCash, { exact: true })}</td>
           <td class="num ${tone}" data-tws-chg="${escapeHtml(lot.id)}">${signedPct(tapeBp)}</td>
           <td class="num">${lot.held || '—'}</td>
         </tr>`;
@@ -738,7 +730,7 @@ export class ExchangeDesk {
         <td class="num">${formatTickerPrice(lot.avgCost, lot.class, lot.id)}</td>
         <td class="num" data-tws-pos-last>${formatTickerPrice(live.tape, lot.class, lot.id)}</td>
         <td class="num" data-tws-pos-mkt>${moneyExact(live.mkt)}</td>
-        <td class="num ${d}" data-tws-pos-pnl>${signedMoney(live.pnl)}</td>
+        <td class="num ${d}" data-tws-pos-pnl>${signedMoney(live.pnl, { exact: true })}</td>
         <td class="num ${d}" data-tws-pos-pct>${signedPct(live.bp)}</td>
       </tr>`;
     }).join('');

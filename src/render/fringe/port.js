@@ -6,6 +6,7 @@
 // and a clone array of hi-vis tokens. Everything below is aimed at those seven.
 
 import * as THREE from 'three';
+import { markPortRig, placePortLandmark } from '../landmark-port.js';
 import { CYBERCAB_RULES } from '../../core/cybercab.js';
 import {
   addBox, addCyl, addSphere, noPick, edgeFrame, placeGroup,
@@ -2632,6 +2633,7 @@ function addGantry(g, mats, x, trolleyT, hang, id, liftedContainerMat = null) {
   // The trolley is welded inside its own group, so its nodes travel with it.
   weldJoints(trolley, mats.steelPale ?? mats.steel, `fringe:port-gantry:${id}:trolley`,
     { skip: /:(spreader|falls|cargo-mount|lifted-container)\b/, maxNodes: 12 });
+  markPortRig(crane, 'gantry', [x, APRON_TOP, 0], [mats.contact, mats.contactAO], mats.beacon); // LM-PORT: R140 retains roof beacon and stalk; live rig stays JS.
   return {
     id, x, landZ, seaZ, boomSea, boomLand, topY, trolley, spreader, falls, cargoMount,
     hang, hangMin: 1.2, hangMax: topY - APRON_TOP - 1.4, z: tz, y: sy, group: crane,
@@ -3137,6 +3139,7 @@ function addForklift(g, mats, id, x, z, yaw) {
   lift.rotation.y = yaw;
   noPick(lift);
   g.add(lift);
+  markPortRig(lift, 'forklift'); // LM-PORT: body and four independently lifted sections.
   plantPatch(g, mats, x, z, yaw, 4.4, 2.2);
 }
 
@@ -3182,6 +3185,7 @@ function addReachStacker(g, mats, id, x, z, yaw, boomAngle = 0.55, cargoGood = n
   noPick(rs);
   g.add(rs);
   plantPatch(g, mats, x, z, yaw, 11.0, 5.2);
+  markPortRig(rs, 'stacker'); // LM-PORT: body/spreader; stamped cargo stays JS.
   return { group: rs, spreader, home: { x, z, yaw } };
 }
 
@@ -14147,6 +14151,7 @@ diffuseColor.a *= smoothstep(.12, .30, chip);
   capPortPaint(root, [...accents, ...accents.filter(Boolean).map(occludedMaterial)]);
   root.userData.pm12Wear = portWearReceipt(root);
   registerSubtreeLod(root, 'port');
+  placePortLandmark(root); // LM-PORT: after material passes; complete loaded rigs only.
   return root;
 }
 

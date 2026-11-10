@@ -58,6 +58,7 @@
 //
 // Salt namespace 3800–3899.
 
+import * as THREE from 'three';
 import {
   box, slab, cyl, taper,
   METRICS, part, recessFaces, hole, countAperture,
@@ -1256,6 +1257,45 @@ function forecourtCar(ctx, F, { x, z, yaw = 0 }) {
 
 /* ────────────────────────────── the subject ────────────────────────────────────────────── */
 
+// The MP9 replacement arrived in 1a84184a above the existing 9,000-triangle cap.
+// Cull only whole triangles strictly inside another closed, opaque box. Keeping
+// the original attributes preserves every exposed vertex, UV, normal and recess
+// value. Six face planes (rather than an AABB) also handle rotated members.
+export function omitBuriedPetrolTriangles(parts) {
+  const hosts = parts.filter(({ geometry: g, material: m }) => (
+    g.type === 'BoxGeometry' && g.index?.count === 36
+    && g.attributes.position.count === 24 && m.side === THREE.FrontSide
+    && !m.transparent && m.opacity === 1 && !m.transmission && !m.alphaMap && !m.alphaTest
+  )).map(({ geometry }) => {
+    const position = geometry.attributes.position;
+    const normal = geometry.attributes.normal;
+    const planes = Array.from({ length: 6 }, (_, face) => {
+      const n = new THREE.Vector3().fromBufferAttribute(normal, face * 4);
+      const point = new THREE.Vector3().fromBufferAttribute(position, face * 4);
+      return { normal: n, distance: n.dot(point) };
+    });
+    return { geometry, planes };
+  });
+  const vertices = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
+  for (const { geometry } of parts) {
+    const position = geometry.attributes.position;
+    const indices = geometry.index?.array ?? Array.from({ length: position.count }, (_, i) => i);
+    const kept = [];
+    for (let i = 0; i < indices.length; i += 3) {
+      for (let j = 0; j < 3; j += 1) vertices[j].fromBufferAttribute(position, indices[i + j]);
+      const buried = hosts.some((host) => host.geometry !== geometry
+        && host.planes.every(({ normal, distance }) => vertices.every(
+          (point) => normal.dot(point) < distance - 1e-6,
+        )));
+      if (!buried) kept.push(indices[i], indices[i + 1], indices[i + 2]);
+    }
+    if (kept.length !== indices.length) {
+      geometry.setIndex(kept);
+      geometry.clearGroups();
+    }
+  }
+}
+
 /**
  * `petrol-station` — a contemporary suburban forecourt.
  *
@@ -1304,6 +1344,7 @@ export function buildPetrolStation(ctx) {
   ctx.add(shade(extinguisher(ctx, {
     x: F.colX - 0.32, y: F.islTop + 1.55, z: F.rowB, facing: 1, name: 'ext-col',
   }), SHADE.canopy));
+  omitBuriedPetrolTriangles(ctx.parts);
 }
 
 /** The lane dispatcher's registration map for this file. */

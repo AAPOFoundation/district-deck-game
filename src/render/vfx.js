@@ -37,29 +37,40 @@ const _quaternion = new THREE.Quaternion();
 const _scale = new THREE.Vector3();
 const _euler = new THREE.Euler();
 
+/** Eight outline vertices and a raised midrib, shared by the existing mote pool. */
+export function fallingLeafGeometry() {
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute([
+    0, .5, 0, .32, .32, -.06, .5, 0, -.10, .28, -.32, -.06,
+    0, -.5, 0, -.28, -.32, -.06, -.5, 0, -.10, -.32, .32, -.06,
+    0, 0, 0,
+  ], 3));
+  // Ordinary money motes retain their square billboard in this same draw call.
+  geometry.setAttribute('aQuad', new THREE.Float32BufferAttribute([
+    0, .5, 0, .5, .5, 0, .5, 0, 0, .5, -.5, 0,
+    0, -.5, 0, -.5, -.5, 0, -.5, 0, 0, -.5, .5, 0, 0, 0, 0,
+  ], 3));
+  geometry.setIndex(Array.from({ length: 8 }, (_, i) => [8, i, (i + 1) % 8]).flat());
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
 function softDiscTexture() {
   const size = 64;
-  const canvas = (typeof document !== 'undefined' && document.createElement)
-    ? document.createElement('canvas')
-    : null;
-  // Node / headless: fall back to a solid DataTexture so dispose paths stay valid.
-  if (!canvas || typeof canvas.getContext !== 'function') {
-    const data = new Uint8Array([255, 255, 255, 200]);
-    const texture = new THREE.DataTexture(data, 1, 1);
-    texture.needsUpdate = true;
-    return texture;
+  // The same radial stops as the original canvas puff, also available headlessly.
+  const stops = [[0, 0.95], [0.35, 0.45], [0.7, 0.12], [1, 0]];
+  const data = new Uint8Array(size * size * 4);
+  for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+    const radius = Math.min(1, Math.hypot((x + 0.5) / size * 2 - 1, (y + 0.5) / size * 2 - 1));
+    const end = stops.findIndex(([r]) => r >= radius);
+    const [r0, a0] = stops[Math.max(0, end - 1)], [r1, a1] = stops[end];
+    const alpha = r1 === r0 ? a0 : THREE.MathUtils.lerp(a0, a1, (radius - r0) / (r1 - r0));
+    const at = (y * size + x) * 4;
+    data[at] = data[at + 1] = data[at + 2] = 255;
+    data[at + 3] = Math.round(alpha * 255);
   }
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext('2d');
-  const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  gradient.addColorStop(0, 'rgba(255,255,255,0.95)');
-  gradient.addColorStop(0.35, 'rgba(255,255,255,0.45)');
-  gradient.addColorStop(0.7, 'rgba(255,255,255,0.12)');
-  gradient.addColorStop(1, 'rgba(255,255,255,0)');
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, size, size);
-  const texture = new THREE.CanvasTexture(canvas);
+  const texture = new THREE.DataTexture(data, size, size);
+  texture.minFilter = texture.magFilter = THREE.LinearFilter;
   texture.needsUpdate = true;
   return texture;
 }
@@ -98,24 +109,49 @@ export class Vfx {
     scene.add(this.shadeMesh);
     this.shadeUntil = 0;
 
-    // A single pooled point cloud carries every rising mote; no per-frame allocation.
-    const positions = new Float32Array(MAX_MOTES * 3);
-    const colours = new Float32Array(MAX_MOTES * 3);
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('color', new THREE.BufferAttribute(colours, 3));
-    this.motes = new THREE.Points(geometry, new THREE.PointsMaterial({
-      size: 1.1, vertexColors: true, transparent: true, opacity: 0.9, depthWrite: false,
-      sizeAttenuation: true,
-    }));
+    // One mask shared by tip dust and the existing burst pool; no added draw call.
+    this.dustTexture = softDiscTexture();
+    // The same 160-slot, one-draw pool carries leaves, money and soft dust puffs.
+    const geometry = fallingLeafGeometry();
+    geometry.setDrawRange(0, 0);
+    geometry.setAttribute('aLeaf', new THREE.InstancedBufferAttribute(new Float32Array(MAX_MOTES), 1));
+    geometry.setAttribute('aPuff', new THREE.InstancedBufferAttribute(new Float32Array(MAX_MOTES), 1));
+    const moteMaterial = this.shadeMesh.material.clone();
+    moteMaterial.color.set(0xffffff);
+    moteMaterial.opacity = 0.9;
+    // InstancedMesh supplies the canopy tint via instanceColor. This geometry has
+    // no vertex colour attribute; enabling it would multiply that tint by zero.
+    moteMaterial.vertexColors = false;
+    moteMaterial.forceSinglePass = true;
+    moteMaterial.onBeforeCompile = (shader) => {
+      shader.uniforms.softPuffMap = { value: this.dustTexture };
+      const puffVaryings = 'varying float vPuff;\nvarying vec2 vPuffUv;\n';
+      shader.vertexShader = 'attribute float aLeaf;\nattribute float aPuff;\nattribute vec3 aQuad;\n' + puffVaryings + shader.vertexShader;
+      shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>',
+        'vPuff = aPuff; vPuffUv = aQuad.xy + 0.5;\nvec3 transformed = (aLeaf > 0.5 ? position : aQuad) / projectionMatrix[1][1];');
+      shader.vertexShader = shader.vertexShader.replace('#include <project_vertex>', `
+        vec4 mvPosition;
+        if (aLeaf > 0.5) {
+          mvPosition = modelViewMatrix * instanceMatrix * vec4(transformed, 1.0);
+        } else {
+          mvPosition = modelViewMatrix * instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+          mvPosition.xy += transformed.xy * length(instanceMatrix[0].xyz);
+        }
+        gl_Position = projectionMatrix * mvPosition;
+      `);
+      shader.fragmentShader = 'uniform sampler2D softPuffMap;\n' + puffVaryings + shader.fragmentShader;
+      shader.fragmentShader = shader.fragmentShader.replace('#include <color_fragment>',
+        '#include <color_fragment>\nif (vPuff > 0.5) diffuseColor.a *= texture2D(softPuffMap, vPuffUv).a;');
+    };
+    moteMaterial.customProgramCacheKey = () => 'motes-folded-leaf-soft-puff-v2';
+    this.motes = new THREE.InstancedMesh(geometry, moteMaterial, MAX_MOTES);
     this.motes.frustumCulled = false;
     scene.add(this.motes);
     this.moteState = Array.from({ length: MAX_MOTES }, () => ({ life: 0 }));
     this.moteCursor = 0;
-    geometry.setDrawRange(0, 0);
+    for (let i = 0; i < MAX_MOTES; i += 1) this._writeMote(i);
 
     // --- W2-PHYS: dust / sparks / debris ------------------------------------
-    this.dustTexture = softDiscTexture();
     const dustPositions = new Float32Array(MAX_DUST * 3);
     const dustColours = new Float32Array(MAX_DUST * 3);
     const dustSizes = new Float32Array(MAX_DUST);
@@ -226,26 +262,50 @@ export class Vfx {
   }
 
   /** Rising motes — money moving. Capped and pooled. */
-  burst(position, { colour = '#d8a24a', count = 14, spread = 5 } = {}) {
+  burst(position, { colour = '#d8a24a', count = 14, spread = 5, leaf = false, puff = false } = {}) {
     if (this.reducedMotion) return;
     const c = new THREE.Color(colour);
-    const positions = this.motes.geometry.attributes.position;
-    const colours = this.motes.geometry.attributes.color;
+    const shapes = this.motes.geometry.attributes.aLeaf;
+    const puffs = this.motes.geometry.attributes.aPuff;
     for (let i = 0; i < count; i += 1) {
       const index = this.moteCursor;
       this.moteCursor = (this.moteCursor + 1) % MAX_MOTES;
       const state = this.moteState[index];
       state.life = 1;
+      state.leaf = leaf;
       state.speed = 6 + (i % 5);
       state.x = position.x + (i / count - 0.5) * spread;
       state.z = position.z + ((i * 7) % 5 - 2) * (spread / 5);
-      state.y = 1.5;
-      positions.setXYZ(index, state.x, state.y, state.z);
-      colours.setXYZ(index, c.r, c.g, c.b);
+      state.y = leaf ? (position.y ?? 1.5) : 1.5;
+      state.rx = i * 1.7;
+      state.ry = i * 2.3;
+      state.rz = i * 0.9;
+      shapes.setX(index, leaf ? 1 : 0);
+      puffs.setX(index, puff && !leaf ? 1 : 0);
+      // Value-only variance of ±8%; hue and saturation come from this canopy.
+      _colour.copy(c).multiplyScalar(leaf ? 0.92 + (i % 9) * 0.02 : 1);
+      this.motes.setColorAt(index, _colour);
+      this._writeMote(index);
     }
-    positions.needsUpdate = true;
-    colours.needsUpdate = true;
-    this.motes.geometry.setDrawRange(0, MAX_MOTES);
+    shapes.needsUpdate = true;
+    puffs.needsUpdate = true;
+    this.motes.instanceMatrix.needsUpdate = true;
+    if (this.motes.instanceColor) this.motes.instanceColor.needsUpdate = true;
+    this.motes.geometry.setDrawRange(0, this.motes.geometry.index.count);
+  }
+
+  _writeMote(index) {
+    const state = this.moteState[index];
+    if (state.life <= 0) {
+      _matrix.makeScale(0, 0, 0);
+    } else {
+      _position.set(state.x, state.y, state.z);
+      _euler.set(state.leaf ? state.rx : 0, state.leaf ? state.ry : 0, state.leaf ? state.rz : 0);
+      _quaternion.setFromEuler(_euler);
+      _scale.setScalar(1.1);
+      _matrix.compose(_position, _quaternion, _scale);
+    }
+    this.motes.setMatrixAt(index, _matrix);
   }
 
   /**
@@ -497,19 +557,24 @@ export class Vfx {
       }
     }
 
-    const positions = this.motes.geometry.attributes.position;
     let alive = false;
     for (let i = 0; i < MAX_MOTES; i += 1) {
       const state = this.moteState[i];
       if (state.life <= 0) continue;
       alive = true;
       state.life -= dt * 0.9;
-      state.y += state.speed * dt;
+      if (state.leaf) {
+        state.y = Math.max(GROUND_Y, state.y - state.speed * dt);
+        state.rx += dt * 4.1;
+        state.ry += dt * 2.7;
+        state.rz += dt * 3.3;
+      } else {
+        state.y += state.speed * dt;
+      }
       state.speed *= 0.965;
-      positions.setXYZ(i, state.x, state.y, state.z);
-      if (state.life <= 0) positions.setXYZ(i, 0, -9999, 0);
+      this._writeMote(i);
     }
-    positions.needsUpdate = true;
+    this.motes.instanceMatrix.needsUpdate = true;
     this.motes.material.opacity = alive ? 0.9 : 0;
 
     this._updateDust(dt);
@@ -590,12 +655,11 @@ export class Vfx {
   clear() {
     for (const ring of this.activeRings) ring.mesh.visible = false;
     this.activeRings.length = 0;
-    const positions = this.motes.geometry.attributes.position;
     for (let i = 0; i < MAX_MOTES; i += 1) {
       this.moteState[i].life = 0;
-      positions.setXYZ(i, 0, -9999, 0);
+      this._writeMote(i);
     }
-    positions.needsUpdate = true;
+    this.motes.instanceMatrix.needsUpdate = true;
 
     const dustPos = this.dust.geometry.attributes.position;
     for (let i = 0; i < MAX_DUST; i += 1) {

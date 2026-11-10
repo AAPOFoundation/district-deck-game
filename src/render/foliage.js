@@ -4834,6 +4834,16 @@ export class FoliageLayer {
     return m.clone();
   }
 
+  // Burst-only colour: read the crown tint into a fresh value without adding VFX
+  // metadata to the serialised tree records or sharing a crown material/atlas.
+  getCanopyColour(speciesId, index) {
+    const entry = this._entries.get(`${speciesId}:${index}`);
+    if (!entry) return undefined;
+    const colour = new THREE.Color();
+    entry.leafMesh.getColorAt(index, colour);
+    return colour.multiply(entry.leafMesh.material.color);
+  }
+
   setDamaged(speciesId, index, damaged) {
     this.setDamageLevel(speciesId, index, damaged ? 2 : 0);
   }

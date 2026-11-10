@@ -33,10 +33,37 @@ export function farmBuildRibbonHtml(city, state, id) {
   return `<div class="build-catalog" aria-label="Agriculture building types"><button type="button" class="build-row" data-verb="build-farm" ${check.ok ? '' : 'disabled'} data-reason="${escapeHtml(reason)}" title="${escapeHtml(reason)}"><span class="build-row__label">Build Farm</span><span>$30,000 · L1 Agriculture · 1 quarter</span>${nav}</button></div>`;
 }
 
-// Every BUILD form uses the card's authored archetype plate as its full-bleed row image.
-// Wave M gives childcare a plate rendered from the promoted legacy civic-family model.
+// BUILD uses each authored archetype plate where one is shipped.
+// The catalogue expansion in 1a84184a added forms without plates; use the existing
+// steel treatment for those rows instead of requesting missing PNGs. Childcare has a plate.
 export const BUILD_THUMBNAIL_STEEL_FALLBACKS = Object.freeze([
+  'biolab',
+  'cafe-corner',
+  'cattle-abattoir',
   'courthouse',
+  'dairy-processor',
+  'farm',
+  'grain-plot',
+  'incubator',
+  'international-exchange',
+  'kiln',
+  'missionary-school',
+  'officer-school',
+  'police-station',
+  'printing-press',
+  'pulp-mill',
+  'refinery',
+  'remand-centre',
+  'school-high',
+  'school-primary',
+  'smelter',
+  'space-works',
+  'steelworks',
+  'supermarket-strip',
+  'terafab',
+  'transport-interchange',
+  'winery',
+  'works-hall',
 ]);
 const BUILD_THUMBNAIL_STEEL_FALLBACK_SET = new Set(BUILD_THUMBNAIL_STEEL_FALLBACKS);
 

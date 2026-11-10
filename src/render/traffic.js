@@ -1137,6 +1137,11 @@ export const CAR_FIT = Object.freeze(Object.fromEntries(BODY_TYPES.map((type) =>
   })];
 })));
 
+// A mischief wreck keeps its road footprint while the intact instance is hidden.
+function hiddenFromTraffic(car) {
+  return car.mischiefHidden && !car.mischiefStopped;
+}
+
 /** Authored body extents for a fleet car, or a published obstacle's own box. */
 function bodyBoxFor(car) {
   if (Number.isFinite(car?.halfLength)) {
@@ -2728,7 +2733,7 @@ export class TrafficLayer {
       for (const car of this.flowFleet ?? []) {
         const mine = bodyBoxFor(car);
         for (const other of this.vehicles ?? []) {
-          if (other === car || other.mischiefHidden) continue;
+          if (other === car || hiddenFromTraffic(other)) continue;
           const dx = (other.worldX ?? 0) - (car.worldX ?? 0);
           const dz = (other.worldZ ?? 0) - (car.worldZ ?? 0);
           const dist = Math.hypot(dx, dz);
@@ -2758,6 +2763,7 @@ export class TrafficLayer {
 
     // Publish one coherent frame before any car chooses a speed.
     for (const car of this.flowFleet) {
+      if (car.mischiefStopped) continue;
       sampleLoop(car.loop, car.distance, position, yaw);
       car.worldX = position.x;
       car.worldZ = position.z;
@@ -2772,6 +2778,7 @@ export class TrafficLayer {
     }
 
     for (const car of this.flowFleet) {
+      if (car.mischiefStopped) continue;
       const mine = bodyBoxFor(car);
       let target = car.desiredSpeed;
       let stopDistance = Infinity;
@@ -2848,7 +2855,7 @@ export class TrafficLayer {
             }
           };
           for (const other of this.vehicles ?? []) {
-            if (other === car || other.mischiefHidden || other.errandAway) continue;
+            if (other === car || hiddenFromTraffic(other) || other.errandAway) continue;
             considerCross(other.worldX, other.worldZ, other.yaw ?? other.pathYaw ?? 0);
           }
           for (const item of this._obstacles ?? []) {
@@ -2870,7 +2877,7 @@ export class TrafficLayer {
         }
       };
       for (const other of this.vehicles ?? []) {
-        if (other === car || other.errandAway || other.mischiefHidden) continue;
+        if (other === car || other.errandAway || hiddenFromTraffic(other)) continue;
         const dx = (other.worldX ?? 0) - car.worldX;
         const dz = (other.worldZ ?? 0) - car.worldZ;
         const ahead = dx * car.fwdX + dz * car.fwdZ;
@@ -3051,7 +3058,7 @@ export class TrafficLayer {
   queryVehicles() {
     const out = [];
     for (const car of this.vehicles ?? this.fleet ?? []) {
-      if (car.mischiefHidden) continue;
+      if (hiddenFromTraffic(car)) continue;
       // Published boxes are the envelope a foreign vehicle must keep out of, so they are the
       // authored body plus its bumpers plus a margin — never the tightest fit. Understating
       // a car's length here means the bus lane plans its clearances against a car smaller
@@ -3197,6 +3204,13 @@ export class TrafficLayer {
     for (let index = 0; index < count; index += 1) {
       const car = this.fleet[index];
       const loop = car.loop;
+      if (car.mischiefStopped) {
+        car.speed = 0;
+        car.accel = 0;
+        car.fwdX = Math.sin(car.yaw);
+        car.fwdZ = Math.cos(car.yaw);
+        continue;
+      }
       if (car.crashed) {
         car.crashTimer = Math.max(0, (car.crashTimer ?? 0) - step);
         if (car.crashTimer <= 0) {
@@ -3297,7 +3311,7 @@ export class TrafficLayer {
     // Pose the flow fleet before IDM so the eleven cars can see plate/belt traffic
     // that shares their carriageway on a different loop id.
     for (const car of this.flowFleet ?? []) {
-      if (car.errandAway) continue;
+      if (car.errandAway || car.mischiefStopped) continue;
       sampleLoop(car.loop, car.distance, position, yawHolder);
       car.worldX = position.x;
       car.worldZ = position.z;
@@ -3331,7 +3345,7 @@ export class TrafficLayer {
     for (let index = 0; index < count; index += 1) {
       const car = this.fleet[index];
       car.inBox = false;
-      if (car.mischiefHidden || car.errandAway) continue;
+      if (hiddenFromTraffic(car) || car.errandAway) continue;
       const near = this._nearestJunction(car.worldX, car.worldZ);
       const key = car.committedKey ?? (near && near.dist < JUNCTION_BOX ? near.key : null);
       if (!key) continue;
@@ -3341,10 +3355,10 @@ export class TrafficLayer {
       if (!occupiedAxis.has(key)) occupiedAxis.set(key, car.commitAxis ?? car.travelAxis);
       // A vehicle that changes direction inside the box crosses both axes, so it holds the
       // box against everything, not merely against the other axis.
-      if (car.commitTurning && !exclusive.has(key)) exclusive.set(key, index);
+      if ((car.commitTurning || car.mischiefStopped) && !exclusive.has(key)) exclusive.set(key, index);
     }
     for (const car of this.flowFleet ?? []) {
-      if (car.mischiefHidden || car.errandAway) continue;
+      if (hiddenFromTraffic(car) || car.errandAway) continue;
       const near = this._nearestJunction(car.worldX, car.worldZ);
       if (!near || near.dist >= JUNCTION_BOX) continue;
       if (!occupiedAxis.has(near.key)) occupiedAxis.set(near.key, car.travelAxis);
@@ -3364,7 +3378,7 @@ export class TrafficLayer {
     for (let index = 0; index < count; index += 1) {
       const car = this.fleet[index];
       if (car.inBox) continue;
-      if (car.mischiefHidden || car.errandAway) {
+      if (hiddenFromTraffic(car) || car.errandAway || car.mischiefStopped) {
         car.junctionKey = null;
         car.junctionArrival = null;
         continue;
@@ -3409,7 +3423,7 @@ export class TrafficLayer {
       const car = this.fleet[index];
       const loop = car.loop;
       const len = loop.length;
-      if (car.errandAway) continue;
+      if (car.errandAway || car.mischiefStopped) continue;
       // CAR-1: at true size the families differ by 1.2 m in length, so the follower measures
       // the gap from its own nose and the leader's own tail. The toy kit keeps the one figure.
       const selfHalf = CAR_TRUE_SCALE ? bodyBoxFor(car).halfLength : CAR_HALF_LEN;
@@ -3472,11 +3486,11 @@ export class TrafficLayer {
         return j < index;
       };
 
-      if (!car.mischiefHidden) {
+      if (!hiddenFromTraffic(car)) {
         for (let j = 0; j < count; j += 1) {
           if (j === index) continue;
           const other = this.fleet[j];
-          if (other.mischiefHidden) continue;
+          if (hiddenFromTraffic(other)) continue;
           const otherHalf = CAR_TRUE_SCALE ? bodyBoxFor(other).halfLength : CAR_HALF_LEN;
           consider(other.worldX - car.worldX, other.worldZ - car.worldZ,
             other.fwdX, other.fwdZ, otherHalf, CAR_HALF_WIDTH, other.crashed ? 0 : other.speed);
@@ -3485,7 +3499,7 @@ export class TrafficLayer {
             other.crashed ? true : yieldsTo(other, j));
         }
         for (const other of this.flowFleet ?? []) {
-          if (other.mischiefHidden || other.errandAway) continue;
+          if (hiddenFromTraffic(other) || other.errandAway) continue;
           const box = bodyBoxFor(other);
           consider(other.worldX - car.worldX, other.worldZ - car.worldZ,
             other.fwdX, other.fwdZ, box.halfLength, box.halfWidth, other.speed ?? 0);
@@ -3526,7 +3540,7 @@ export class TrafficLayer {
         }
         // Round the corner the world-space cone cannot see: the next car along this loop.
         for (const other of this.vehicles ?? this.fleet) {
-          if (other === car || other.loop !== car.loop || other.mischiefHidden || other.errandAway) continue;
+          if (other === car || other.loop !== car.loop || hiddenFromTraffic(other) || other.errandAway) continue;
           const along = forwardDelta(car.mod, wrapDist(other.distance, len), len);
           if (along <= 1e-3 || along > LEADER_SCAN) continue;
           const box = bodyBoxFor(other);
@@ -3707,13 +3721,16 @@ export class TrafficLayer {
     for (let index = 0; index < renderCount; index += 1) {
       const car = this.vehicles?.[index] ?? this.fleet[index];
       const loop = car.loop;
-      if (car.errandAway) {
+      if (car.mischiefStopped) {
+        position.set(car.mischiefPose.x, 0, car.mischiefPose.z);
+        yawHolder.y = car.mischiefPose.yaw;
+      } else if (car.errandAway) {
         position.set(car.worldX, 0, car.worldZ);
         yawHolder.y = car.yaw ?? car.pathYaw ?? 0;
       } else {
         sampleLoop(loop, car.distance, position, yawHolder);
       }
-      if (car._drawnX != null && Number.isFinite(car._drawnX)) {
+      if (!car.mischiefStopped && car._drawnX != null && Number.isFinite(car._drawnX)) {
         const jump = Math.hypot(position.x - car._drawnX, position.z - car._drawnZ);
         const maxJump = Math.max(1.15, (car.speed + 2.5) * Math.max(step, 1e-4) + 0.55);
         if (jump > maxJump) {
@@ -3731,8 +3748,10 @@ export class TrafficLayer {
         car.crashNudgeX = (car.crashNudgeX ?? 0) * 0.94;
         car.crashNudgeZ = (car.crashNudgeZ ?? 0) * 0.94;
       }
-      position.x += car.crashNudgeX ?? 0;
-      position.z += car.crashNudgeZ ?? 0;
+      if (!car.mischiefStopped) {
+        position.x += car.crashNudgeX ?? 0;
+        position.z += car.crashNudgeZ ?? 0;
+      }
       car.worldX = position.x;
       car.worldZ = position.z;
 
@@ -3740,7 +3759,9 @@ export class TrafficLayer {
       // steered curve rather than a sequence of segment snaps.
       let targetYaw = yawHolder.y;
       if (car.crashed) targetYaw += (car.phase - 0.5) * 0.65;
-      if (car.errandAway) {
+      if (car.mischiefStopped) {
+        car.yaw = car.mischiefPose.yaw;
+      } else if (car.errandAway) {
         car.yawSeeded = true;
       } else if (!car.yawSeeded) {
         car.yaw = targetYaw;
@@ -3774,6 +3795,7 @@ export class TrafficLayer {
       );
       bodyQuat.setFromEuler(euler);
       yawQuat.setFromAxisAngle(UP, car.yaw);
+      scale.setScalar(TRAFFIC_SCALE * (car.mischiefScale ?? 1));
       const drawScale = car.mischiefHidden || car.cabId ? hidden : scale;
       position.y = this.reducedMotion ? 0 : car.heave;
       matrix.compose(position, bodyQuat, drawScale);
@@ -3862,10 +3884,10 @@ export class TrafficLayer {
     if (step > 0) {
       for (let i = 0; i < count; i += 1) {
         const a = this.fleet[i];
-        if (a.crashed || a.mischiefHidden) continue;
+        if (a.crashed || a.mischiefHidden || a.mischiefStopped) continue;
         for (let j = i + 1; j < count; j += 1) {
           const b = this.fleet[j];
-          if (b.crashed || b.mischiefHidden) continue;
+          if (b.crashed || b.mischiefHidden || b.mischiefStopped) continue;
           const dx = (a.worldX ?? 0) - (b.worldX ?? 0);
           const dz = (a.worldZ ?? 0) - (b.worldZ ?? 0);
           const dist = Math.hypot(dx, dz);

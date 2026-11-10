@@ -13,6 +13,7 @@ import { addClusterCanopyField } from '../../foliage.js';
 //  * The precinct grows away from the Grand Prix, which occupies local bearings -15..115 deg.
 
 import * as THREE from 'three';
+import { rodLaverPartMarker, placeRodLaverLandmark } from '../../landmarks-glb.js';
 import { createI4FigureGroup, addI4FigureInstances } from '../port.js';
 import { addCyl, addSphere, addCone, noPick } from '../kit.js';
 import { createCityFringeMaterial } from '../../materials.js';
@@ -1198,6 +1199,7 @@ export function addRodLaver(root, m, y, opts = {}) {
   // the ground it belongs on.
   const ringR = (a) => capGP(a, Math.max(Math.min(precinctR(a) * 0.87, 34.5), planR(a) * 1.06));
 
+  const markLandmarkParts = rodLaverPartMarker(g, M.line); // L4 structural section hooks (M0 partition).
   // Outer scrub shelf: a shallow ramp, never a stamped lip against the board terrain.
   shell(g, [
     [1.0, y + 0.0],
@@ -1484,6 +1486,7 @@ export function addRodLaver(root, m, y, opts = {}) {
     instanced(g, new THREE.ConeGeometry(1, 1.5, 5), std('#ffffff', { roughness: 0.99 }),
       tufts, 'fringe:rod-laver-tufts');
   }
+  markLandmarkParts('keep:terrain-and-planting');
 
   // Ring path around the arena. It was one flat warm plane about four metres wide right
   // under the hero frontage; it now carries a granite kerb on each edge, a cool centre
@@ -1512,6 +1515,7 @@ export function addRodLaver(root, m, y, opts = {}) {
     [0.9, y + GRASS_TOP + 0.095],
     [0.888, y + GRASS_TOP + 0.095],
   ], M.bluestone, { rFn: ringR, segs: 152, cast: false });
+  markLandmarkParts('glb:paths-furniture');
 
   // Ring-path furniture. This band sits directly under the hero frontage and in r3 it was
   // the largest unfurnished paving in the frame after the plaza.
@@ -1566,11 +1570,13 @@ export function addRodLaver(root, m, y, opts = {}) {
           i * 23 + k + 5200, ra + (hashi(i + k, 419) < 0.5 ? 0 : Math.PI) + hashs(i + k, 421) * 0.8);
       }
     }
+    markLandmarkParts('glb:signs-lights');
     instanced(g, chamfer(0.5, 0.84, 0.5, 0.1), M.steelDark, ringBin, 'fringe:rod-laver-ring-bins');
     instanced(g, chamfer(0.58, 0.1, 0.58, 0.04), M.steel, ringLid, 'fringe:rod-laver-ring-bin-lids');
     instanced(g, chamfer(1.8, 0.11, 0.5, 0.03), M.timber, ringSeat, 'fringe:rod-laver-ring-seats');
     instanced(g, chamfer(0.1, 0.5, 0.44, 0.03), M.steelDark, ringLeg, 'fringe:rod-laver-ring-seat-legs');
   }
+  markLandmarkParts('glb:paths-furniture');
 
   // =========================================================================
   // 2. PLANTING — instanced belts, three species, irregular spacing
@@ -1683,6 +1689,7 @@ export function addRodLaver(root, m, y, opts = {}) {
         panels.push({ x: Math.sin(a2) * r2, y: y + GRASS_TOP + 0.85, z: Math.cos(a2) * r2, ry: a2 });
       }
     }
+    markLandmarkParts('keep:terrain-and-planting');
     instanced(g, chamfer(0.12, 1.7, 0.12, 0.04), M.steelDark, posts, 'fringe:rod-laver-fence-posts');
     instanced(g, new THREE.PlaneGeometry(2.5, 1.6), M.mesh, panels, 'fringe:rod-laver-fence-mesh', { cast: false });
     instanced(g, chamfer(2.5, 0.09, 0.09, 0.03), M.steel,
@@ -1712,6 +1719,7 @@ export function addRodLaver(root, m, y, opts = {}) {
       const pz = mid[1] + heroDir[1] * along;
       box(g, 12.0, 0.05, 0.22, M.paveJoint, px, groundY + 0.15, pz, { rotY: frontYaw, c: 0.02, cast: false });
     }
+    markLandmarkParts('glb:paths-furniture');
     // tree rows, lamp columns and banners down both sides
     for (let i = 0; i < 8; i += 1) {
       const along = -13 + i * 3.9;
@@ -1750,6 +1758,7 @@ export function addRodLaver(root, m, y, opts = {}) {
         box(g, 0.34, 0.34, 0.34, M.stoneDeep, px, groundY + 0.3, pz, { c: 0.06 });
       }
     }
+    markLandmarkParts('glb:signs-lights');
     // ticket gates across the approach, two banks with a pole and a scanner
     for (const along of [-9.5, 8.5]) {
       for (let k = 0; k < 7; k += 1) {
@@ -1759,6 +1768,7 @@ export function addRodLaver(root, m, y, opts = {}) {
         box(g, 0.2, 0.26, 0.2, M.banner[k % 4], px, groundY + 1.46, pz, { rotY: frontYaw, c: 0.05, receive: false });
       }
     }
+    markLandmarkParts('glb:paths-furniture');
     // food carts with awnings and queues
     for (let i = 0; i < 4; i += 1) {
       const along = -5.6 + i * 6.6;
@@ -1795,6 +1805,7 @@ export function addRodLaver(root, m, y, opts = {}) {
       }
     }
   }
+  markLandmarkParts('glb:event-structures');
 
   // hedges along the avenue kerbs
   for (let i = 0; i < 22; i += 1) {
@@ -1977,8 +1988,10 @@ export function addRodLaver(root, m, y, opts = {}) {
   {
     const c1 = atBearing(COURT_A, 36);
     showCourt(c1[0], c1[1], COURT_A + Math.PI / 2, 2);
+    markLandmarkParts('glb:show-court-a');
     const c2 = atBearing(COURT_B, 35);
     showCourt(c2[0], c2[1], COURT_B, 3);
+    markLandmarkParts('glb:show-court-b');
 
     // Unit-length geometry scaled by bay so both courts share one instanced mesh per part.
     instanced(g, chamfer(0.13, FENCE_H, 0.13, 0.035), M.steelDark, fencePost,
@@ -1998,6 +2011,7 @@ export function addRodLaver(root, m, y, opts = {}) {
     instanced(g, new THREE.PlaneGeometry(1, FENCE_H - 0.2), M.meshHaze, fenceHaze,
       'fringe:rod-laver-court-mesh:2', { cast: false });
   }
+  markLandmarkParts('glb:court-fences');
 
   // =========================================================================
   // 5. CAR PARK — parked vehicles, bay markings, kerb, lighting
@@ -2020,6 +2034,7 @@ export function addRodLaver(root, m, y, opts = {}) {
     }
     instanced(g, chamfer(0.16, 0.04, 4.6, 0.015), M.barrierTrim, bays, 'fringe:rod-laver-carpark-bays',
       { cast: false });
+    markLandmarkParts('keep:terrain-and-planting');
     const bodies = [];
     const cabins = [];
     for (let i = 0; i < 24; i += 1) {
@@ -2046,6 +2061,7 @@ export function addRodLaver(root, m, y, opts = {}) {
         { rotY: yaw, c: 0.05, receive: false });
     }
   }
+  markLandmarkParts('glb:signs-lights');
 
   // =========================================================================
   // 5b. MELBOURNE PARK GARDENS — promenade, furniture, beds, people
@@ -2287,6 +2303,7 @@ export function addRodLaver(root, m, y, opts = {}) {
     }
   }
 
+  markLandmarkParts('glb:paths-furniture');
   // =========================================================================
   // 6. PODIUM AND PLAZA
   // =========================================================================
@@ -2831,6 +2848,7 @@ export function addRodLaver(root, m, y, opts = {}) {
       { cast: false, receive: true });
     instanced(g, chamfer(1.7, 0.08, 0.08, 0.025), M.steel, barrierRail, 'fringe:rod-laver-plaza-barrier-rails');
     instanced(g, chamfer(0.07, 1.0, 0.07, 0.02), M.steel, barrierPost, 'fringe:rod-laver-plaza-barrier-posts');
+    markLandmarkParts('glb:forecourt');
 
     // Lamp standards on the deck, on the balustrade line between the entrance gaps.
     for (let i = 0; i < 10; i += 1) {
@@ -2849,6 +2867,7 @@ export function addRodLaver(root, m, y, opts = {}) {
       }
       addSphere(g, 0.17, 9, M.bronze, px, DECK + 4.52, pz);
     }
+    markLandmarkParts('glb:signs-lights');
 
     // People on the deck: clusters in the barrier funnels, singles by the planters.
     for (let i = 0; i < 84; i += 1) {
@@ -3002,6 +3021,7 @@ export function addRodLaver(root, m, y, opts = {}) {
       std('#ffffff', { roughness: 0.58, metalness: 0.04 }), banners,
       'fringe:rod-laver-concourse-banners');
   }
+  markLandmarkParts('glb:forecourt');
 
   // =========================================================================
   // 7. ARENA SHELL
@@ -3589,6 +3609,7 @@ export function addRodLaver(root, m, y, opts = {}) {
   }
   nameBand(frontYaw, 2.15, 17.2, FASCIA_TOP - 1.75, "fringe:rod-laver-scoreboard-letters-end", 1.075);
   nameBand(sideYaw, 1.4, 11.6, FASCIA_TOP - 2.05, "fringe:rod-laver-fascia-letters-side", 1.07);
+  markLandmarkParts('glb:arena-shell');
 
   // =========================================================================
   // 8. THE BOWL — one continuous raked shell, alternating tone, aisles
@@ -3964,6 +3985,7 @@ export function addRodLaver(root, m, y, opts = {}) {
       box(g, 0.3, 0.2, 0.42, M.bronze, px, deckY + 0.95, s * (COURT_HL + 2.6), { c: 0.05 });
     }
   }
+  markLandmarkParts('glb:bowl-court');
 
   // =========================================================================
   // 10. RETRACTABLE ROOF — open space frame, two leaves parked at the ends
@@ -4190,6 +4212,7 @@ export function addRodLaver(root, m, y, opts = {}) {
     instanced(g, chamfer(0.07, 0.86, 0.07, 0.02), R.trussDark, posts, 'fringe:rod-laver-catwalk-posts');
     instanced(g, chamfer(0.06, 0.06, 1, 0.02), R.truss, rails, 'fringe:rod-laver-catwalk-rail');
   }
+  markLandmarkParts('glb:roof-frame');
 
   // ---- flag masts on the ring: the saturated accents against grey steel ----
   {
@@ -4213,6 +4236,7 @@ export function addRodLaver(root, m, y, opts = {}) {
       box(g, 1.2, 0.72, 0.05, R.flag[i % 4], f.x, f.y, f.z, { rotY: f.ry, c: 0.02, receive: false });
     }
   }
+  markLandmarkParts('glb:signs-lights');
 
   // ---- the two roof leaves, parked open over the end seating ----
   function roofLeaf(sz, tag) {
@@ -4302,7 +4326,9 @@ export function addRodLaver(root, m, y, opts = {}) {
     }
   }
   roofLeaf(1, '-north');
+  markLandmarkParts('glb:roof-leaf-north');
   roofLeaf(-1, '-south');
+  markLandmarkParts('glb:roof-leaf-south');
 
   // =========================================================================
   // 11. SCOREBOARD — far rim, square-on to the hero camera
@@ -4355,6 +4381,7 @@ export function addRodLaver(root, m, y, opts = {}) {
     person(g, cpx - Math.cos(faceYaw) * 0.95, cy - 1.78, cpz + Math.sin(faceYaw) * 0.95,
       { seed: 501, yaw: faceYaw, h: 1.7, shirt: M.officialTop });
   }
+  markLandmarkParts('glb:signs-lights');
 
   // =========================================================================
   // 11b. MATCH DAY — the frame's own centre carries an event
@@ -4623,6 +4650,7 @@ export function addRodLaver(root, m, y, opts = {}) {
           }
         }
       });
+      markLandmarkParts('keep:terrain-and-planting');
       instanced(g, chamfer(1, 0.1, 0.46, 0.03), M.timber, seatE,
         'fringe:rod-laver-court-benches');
       instanced(g, chamfer(1.9, 0.44, 0.12, 0.03), M.steelDark, seatLeg,
@@ -4685,6 +4713,7 @@ export function addRodLaver(root, m, y, opts = {}) {
   addI4FigureInstances(g, farPeople, 'fringe:rod-laver-precinct-people', { stroll: true });
   instanced(g, chamfer(1, 0.05, 1, 0.015), M.slab, paveWearList,
     'fringe:rod-laver-paving-wear', { cast: false, receive: true });
+  markLandmarkParts('glb:paths-furniture');
 
 
   // =========================================================================
@@ -6725,5 +6754,6 @@ export function addRodLaver(root, m, y, opts = {}) {
   clipVenueCityEdge(g, root, VENUE_SETBACK_Z, groundMaterials, TRAY_DRESSING);
   const approach = root.getObjectByName('fringe:melbourne-park-approach');
   if (approach) clipVenueCityEdge(approach, root, VENUE_SETBACK_Z, groundMaterials, TRAY_DRESSING);
+  g.userData.placeLandmark = () => placeRodLaverLandmark(g, { y0: BOARD_Y, quality: opts.quality }); // L4: after events register.
   return g;
 }

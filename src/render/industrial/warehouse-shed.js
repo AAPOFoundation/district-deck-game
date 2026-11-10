@@ -285,7 +285,7 @@ export function assembleWarehouseShed(materials, opts, spec) {
   for(let x=doorX-gateW/2;x<=doorX+gateW/2+.01;x+=gateW/8)box('i2-gate-bar','metal',x,.83,fenceZ,.045,.86,.045,true);
   box('i2-gate-latch','joinery',doorX+.6,1.06,fenceZ+.07,.21,.045,.10,true);
   const parts=Object.entries(buckets).map(([role,b])=>{const geometry=mergeGeometries(b.geometries,false);geometry.name=`i2-shed-${role}`;for(const geo of b.geometries)geo.dispose();return {geometry,material:b.material};});
-  const bounds=new THREE.Box3();for(const p of parts){p.geometry.computeBoundingBox();bounds.union(p.geometry.boundingBox);}
+  const bounds=new THREE.Box3();for(const p of parts){p.geometry.computeBoundingBox();p.geometry.computeBoundingSphere();bounds.union(p.geometry.boundingBox);}
   return {parts,size:bounds.getSize(new THREE.Vector3()),source:'industrial-kit',kit:true,fallback:false,archetypeId:'warehouse-brick',form:'industrial',
     i2:{counts,features,lotW,lotD,wallLeft:left,wallFront:front,doorX,facade},
     p17B7:{signals:['p17-b7-lot-plinth-bevel','p17-b7-plinth-course','p17-b7-opening-frame']}};

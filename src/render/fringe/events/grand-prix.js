@@ -13,7 +13,7 @@ import { createVenueTreeKit, venueTreeHeight } from '../venue-trees.js';
 import * as THREE from 'three';
 import { createI4FigureGroup, addI4FigureInstances } from '../port.js';
 import {
-  addBox, addCyl, addSphere, addCone, noPick, addToyLetters,
+  addBox, addCyl, addSphere, addCone, noPick, addToyLetters as buildToyLetters,
 } from '../kit.js';
 import { createCityFringeMaterial } from '../../materials.js';
 function std(color, extra) { return createCityFringeMaterial(color, extra, 'fringe/events/grand-prix.js'); }
@@ -31,6 +31,14 @@ import {
   venueSeatAnchor, venueAlbedo, venueMaterial, mixToken, VENUE_LAWN_JOIN, VENUE_ROCK_OUTCROPS, VENUE_JOIN_TUNE, venueLawnToken,
 } from './shared.js';
 import { attachVenueGround } from '../venue-ground.js';
+import { markAlbertParkPart } from '../../landmark-albert-park.js';
+
+// Weak section metadata leaves the procedural graph and materials unchanged.
+function addToyLetters(...args) {
+  const letters = buildToyLetters(...args);
+  markAlbertParkPart(letters, 'keep:lettering');
+  return letters;
+}
 
 // Taste bible section 8: the venue ground is ONE convex polygon that stays inside
 // its own side of the shared 10 m blend. Group frame, metres. West: the Rod Laver
@@ -563,6 +571,7 @@ function addCourseCar(g, P, x, y, z, yaw, seed) {
   addBox(car, 0.5, 0.18, 0.1, P.lightHead, -0.62, 0.86, 2.2, { cast: false });
   addBox(car, 0.5, 0.18, 0.1, P.lightHead, 0.62, 0.86, 2.2, { cast: false });
   g.add(car);
+  markAlbertParkPart(car, 'remove:bespoke-road-vehicles');
   return car;
 }
 
@@ -1184,6 +1193,7 @@ function addJettyAndBoats(g, P, geo, y, lake) {
       { rotY: yaw, cast: false });
   }
   g.add(jetty);
+  markAlbertParkPart(jetty, 'glb:paths-furniture');
 
   // Boats are placed against the local water radius, never a single shore radius,
   // so none of them can end up beached. Every hull is the chined dinghy shell:
@@ -1352,6 +1362,7 @@ function addSignalMast(parent, P, y, x, z, yaw, name) {
   addBox(mast, 0.3, 0.5, 0.26, P.steelDark, 0.3, 2.5, 0.14, { cast: false });
   addSphere(mast, 0.08, 6, P.lensRed, 0.3, 2.62, 0.28, { cast: false });
   parent.add(mast);
+  markAlbertParkPart(mast, 'glb:signs-lights');
   return mast;
 }
 
@@ -2402,6 +2413,7 @@ function buildPitComplex(g, P, geo, y) {
       PIT_LANE_FAR_Z + 0.9, { cast: false });
   }
 
+  markAlbertParkPart(pit, 'keep:pit-lane');
   addBox(pit, span + 3.4, 0.34, 1.0, P.concShadow, mid, y + 0.29, PIT_WALL_Z, { cast: false });
   addBox(pit, span + 3.0, 0.72, 0.66, P.conc, mid, y + 0.78, PIT_WALL_Z);
   addBox(pit, span + 3.2, 0.14, 0.82, P.concShadow, mid, y + 1.19, PIT_WALL_Z);
@@ -2531,6 +2543,7 @@ function buildPitComplex(g, P, geo, y) {
     addCyl(tower, 0.06, 0.06, 3.2, 6, P.steelLight, -1.6 + i * 1.07, 10.8, -1.6, { cast: false });
   }
   pit.add(tower);
+  markAlbertParkPart(tower, 'glb:timing-tower');
 
   g.add(pit);
 }
@@ -4075,6 +4088,7 @@ export function addGrandPrix(root, m, yBase, opts = {}) {
   SUN_DIR = deriveSunDir(venueYaw);
   const P = palette();
   const geo = geometries();
+  const mark = part => markAlbertParkPart(g, part);
   geo.formTrees = [];
 
   const dense = roundLoop(CIRCUIT, CORNER_R, 9);
@@ -4155,7 +4169,9 @@ export function addGrandPrix(root, m, yBase, opts = {}) {
 
   const track = buildTrack(g, P, geo, y, frames, curve, loopLen);
   addStartLine(g, P, y);
+  mark('keep:circuit-lake-ground');
   buildTrackFurniture(g, P, geo, y, frames, curve, track);
+  mark('glb:track-furniture');
   // Road furniture stands on the circuit's own infield verge, inside the loop.
   // The two 170 m band boxes above are planting keep-outs for the far field, not
   // a statement of where anything stands: `buildHinterland` resolves the
@@ -4170,7 +4186,9 @@ export function addGrandPrix(root, m, yBase, opts = {}) {
     )));
   addHoardings(g, P, geo, y, frames, curve, track);
   addGantry(g, P, y);
+  mark('glb:signs-lights');
   buildPitComplex(g, P, geo, y);
+  mark('glb:pit-building');
 
   const inLake = (px, pz) => {
     const dx = px - lake.cx;
@@ -4185,7 +4203,9 @@ export function addGrandPrix(root, m, yBase, opts = {}) {
   const reject = (px, pz, pad = 1.5) => inCorridor(px, pz) || inLake(px, pz) || inBox(px, pz, pad);
 
   addJettyAndBoats(g, P, geo, y, lake);
+  mark('keep:boats-and-water');
   dressInfield(g, P, geo, y, frames);
+  mark('glb:paths-furniture');
   // The avenue goes in after the promenade it stands outside of, and it is
   // resolved against the same keep-out boxes the road furniture uses.
   const avenue = addShadowTrees(g, P, geo, y, frames, track, lake,
@@ -4201,6 +4221,7 @@ export function addGrandPrix(root, m, yBase, opts = {}) {
     fasciaHex: '#c9302c',
     crowdOut: true,
   });
+  mark('glb:grandstand-main');
   raisedStand(g, P, geo, y, {
     cx: 24.4, cz: -30.1, yaw: -0.512, width: 20, tiers: 6,
     name: 'fringe:grand-prix-grandstand-north',
@@ -4208,6 +4229,7 @@ export function addGrandPrix(root, m, yBase, opts = {}) {
     fasciaHex: '#1f6fd0',
     crowdOut: true,
   });
+  mark('glb:grandstand-north');
   // r3 sited this bank at (-12.5, 30) with its width axis square across the
   // circuit, so 8.4 m of turf terrace lay over the racing line and an F1 car ended
   // up parked half on it. Outside the track at that corner is off-frame, so the
@@ -4216,6 +4238,7 @@ export function addGrandPrix(root, m, yBase, opts = {}) {
   spectatorBank(g, P, geo, y, -8.15, 24.92, -0.4333, 12, 1,
     { rows: 2, rowGap: 1.6, rowDepth: 1.6, rise: 0.42 });
   spectatorBank(g, P, geo, y, 21.3, 33.0, -2.475, 13, 2);
+  mark('glb:spectator-banks');
 
   // Race podium on the infield of the pit straight, clear of the kerb.
   {
@@ -4258,6 +4281,8 @@ export function addGrandPrix(root, m, yBase, opts = {}) {
         });
     }
   }
+
+  mark('glb:podium');
 
   // Entry gate carrying the venue name, square to the hero camera. r3 sited it at
   // z=31, where the main grandstand canopy — three metres nearer the lens — ate
@@ -4302,6 +4327,8 @@ export function addGrandPrix(root, m, yBase, opts = {}) {
     name: 'fringe:grand-prix-name-board',
   });
 
+  mark('glb:entry-gates');
+
   const marquees = [
     [3.0, -39.5, 0.1, 5.5, 4.5, TASTE.accent.red, 1],
     [7.0, -41.0, -0.06, 5.0, 4.2, TASTE.accent.navy, 2],
@@ -4326,6 +4353,8 @@ export function addGrandPrix(root, m, yBase, opts = {}) {
   for (const [mx, mz, myaw, mw, md, hex, seed] of marquees) {
     addMarquee(g, P, y + 0.05, mx, mz, myaw, mw, md, hex, seed);
   }
+
+  mark('glb:event-structures');
 
   for (let i = 0; i < 6; i += 1) {
     const truck = new THREE.Group();
@@ -4358,6 +4387,7 @@ export function addGrandPrix(root, m, yBase, opts = {}) {
     [48, -44, 0, 1, 7, 2.35],
     [48, 14, 0, 1, 7, 2.35],
   ], 'fringe:grand-prix-carpark');
+  mark('remove:bespoke-road-vehicles');
 
   addPathRibbon(g, P, [[30, 30], [22, 34], [12, 39], [0, 42], [-12, 41], [-22, 34]],
     2.4, y, 'fringe:grand-prix-path:south');
@@ -4378,9 +4408,12 @@ export function addGrandPrix(root, m, yBase, opts = {}) {
     'fringe:grand-prix-park-fence:west',
     { barEvery: 0.4, bar: 0.07, rails: [0.55, 0.98], mat: P.steelLight });
 
+  mark('glb:paths-furniture');
   const hinterland = buildHinterland(g, P, geo, y, frames, track);
+  mark('keep:lake-and-landscape');
 
   plantGroves(g, P, geo, y, reject);
+  mark('keep:lake-and-landscape');
 
   const posts = track.gravelCentres.slice();
   for (const e of [10, 55, 96, 133]) posts.push(e % frames.length);
@@ -4483,6 +4516,7 @@ export function addGrandPrix(root, m, yBase, opts = {}) {
     }
   }
   g.add(hairpin);
+  mark('glb:signs-lights');
 
   const carsAt = [
     [4, -0.9, '#d81f26', '#f2e9d8'],
@@ -4543,6 +4577,7 @@ export function addGrandPrix(root, m, yBase, opts = {}) {
   // four wheels and two of its crew stood on grass. The r4 note reported the stray
   // car fixed; what it had actually fixed was a spectator bank. Both cars now sit
   // inside the apron with a metre to spare, each in a painted box of its own.
+  mark('keep:race-cars');
   const PIT_BOX_X = [-5.5, 4.0];
   for (let i = 0; i < 2; i += 1) {
     const px = PIT_BOX_X[i];
@@ -4557,15 +4592,18 @@ export function addGrandPrix(root, m, yBase, opts = {}) {
       [0.1, 3.1, -1.55, 0], [0.1, 3.1, 1.55, 0]]) {
       addBox(g, bw, 0.02, bd, P.paint, px + ox, y + 0.155, bz + oz, { cast: false });
     }
+    mark('keep:pit-lane');
     for (const s of [-1, 1]) {
       addBox(g, 0.34, 0.16, 0.5, P.hiVis, px + s * 1.18, y + 0.24, bz - 1.1,
         { cast: false });
       addBox(g, 0.22, 0.1, 0.34, P.steelDark, px + s * 1.3, y + 0.21, bz + 1.15,
         { cast: false });
     }
+    mark('glb:paths-furniture');
     const car = buildF1(g, P, px, y + 0.16, bz, Math.PI / 2,
       i ? '#8f4bd0' : '#f56b13', '#f2f1ec', `fringe:grand-prix-pit-car:${i}`);
     car.scale.setScalar(0.92);
+    mark('keep:race-cars');
     for (let c = 0; c < 5; c += 1) {
       const a = (c / 5) * TAU;
       addI4Person(g, c % 2 ? P.hiVis : P.signBoard,
@@ -4587,6 +4625,7 @@ export function addGrandPrix(root, m, yBase, opts = {}) {
     }
   }
   instanceField(g, geo.cyl8, P.tyre, pitTyres, 'fringe:grand-prix-pit-tyres');
+  mark('glb:paths-furniture');
 
   g.userData.occupancy = {
     marshalPosts: placedPosts + 1,
@@ -4639,6 +4678,7 @@ export function addGrandPrix(root, m, yBase, opts = {}) {
   // has not moved, so publish the authored seat instead of the re-measured AABB centre.
   g.userData.venueTerrainAnchor = venueSeatAnchor('grandPrix');
   g.userData.formTrees = flushFormTrees(g, geo).map((mesh) => mesh.userData.venueFormTrees);
+  mark('keep:lake-and-landscape');
   root.add(g);
   return g;
 }

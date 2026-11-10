@@ -626,6 +626,13 @@
 }
 :root[data-phone-hud="1"][data-layout="short"] aside.card[data-phone="sheet"] > .sheet-scroll { grid-area: 3 / 1 / 4 / 3; }
 
+
+/* Keep the last row above BANK / SETTLE in tall, peek and side sheets alike. */
+:root[data-phone-hud="1"] .game aside.card[data-phone="sheet"][data-sheet] > .sheet-scroll {
+  padding-bottom: var(--ph-bar-h, 56px);
+  scroll-padding-bottom: var(--ph-bar-h, 56px);
+}
+
 /* ------------------------------------------------------------------------------------------------ the foot */
 
 :root[data-phone-hud="1"] aside.card[data-phone="sheet"] > [data-phone="sheet-foot"] {

@@ -7836,7 +7836,15 @@ export class Board {
     for (let i = 0; i < vehicles.length; i += 1) {
       const car = vehicles[i];
       const key = `prop:traffic-car:${i}`;
-      const size = new THREE.Vector3(2.0, 1.2, 4.4);
+      const pack = traffic.byType?.[car.bodyType];
+      const bounds = pack?.body.geometry;
+      if (bounds && !bounds.boundingBox) bounds.computeBoundingBox();
+      const size = bounds?.boundingBox?.getSize(new THREE.Vector3()) ?? new THREE.Vector3(2.0, 1.5, 4.4);
+      // Include the cabin above the hull; cars need their full length, unlike furniture.
+      if (pack?.cabin.geometry) {
+        pack.cabin.geometry.computeBoundingBox();
+        size.y = Math.max(size.y, pack.cabin.geometry.boundingBox.max.y);
+      }
       const label = furnitureLabel('traffic-car', key);
       const pickProxy = this._makeMischiefPickProxy(
         key,
@@ -7845,6 +7853,14 @@ export class Board {
         { kind: 'prop', label },
       );
       const state = { visible: true, growth: 1 };
+      pickProxy.scale.copy(size);
+      const syncPick = () => {
+        pickProxy.position.set(car.worldX ?? 0, size.y / 2, car.worldZ ?? 0);
+        pickProxy.rotation.y = car.yaw ?? 0;
+        // Raycasting reads matrixWorld, even between rendered frames.
+        pickProxy.updateWorldMatrix(true, false);
+      };
+      syncPick();
       const target = {
         renderBinding: { car },
         key,
@@ -7854,6 +7870,25 @@ export class Board {
         label,
         size,
         pickProxy,
+        get carColours() {
+          // Read the drawn instance × material, including the red tail-lamp
+          // instance (its shared material is white) and the paint multiplier.
+          const slot = vehicles.slice(0, i).filter(other => other.bodyType === car.bodyType).length;
+          const drawn = (mesh, fallback) => {
+            if (!mesh?.material?.color) return fallback;
+            const colour = mesh.material.color.clone();
+            if (mesh.instanceColor) colour.multiply(new THREE.Color().fromBufferAttribute(mesh.instanceColor, slot));
+            return colour;
+          };
+          return {
+            body: drawn(pack?.body, car.color),
+            glass: drawn(pack?.cabin, traffic.materials?.glass?.color),
+            trim: drawn(pack?.trim, traffic.materials?.trim?.color),
+            tyre: traffic.wheels?.material?.color,
+            headLamp: drawn(pack?.headlamps, traffic.materials?.headLamp?.color),
+            tailLamp: drawn(pack?.taillamps, traffic.materials?.tailLamp?.color),
+          };
+        },
         getPose: () => ({
           position: new THREE.Vector3(car.worldX ?? 0, 0, car.worldZ ?? 0),
           quaternion: new THREE.Quaternion().setFromAxisAngle(
@@ -7864,15 +7899,17 @@ export class Board {
         setOriginal: ({ visible = state.visible, scale = state.growth } = {}) => {
           state.visible = visible;
           state.growth = scale;
-          pickProxy.visible = visible && scale > 0.05;
-          if (!visible || scale < 0.05) {
-            car.crashed = true;
-            car.crashTimer = Math.max(car.crashTimer ?? 0, 5);
+          car.mischiefHidden = !visible || scale < 0.05;
+          car.mischiefScale = scale;
+        },
+        setStopped: (on) => {
+          if (on && !car.mischiefStopped) {
+            car.mischiefPose = { x: car.worldX, z: car.worldZ, yaw: car.yaw };
             car.speed = 0;
-            car.mischiefHidden = true;
-          } else {
-            car.mischiefHidden = false;
+            car.accel = 0;
           }
+          car.mischiefStopped = on;
+          if (!on) car.mischiefPose = null;
         },
         setSway: ({ x = 0, z = 0 } = {}) => {
           car.mischiefSwayX = x;
@@ -7881,22 +7918,19 @@ export class Board {
         setVariant: () => {},
       };
       this.mischiefTargets.push(target);
-      traffic._mischiefProxies.push({ proxy: pickProxy, car, target });
+      traffic._mischiefProxies.push({ proxy: pickProxy, car, target, syncPick });
     }
     const prevUpdate = traffic.update.bind(traffic);
     traffic.update = (dt, elapsed = null) => {
       // Flow simulation has no crash branch. Remove hidden cars from its active
       // view while retaining vehicles for the shared opaque zero-scale draw path.
       const flow = traffic.flowFleet;
-      if (flow?.some((car) => car.mischiefHidden)) {
-        traffic.flowFleet = flow.filter((car) => !car.mischiefHidden);
+      if (flow?.some((car) => car.mischiefHidden && !car.mischiefStopped)) {
+        traffic.flowFleet = flow.filter((car) => !car.mischiefHidden || car.mischiefStopped);
         try { prevUpdate(dt, elapsed); } finally { traffic.flowFleet = flow; }
       } else prevUpdate(dt, elapsed);
       for (const entry of traffic._mischiefProxies ?? []) {
-        const { proxy, car } = entry;
-        if (!car || !proxy) continue;
-        proxy.position.set(car.worldX ?? 0, 0.55, car.worldZ ?? 0);
-        proxy.rotation.y = car.yaw ?? 0;
+        entry.syncPick();
       }
     };
   }
@@ -7949,6 +7983,7 @@ export class Board {
       });
       const target = this.mischiefTargets[this.mischiefTargets.length - 1];
       if (target) {
+        target.canopyColour = foliage.getCanopyColour?.(rec.speciesId, rec.instanceIndex);
         target.setSway = ({ x = 0, z = 0, energy = 0 } = {}) => {
           foliage.setTapSway?.(rec.speciesId, rec.instanceIndex, { x, z, energy });
         };

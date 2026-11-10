@@ -334,14 +334,15 @@ const MACRO_EXACT = Object.freeze({
 
 export function nextMacroForecastModel(city, state) {
   const nextQuarter = state.quarter + 1;
+  // COPY-DRAFT: distinguish the coming quarter's outlook from the HUD's quarter.
   if (nextQuarter > state.quarters) {
-    return { headline: `Q${nextQuarter} CLEAR · RUN ENDS`, detail: '', clear: true };
+    return { headline: `Q${state.quarter} CLEAR · RUN ENDS`, detail: '', clear: true };
   }
   const entry = state.macroPlan?.entries.find(
     ({ resolveQuarter }) => resolveQuarter === nextQuarter,
   );
   if (!entry) {
-    return { headline: `Q${nextQuarter} CLEAR`, detail: '', clear: true };
+    return { headline: `Q${nextQuarter} OUTLOOK · CLEAR`, detail: '', clear: true };
   }
   const label = entry.type.replace(/-/g, ' ').toUpperCase();
   const exact = entry.type === 'flash-flood'
@@ -357,7 +358,7 @@ export function nextMacroForecastModel(city, state) {
     state.avatars?.player?.accessTokens?.eventForecastUntilQuarter ?? 0
   ) >= state.quarter;
   return {
-    headline: `${label} · Q${entry.resolveQuarter} · severity ${entry.severity}`,
+    headline: `Q${nextQuarter} OUTLOOK · ${label} · severity ${entry.severity}`,
     detail: MACRO_COUNTER_ACTION[entry.type],
     exact: unlocked ? exact : null,
     clear: false,
@@ -2246,7 +2247,15 @@ export class Hud {
     });
   }
 
-  toast(message, kind = '', { held = false } = {}) {
+  demolitionToast(event) {
+    // COPY-DRAFT: one progress notice per holding, completed on the same node.
+    const message = event.cleared
+      ? 'PAD CLEARED · pick a building in Build'
+      : `Demolition ${event.strikes}/${event.total}`;
+    return this.toast(message, 'good', { key: `demolition:${event.parcelId}` });
+  }
+
+  toast(message, kind = '', { held = false, key = null } = {}) {
     if (/^Unknown action\b/i.test(String(message ?? ''))) {
       message = 'That move is not available.';
       kind = kind || 'reject';
@@ -2272,8 +2281,10 @@ export class Hud {
           : `Divest ${disposal[1]} and clear debt — no action. Net ${moneyExact(quote.proceeds)} after ${moneyExact(quote.fee)} fee and ${moneyExact(quote.debtCleared)} debt.`;
       }
     }
-    const element = document.createElement('div');
-    element.className = `toast toast--docket ${kind ? `toast--${kind}` : ''}`;
+    const previous = key && [...this.toasts.children].find((node) => node.dataset.toastKey === key);
+    const element = previous || document.createElement('div');
+    if (!previous) element.className = `toast toast--docket ${kind ? `toast--${kind}` : ''}`;
+    if (key) element.dataset.toastKey = key;
     presented = String(presented)
       .replace(/\b1 act left\b/gi, '1 action left')
       .replace(/\b(\d+) act left\b/gi, '$1 actions left')
@@ -2287,7 +2298,10 @@ export class Hud {
     const docket = formatToastDocket(presented);
     const mergeRail = /→\s*A\d{3,}|amalgam|bolted|1×2|1x2|subdivid|unbolted/i.test(presented)
       || /\bP\d{4}\s*\+\s*P\d{4}\b/.test(presented);
-    if (mergeRail) {
+    if (previous) {
+      // The phone layer has already replaced the desktop body, but owns the same node.
+      element.querySelector('.toast__body, .ph-toast__body').textContent = docket;
+    } else if (mergeRail) {
       element.classList.add('toast--rail');
       element.innerHTML = `
         <span class="toast__rivet" aria-hidden="true"><i></i></span>
@@ -2323,14 +2337,17 @@ export class Hud {
       element.dataset.held = '1';
     } else {
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      setTimeout(() => {
+      clearTimeout(element._toastTimer);
+      clearTimeout(element._toastFadeTimer);
+      element.style.opacity = '';
+      element._toastTimer = setTimeout(() => {
         if (reducedMotion || document.hidden) {
           element.remove();
           return;
         }
         element.style.transition = 'opacity 140ms ease';
         element.style.opacity = '0';
-        setTimeout(() => element.remove(), 160);
+        element._toastFadeTimer = setTimeout(() => element.remove(), 160);
       }, document.hidden ? 12000 : (kind === 'reject' ? 2600 : 3200));
     }
     // Held notices keep their owner's clock and never count towards the loose cap.

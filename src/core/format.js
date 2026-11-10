@@ -16,9 +16,12 @@ export function moneyExact(value) {
   return `${sign}$${Math.abs(Math.round(value)).toLocaleString('en-AU')}`;
 }
 
-export function signedMoney(value) {
+export function signedMoney(value, { exact = false, plus = true } = {}) {
+  if (!Number.isFinite(value)) return '—';
   if (value === 0) return '$0';
-  return `${value > 0 ? '+' : ''}${money(value)}`;
+  // COPY-DRAFT: WORD JOINER keeps a sign with its figure in both text and HTML receipts.
+  const sign = value > 0 ? (plus ? '+\u2060' : '') : '−\u2060';
+  return `${sign}${(exact ? moneyExact : money)(Math.abs(value))}`;
 }
 
 export function pct(bp, digits = 1) {

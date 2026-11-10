@@ -3,6 +3,8 @@
 // Presentation only. No Math.random.
 
 import * as THREE from 'three';
+import { loadedLandmarkScene } from '../landmarks-glb.js';
+import { southernCrossPartMarker, placeSouthernCrossLandmark } from '../landmarks-southern-cross.js';
 import { addClusterTree } from '../foliage.js';
 import { createVenueTreeKit, venueTreeUnit } from './venue-trees.js';
 import {
@@ -2125,11 +2127,13 @@ function stationTreeKit(mats) {
 }
 
 function addTree(g, mats, kind, x, y, z, scale = 1, tier = 'backdrop') {
+  const markLandmarkParts = southernCrossPartMarker(g, mats);
   addContact(g, mats, 1.15 * scale, x, y, z, { soft: true, column: true });
   const tree = stationTreeRoot(g, kind, x, y, z, scale);
   const species = STATION_FORM[kind];
   if (!species) {
     addClusterTree(tree, { kind, x, y, z, height: 4.4 * scale, seed: scale, color: stationSeasonLeaves(mats, kind, x, z, scale)[0].color });
+    markLandmarkParts('remove:venue-trees');
     return;
   }
   const t = Math.max(0, Math.min(1, (scale - 0.55) / 0.57));
@@ -2141,6 +2145,7 @@ function addTree(g, mats, kind, x, y, z, scale = 1, tier = 'backdrop') {
     autumn: species === 'plane' && venueTreeUnit(x, z, Math.round(scale * 100), 9) < 0.2,
     name: `venue-form-tree:${kind}`,
   });
+  markLandmarkParts('remove:venue-trees');
 }
 
 /**
@@ -2150,6 +2155,7 @@ function addTree(g, mats, kind, x, y, z, scale = 1, tier = 'backdrop') {
  * and failed the pose half; this is the pose half.
  */
 function addCommuter(g, mats, seed, k, x, y, z, opts = {}) {
+  const markLandmarkParts = southernCrossPartMarker(g, mats);
   const yaw = opts.yaw ?? 0;
   const h = opts.h ?? (1.86 + seedUnit(seed, 900 + k * 7) * 0.26);
   const pose = opts.pose ?? 'stand';
@@ -2174,6 +2180,7 @@ function addCommuter(g, mats, seed, k, x, y, z, opts = {}) {
     addSphere(p, 0.25 * s, 8, skin, 0, 1.21 * s, 0.02 * s);
     addSphere(p, 0.265 * s, 8, hair, 0, 1.28 * s, 0.02 * s, { scaleY: 0.6 });
     g.add(p);
+    markLandmarkParts('keep:commuters');
     return p;
   }
 
@@ -2241,6 +2248,7 @@ function addCommuter(g, mats, seed, k, x, y, z, opts = {}) {
     addChamferBar(p, pick(mats.coats, 1400), 0.36 * s, 0.26 * s, 0.42 * s, 0.08, 0, 1.24 * s, -0.36 * s);
   }
   g.add(p);
+  markLandmarkParts('keep:commuters');
   return p;
 }
 
@@ -2603,6 +2611,7 @@ function addFrontFacade(hall, mats, halfL, halfW, seed) {
 function addHall(parent, mats, halfL, halfW, seed) {
   const hall = new THREE.Group();
   hall.name = 'fringe:southern-cross-hall';
+  const markLandmarkParts = southernCrossPartMarker(hall, mats);
   const dune = makeDune(halfL, halfW);
 
   // Terraced bluestone base: batter, coping, kerb reveal. Nothing meets the
@@ -2611,8 +2620,11 @@ function addHall(parent, mats, halfL, halfW, seed) {
   addChamferBar(hall, mats.bluestone, halfL * 2 + 4.0, halfW * 2 + 4.0, 0.9, 0.2, 0, 1.2, 0);
   addChamferBar(hall, mats.bluestoneCap, halfL * 2 + 4.5, halfW * 2 + 4.5, 0.22, 0.07, 0, PLAT_Y - 0.11, 0);
 
+  markLandmarkParts('glb:hall-base');
   addRoof(hall, mats, dune, halfL, halfW, seed);
+  markLandmarkParts('glb:roof-shell');
   addRoofPlant(hall, mats, dune, halfL, halfW, 108, seed);
+  markLandmarkParts('glb:roof-plant');
 
   // Structure: two rows of tree columns, two longitudinal trusses, arch ribs.
   // Three branching columns a side at about 21 m centres, each forking under the soffit.
@@ -2641,8 +2653,11 @@ function addHall(parent, mats, halfL, halfW, seed) {
     addModelSlots(hall, mats, buildHallPortal({ dune, plat: PLAT_Y, halfW, x: s * (halfL - 0.1), dir: s }), `fringe:southern-cross-portal:${s > 0 ? 'e' : 'w'}`);
   }
 
+  markLandmarkParts('glb:hall-frame');
   addConcourse(hall, mats, dune, halfL, halfW, seed);
+  markLandmarkParts('glb:concourse');
   addFrontFacade(hall, mats, halfL, halfW, seed);
+  markLandmarkParts('glb:frontage');
 
   parent.add(hall);
   hall.userData.dune = dune;
@@ -2917,6 +2932,7 @@ const CAR_KINDS = [
 ];
 
 function addParkedCar(g, mats, seed, k, x, y, z, flip = false, opts = {}) {
+  const markLandmarkParts = southernCrossPartMarker(g, mats);
   const body = [mats.carA, mats.carB, mats.carC, mats.carD, mats.carE, mats.carF][k % 6];
   const u = seedUnit(seed, 4400 + k * 29);
   const s = flip ? -1 : 1;
@@ -2965,6 +2981,7 @@ function addParkedCar(g, mats, seed, k, x, y, z, flip = false, opts = {}) {
   addContact(g, mats, 0.95, bx, y, bz, {
     column: true, elong: 1.0, sx: 2.25 * (len / 4.4), sz: 0.98, rotY: yaw,
   });
+  markLandmarkParts('remove:parked-cars');
 }
 
 /**
@@ -3224,6 +3241,7 @@ export function addStation(parent, city, plan, { reducedMotion = false } = {}) {
   for (const name of ['batterFace', 'batterFaceAlt']) attachVenueGround(mats[name], { local: true, soil: true });
   const group = new THREE.Group();
   group.name = 'fringe:southern-cross';
+  const markLandmarkParts = southernCrossPartMarker(group, mats);
   group.userData.mats = mats;
   group.userData.reducedMotion = Boolean(reducedMotion);
   group.userData.station = { edge, alongCentre, seawardM, halfL, halfW };
@@ -3233,6 +3251,7 @@ export function addStation(parent, city, plan, { reducedMotion = false } = {}) {
   addChamferBar(group, mats.bluestone, span * 0.9, 39, 0.4, 0.12, 0, DECK_Y - 0.16, 7, { cast: false });
   addChamferBar(group, mats.asphalt, span * 0.88, 38, 0.22, 0.08, 0, DECK_Y - 0.02, 7, { cast: false });
 
+  markLandmarkParts('keep:ground');
   const hall = addHall(group, mats, halfL, halfW, seed);
 
   const trackLen = halfL * 2 + 8;
@@ -3250,10 +3269,12 @@ export function addStation(parent, city, plan, { reducedMotion = false } = {}) {
   addTracks(group, mats, x0, x1, metroZ, seed, 1);
   addTracks(group, mats, x0, x1, vlineZ, seed, 2, { shoulder: 1 });
 
+  markLandmarkParts('keep:tracks');
   // grass verge beyond the outer road, so ballast never meets asphalt on a lip
   addChamferBar(group, mats.grass, span * 0.86, 3.4, 0.2, 0.3, 0, DECK_Y + 0.02, platCZ + 4.2, { cast: false });
   addChamferBar(group, mats.bluestoneCap, span * 0.86, 0.5, 0.3, 0.08, 0, DECK_Y + 0.1, platCZ + 2.4);
 
+  markLandmarkParts('keep:ground');
   addPlatform(group, mats, 0, platAZ, trackLen - 5, 3.2, { edges: [1] });
   addPlatform(group, mats, 0, platBZ, trackLen - 5, 2.9);
   addPlatform(group, mats, 0, platCZ, trackLen - 5, 3.6, { edges: [-1] });
@@ -3270,9 +3291,11 @@ export function addStation(parent, city, plan, { reducedMotion = false } = {}) {
     );
   }
   group.add(platformSkirt);
+  markLandmarkParts('glb:platforms');
 
   addBufferStop(group, mats, x0 + 0.8, metroZ, -1);
   addBufferStop(group, mats, x1 - 0.8, vlineZ, 1);
+  markLandmarkParts('keep:tracks');
   // P22-P1: owner requested no visible catenary poles or wire spans.
 
   // --- platform furniture -------------------------------------------------
@@ -3342,6 +3365,7 @@ export function addStation(parent, city, plan, { reducedMotion = false } = {}) {
   addTree(group, mats, 'palm', -27.0, PLAT_Y, platBZ + 0.4, 0.72);
   addTree(group, mats, 'round', 26.5, PLAT_Y, platBZ + 0.4, 0.90);
 
+  markLandmarkParts('glb:platform-furniture');
   // verge: kerb, footpath, grass patch scatter, shrub band — the grass never
   // meets the paving on a razor lip
   addChamferBar(group, mats.bluestoneCap, span * 0.86, 0.62, 0.4, 0.1, 0, DECK_Y + 0.14, platCZ + 2.5);
@@ -3528,6 +3552,7 @@ export function addStation(parent, city, plan, { reducedMotion = false } = {}) {
     };
   }
 
+  markLandmarkParts('keep:ground');
   const taxiX = halfL + 14;
   const taxiZ = -9.5;
   addForecourt(group, mats, taxiX, taxiZ, seed);
@@ -3543,6 +3568,7 @@ export function addStation(parent, city, plan, { reducedMotion = false } = {}) {
     xW: -trayHalfX + 0.9, xE: -31.0, zS: 7.4, zN: platCZ + 1.2,
   });
 
+  markLandmarkParts('glb:forecourts');
   // --- rolling stock ------------------------------------------------------
   const trainY = RAIL_Y - 0.04;
   const metro = new THREE.Group();
@@ -3581,6 +3607,7 @@ export function addStation(parent, city, plan, { reducedMotion = false } = {}) {
   tram.rotation.y = 0.02;
   noPick(tram);
 
+  markLandmarkParts('keep:transit');
   // News kiosk on the near platform, next to the ticket bank.
   {
     const kx = -10.6;
@@ -3630,6 +3657,7 @@ export function addStation(parent, city, plan, { reducedMotion = false } = {}) {
   addCluster(group, mats, seed, 82, taxiX - 1.2, taxiZ - 3.4, 3, DECK_Y + 0.42, 1.2);
   addCluster(group, mats, seed, 83, busX + 0.4, busZ - 2.0, 3, DECK_Y + 0.42, 1.15);
 
+  markLandmarkParts('glb:platform-furniture');
   // --- crowds -------------------------------------------------------------
   // Clusters at doors, benches, the shelter and the totems. Never a rank.
   const CLUSTERS = [
@@ -3648,6 +3676,7 @@ export function addStation(parent, city, plan, { reducedMotion = false } = {}) {
   hall.userData.occupancy = { concourseCommuters: 12, platformCommuters: bodies };
   group.userData.occupancy = { concourseCommuters: 12, platformCommuters: bodies };
 
+  markLandmarkParts('keep:commuters');
   group.userData.dispose = () => {
     for (const m of Object.values(mats)) {
       if (Array.isArray(m)) m.forEach((mm) => mm?.dispose?.());
@@ -3672,6 +3701,7 @@ export function addStation(parent, city, plan, { reducedMotion = false } = {}) {
   resolveStationSun(group);
   clipVenueCityEdge(group, group, -seawardM,
     ['grass', 'grassDeep', 'asphalt', 'paving'].map((name) => mats[name]));
+  placeSouthernCrossLandmark(group, { scene: loadedLandmarkScene('southern-cross'), far: loadedLandmarkScene('southern-cross-far') });
   return group;
 }
 

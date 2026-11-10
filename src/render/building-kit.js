@@ -1357,15 +1357,22 @@ function augmentP17B7(model, archetypeId, materials, opts = {}) {
   };
 
   // 1. Chamfered board-tile bevel — dark vertical edge so the lot stands ON something.
-  const lotW = Math.max(lotSize.x, size.x + 0.8, (opts.lotSpan?.spanX ?? 0) > 0
+  let lotW = Math.max(lotSize.x, size.x + 0.8, (opts.lotSpan?.spanX ?? 0) > 0
     ? opts.lotSpan.spanX * TILE * 0.92 : lotSize.x);
-  const lotD = Math.max(lotSize.z, size.z + 0.8, (opts.lotSpan?.spanZ ?? 0) > 0
+  let lotD = Math.max(lotSize.z, size.z + 0.8, (opts.lotSpan?.spanZ ?? 0) > 0
     ? opts.lotSpan.spanZ * TILE * 0.92 : lotSize.z);
   const bevel = P17_BOARD_PLINTH.chamferM;
   const bevelH = P17_BOARD_PLINTH.bevelShadowM;
   const trayH = P17_BOARD_PLINTH.trayDepthM;
   const lotX = lotCenter.x;
   const lotZ = lotCenter.z;
+  if (INDUSTRIAL_FACADE_RECIPES[archetypeId]) {
+    // The bounds-derived B7 padding must not undo the industrial builder's on-pad clearance.
+    // Reserve the chamfer at both edges, including any off-centre yard or frontage.
+    const [spanX, spanZ] = resolveKitSpec(archetypeId).footprint;
+    lotW = Math.min(lotW, (opts.lotSpan?.spanX ?? spanX) * TILE - 2 * (Math.abs(lotX) + bevel));
+    lotD = Math.min(lotD, (opts.lotSpan?.spanZ ?? spanZ) * TILE - 2 * (Math.abs(lotZ) + bevel));
+  }
   if (!p17HasSignal(model, 'p17-b7-lot-plinth-bevel')) {
     mergeNamed(translatedBox(lotW, trayH, lotD, lotX, -trayH, lotZ, 'p17-b7-lot-plinth-tray'), darkMat);
     const t = 0.10;

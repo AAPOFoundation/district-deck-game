@@ -65,16 +65,16 @@ export const TRANSIT_MODELS = ['w-class-tram', 'e-class-tram', 'tram-stop-shelte
 /**
  * L2b: props that join the loader only when `?landmarks=` names their landmark, and keep their node graph
  * (restoreNodeNames) for placement. `parked-cars` is the parked level of the city's traffic cars
- * (scripts/assets/export-parked-cars.mjs) that placeAirportLandmark stands in the car-park bays.
+ * (scripts/assets/export-parked-cars.mjs) that the airport and Albert Park adapters stand in the car-park bays.
  */
 export const SWITCHED_PROP_MODELS = Object.freeze([
-  Object.freeze({ id: 'parked-cars', switch: 'airport', url: `${PROP_PATH}parked-cars.glb`, source: 'prop-scene' }),
+  Object.freeze({ id: 'parked-cars', switches: ['airport', 'rod-laver', 'southern-cross', 'albert-park'], url: `${PROP_PATH}parked-cars.glb`, source: 'prop-scene' }),
 ]);
 
 /** The SWITCHED_PROP_MODELS rows the switch enables, as registry jobs (none with the switch absent). */
 export function switchedPropJobs(search = globalThis.location?.search ?? '') {
   const selected = parseLandmarkSwitch(search);
-  return SWITCHED_PROP_MODELS.filter(row => selected.has(row.switch)).map(({ id, url, source }) => ({ id, url, source }));
+  return SWITCHED_PROP_MODELS.filter(row => (row.switches ?? [row.switch]).some(id => selected.has(id))).map(({ id, url, source }) => ({ id, url, source }));
 }
 
 /** Street trees, from the existing Melbourne planting kit. Cheap and worth the shadow. */

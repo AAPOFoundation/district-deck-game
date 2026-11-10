@@ -34,7 +34,7 @@ import { globalTile, fromGlobalTile, parcelId, parseParcelId, TILE, TILES_PER_BL
 import {
   inspectWorldRun, raiseAndStoreForce, WORLD_RUN_KEY, worldStore,
 } from './core/world/envelope.js';
-import { escapeHtml } from './core/format.js';
+import { escapeHtml, signedMoney } from './core/format.js';
 import { disclosedRivalTargets } from './core/rival-targets.js';
 import { AssetRegistry } from './render/assets.js';
 import { applyRivalCss } from './render/rival-hue.js';
@@ -2551,6 +2551,7 @@ class Game {
   }
 
   handleEvent(event) {
+    const fmt = (value) => signedMoney(value, { plus: false });
     const point = event.parcelId ? this.view.worldOf(event.parcelId) : null;
     // Meet intel lives on the person card. Three vanishing toasts were the whole record.
     if (this._meetResultOnCard && event.personId === this._meetResultPersonId && (
@@ -2615,13 +2616,7 @@ class Game {
             intensity: event.cleared ? 1 : 0.22,
           });
         }
-        this.hud.toast(
-          `STRIKE ${event.strikes}/${event.total} · $${event.cost.toLocaleString('en-AU')} · $${event.remaining.toLocaleString('en-AU')} left`,
-          'good',
-        );
-        if (event.cleared) {
-          this.hud.toast('PAD CLEARED · pick a building in Build', 'good');
-        }
+        this.hud.demolitionToast(event);
         break;
       case 'renovate':
         this.audio.play('renovate');
@@ -2725,7 +2720,7 @@ class Game {
       case 'avatar-spend':
         this.view.people.showSpendToast(event);
         this.hud.toast(
-          `Venue spend −${fmt(event.amount)} · ${accessTokenLabel(event.token)} through Q${event.untilQuarter}`
+          `Venue spend ${signedMoney(-Math.abs(event.amount))} · ${accessTokenLabel(event.token)} through Q${event.untilQuarter}`
           + ` · ${this.state.actionsRemaining} actions left`,
           'good',
         );
@@ -2739,13 +2734,13 @@ class Game {
         );
         break;
       case 'civic-upgrade':
-        this.hud.toast(`${event.label} · nearby parcels lift · −${fmt(event.amount)}`, 'good');
+        this.hud.toast(`${event.label} · nearby parcels lift · ${signedMoney(-Math.abs(event.amount))}`, 'good');
         break;
       case 'university-donate':
-        this.hud.toast(`University endowment in · campus ideas unlocked · −${fmt(event.amount)}`, 'good');
+        this.hud.toast(`University endowment in · campus ideas unlocked · ${signedMoney(-Math.abs(event.amount))}`, 'good');
         break;
       case 'university-fund':
-        this.hud.toast(`${event.label} funded · shop automation odds up · −${fmt(event.amount)}`, 'good');
+        this.hud.toast(`${event.label} funded · shop automation odds up · ${signedMoney(-Math.abs(event.amount))}`, 'good');
         break;
       case 'hold':
         this.audio.play('select');
@@ -2816,7 +2811,7 @@ class Game {
         this.hud.toast(
           `${String(event.roomId ?? 'room').toUpperCase()} → ${event.finish}`
           + ` · finishes when Q${event.quote?.completionQuarter ?? '?'} settles`
-          + ` · +${fmt(event.quote?.valueAdd ?? 0)} value, no action`,
+          + ` · ${signedMoney(event.quote?.valueAdd ?? 0)} value, no action`,
           'good',
         );
         break;

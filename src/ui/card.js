@@ -2279,6 +2279,7 @@ export function landUseCardHtml(city, selection, state = null, lotSelections = n
                  loading="eager" decoding="async" data-archetype-thumb="${escapeHtml(useId)}">
           </figure>`}
         </div>
+        ${isUniversity ? universityStatusHtml(state) : ''}
         ${registerHtml}
         <div class="card__mobile-summary">
           <span>${isUniversity ? 'Lock boost' : isExchange ? 'Positions' : reserve ? 'Favour' : 'Emission'}</span>
@@ -2356,16 +2357,42 @@ function civicUpgradeVerbHtml(city, state, civic) {
   });
 }
 
+function universityStatusHtml(state) {
+  const donated = Boolean(state?.university?.donated);
+  const fundedCount = Math.min(UNIVERSITY_IDEA_CAP, state?.university?.funded?.length ?? 0);
+  const boost = state ? universityStartupBoostBp(state) : 0;
+  const maxBoost = UNIVERSITY_DONATE_STARTUP_BP + UNIVERSITY_IDEA_CAP * UNIVERSITY_IDEA_STARTUP_BP;
+  const endowMark = `endowment-desk__mark endowment-desk__mark--${donated ? 'in' : 'out'}`;
+  return `
+      <div class="endowment-desk__well" role="status" aria-label="Campus funding status">
+        <div class="endowment-desk__stat">
+          <span class="endowment-desk__stat-label">Endowment</span>
+          <span class="${endowMark}">${donated ? 'IN' : 'OUT'}</span>
+        </div>
+        <div class="endowment-desk__stat">
+          <span class="endowment-desk__stat-label">Ideas funded</span>
+          <span class="endowment-desk__stat-value">${fundedCount}/${UNIVERSITY_IDEA_CAP}</span>
+        </div>
+        <div class="endowment-desk__stat endowment-desk__stat--lead">
+          <span class="endowment-desk__stat-label">Shop automation lock boost</span>
+          <span class="endowment-desk__stat-value" data-endowment-boost-readout>${signedPct(boost)}</span>
+          <span class="endowment-desk__stat-max">of ${signedPct(maxBoost)}</span>
+          <span class="endowment-desk__stat-caption">Adds percentage points to every shop automation lock roll at settle. It affects neither yield nor nearby value.</span>
+        </div>
+        ${fundedCount >= UNIVERSITY_IDEA_CAP ? `
+        <div class="endowment-desk__complete" data-endowment-complete>
+          <span class="endowment-desk__mark endowment-desk__mark--in">CAMPUS DESK COMPLETE</span>
+        </div>` : ''}
+      </div>
+`;
+}
+
 function universityDeskHtml(city, state) {
   const donated = Boolean(state?.university?.donated);
   const fundedIds = Array.isArray(state?.university?.funded) ? state.university.funded : [];
   const funded = new Set(fundedIds);
   const boost = state ? universityStartupBoostBp(state) : 0;
-  const maxBoost = UNIVERSITY_DONATE_STARTUP_BP + UNIVERSITY_IDEA_CAP * UNIVERSITY_IDEA_STARTUP_BP;
   const fundedCount = Math.min(UNIVERSITY_IDEA_CAP, fundedIds.length);
-  const endowMark = donated
-    ? 'endowment-desk__mark endowment-desk__mark--in'
-    : 'endowment-desk__mark endowment-desk__mark--out';
 
   let endowCluster = '';
   if (state && donated) {
@@ -2445,26 +2472,6 @@ function universityDeskHtml(city, state) {
              data-endowment-funded="${fundedCount}"
              data-endowment-boost-bp="${boost}"
              aria-label="University campus funding">
-      <div class="endowment-desk__well" role="status" aria-label="Campus funding status">
-        <div class="endowment-desk__stat">
-          <span class="endowment-desk__stat-label">Endowment</span>
-          <span class="${endowMark}">${donated ? 'IN' : 'OUT'}</span>
-        </div>
-        <div class="endowment-desk__stat">
-          <span class="endowment-desk__stat-label">Ideas funded</span>
-          <span class="endowment-desk__stat-value">${fundedCount}/${UNIVERSITY_IDEA_CAP}</span>
-        </div>
-        <div class="endowment-desk__stat endowment-desk__stat--lead">
-          <span class="endowment-desk__stat-label">Shop automation lock boost</span>
-          <span class="endowment-desk__stat-value" data-endowment-boost-readout>${signedPct(boost)}</span>
-          <span class="endowment-desk__stat-max">of ${signedPct(maxBoost)}</span>
-          <span class="endowment-desk__stat-caption">Adds percentage points to every shop automation lock roll at settle. It affects neither yield nor nearby value.</span>
-        </div>
-        ${fundedCount >= UNIVERSITY_IDEA_CAP ? `
-        <div class="endowment-desk__complete" data-endowment-complete>
-          <span class="endowment-desk__mark endowment-desk__mark--in">CAMPUS DESK COMPLETE</span>
-        </div>` : ''}
-      </div>
       <p class="endowment-desk__payoff" data-civic-payoff>
         Only corner-shop ventures use this city-wide boost.
         It never lifts holdings without a venture.

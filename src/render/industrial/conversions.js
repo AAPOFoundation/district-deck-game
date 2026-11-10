@@ -1540,6 +1540,22 @@ function warehouseDataCentre(ctx) {
 
 /* ═════════════════════════ the apartments conversion, and its garden ═════════════════════════ */
 
+// Only for boxes seated in an opaque support; capped pickets also bury their top faces.
+// Retain every vertex, UV and normal so the exposed faces and bounds stay identical.
+function omitBuriedBoxFaces(geometry, { top = false } = {}) {
+  const indices = geometry.index.array;
+  const normals = geometry.attributes.normal;
+  const kept = [];
+  for (let i = 0; i < indices.length; i += 3) {
+    const ny = normals.getY(indices[i]);
+    if (ny < -.5 || top && ny > .5) continue;
+    kept.push(indices[i], indices[i + 1], indices[i + 2]);
+  }
+  geometry.setIndex(kept);
+  geometry.clearGroups();
+  return geometry;
+}
+
 /**
  * A PAVED PATH MADE OF INDIVIDUAL UNITS (§2.7).
  *
@@ -1586,8 +1602,8 @@ function paverPath(ctx, { x, z0, z1, width, y, name = 'path' }) {
       // stone, after which the kerb and the paving were the same `concrete` map at 6 luma apart —
       // one of the eight buckets the r1 critic found inside 27 luma.
       // Same members, same triangles, and the value separation §2.9 asks for is now IN the path.
-      ctx.push(slab(w, 0.055, rowD - joint, (left + right) / 2, y + 0.05,
-        zMin + rowD * (r + 0.5), `${name}-paver`), p.ground);
+      ctx.push(omitBuriedBoxFaces(slab(w, 0.055, rowD - joint, (left + right) / 2, y + 0.05,
+        zMin + rowD * (r + 0.5), `${name}-paver`)), p.ground);
     }
   }
   // The edge: a continuous soldier kerb with its joints CUT INTO it rather than fifty separate
@@ -2486,7 +2502,9 @@ function residentialYard(ctx, L, env, lot) {
     const pickets = Math.max(3, Math.round(span / 0.245));
     for (let i = 1; i < pickets; i += 1) {
       const px = x1 + (span * i) / pickets;
-      ctx.push(box(0.05, picketH, 0.035, px, rail0 + picketH / 2, halfD, 'picket'), p.steel);
+      // Both ends are inside the bottom rail and cap; only the four sides can be seen.
+      ctx.push(omitBuriedBoxFaces(box(0.05, picketH, 0.035, px, rail0 + picketH / 2,
+        halfD, 'picket'), { top: true }), p.steel);
     }
     // r4: `+ 0.03` against a half-height of 0.0275 left the cap 2.5 mm clear of the picket heads
     // it caps — 64 bodies over 32 cells, pre-existing at HEAD. Bedded on the measured head.

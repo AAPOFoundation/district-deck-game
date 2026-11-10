@@ -12,6 +12,7 @@ import { classifyPhotoCaster, registerPhotoMaterial } from './photo-shadow-regis
 import { IsoCameraRig } from './camera.js';
 import { Board, parcelBuildingTransform } from './board.js';
 import { PostChain, grade3HemisphereScale } from './post.js';
+import { readFrameOptions, MotionPixelRatio } from './frame-policy.js';
 import { LightingRig, sunDirection, applyP1FogColor, installCloudMottle, updateCloudMottle, scaleSkyFloorRaw } from './lighting.js';
 import { P1_GROUNDING, P1_LIGHT, P23_LIGHT_PHOTO, R9_ATMOS, r9LightColor, fogRangeForExtent } from './v4-p1-polish.js';
 import { TASTE_RAIN } from './taste-tokens.js';
@@ -227,6 +228,7 @@ export class SceneView {
   } = {}) {
     this.shadowProxyEnabled = !(typeof location !== 'undefined'
       && new URLSearchParams(location.search).get('p09') === 'off');
+    const frameOptions = readFrameOptions(typeof location !== 'undefined' ? location.search : '');
     this.canvas = canvas;
     this.city = city;
     this.state = null;
@@ -416,6 +418,7 @@ export class SceneView {
         width: canvas.clientWidth || window.innerWidth,
         height: canvas.clientHeight || window.innerHeight,
         grade: this.lighting.profile.grade,
+        ...(frameOptions.msaa === null ? {} : { msaa: frameOptions.msaa }),
       })
       : null;
     // taste W31 (GROUND_CREASE): the ambient-occlusion pass tells the hinterland from the board by the city's own extent.
@@ -455,6 +458,8 @@ export class SceneView {
     };
     window.addEventListener('resize', this._onResize);
     document.addEventListener('visibilitychange', this._onVisibility);
+    this._autoDpr = frameOptions.autoDpr
+      ? new MotionPixelRatio(this.renderer.getPixelRatio(), this.camera) : null;
     this.resize();
     bindHeroCameraConsole(this);
     bindMilitaryDemoConsole(this);
@@ -1048,6 +1053,15 @@ export class SceneView {
     }
   }
 
+  _updatePixelRatio(nowMs) {
+    // Stopped/manual QA stepping keeps its pinned ratio throughout a capture.
+    if (!this._autoDpr || !this.running) return;
+    const ratio = this._autoDpr.update(this.camera, nowMs);
+    if (ratio === this.renderer.getPixelRatio()) return;
+    this.renderer.setPixelRatio(ratio);
+    this.resize(); // Rebuild/rebind post targets and invalidate TAA history on a size change.
+  }
+
   _pickPerson(raycaster) {
     return nearestProxyHit(raycaster, this.personPickTargets, 'person', 'personId');
   }
@@ -1192,6 +1206,7 @@ export class SceneView {
       this._skippedSinceRender += 1;
       return;
     }
+    if (this._autoDpr) this._updatePixelRatio(performance.now());
     const focusDistance = this.rig.smoothDistance ?? this.rig.distance;
     // Elevation gate for the miniature DOF: full at board pitch (>=26 deg),
     // gone near street pitch (<=11.5 deg), so hero low-angle shots stay sharp.

@@ -1,4 +1,3 @@
-import { finishBuild, buildBudget, runBuild } from './startup.js';
 import { mountWaterPatches } from './water-geometry-patches.js';
 // District Deck V5.3 Lane W3 / Painted water — paint is the colour, the
 // coast is the map. Shore-strip V = SDF so crest bands fan with the
@@ -2989,10 +2988,7 @@ export function physicalSeabedDepthAt(x, z, extent, plan, sample = null) {
  * CPU bake of the depth/waterness field. R = depth / maxDepth, G = waterness.
  * Unsigned-byte so the GPU sample matches the test walk of the same buffer.
  */
-export function bakeOceanDepthData(...args) { return finishBuild(bakeOceanDepthDataSteps(...args)); }
-
-export function* bakeOceanDepthDataSteps(city, plan, size = OCEAN.depthTexSize) {
-  const pauseBuild = buildBudget();
+export function bakeOceanDepthData(city, plan, size = OCEAN.depthTexSize) {
   const extent = city?.extent ?? { x: 272, z: 272 };
   const hx = extent.x * 0.5;
   const hz = extent.z * 0.5;
@@ -3006,9 +3002,7 @@ export function* bakeOceanDepthDataSteps(city, plan, size = OCEAN.depthTexSize) 
   const livePlan = plan ?? planEdgeMassing(city);
   let f2Changed = 0;
   for (let j = 0; j < size; j += 1) {
-    if (pauseBuild()) yield null;
     for (let i = 0; i < size; i += 1) {
-      if (pauseBuild()) yield null;
       const x = originX + ((i + 0.5) / size) * span;
       const z = originZ + ((j + 0.5) / size) * span;
       const field = coastFieldAt(x, z, extent, livePlan);
@@ -3379,17 +3373,12 @@ export function buildWetEdgeGeometry(city, plan, depthBake, quality = 'high') {
 }
 
 /** Seamless foam mask (boot only). Harder blobs / higher lacunarity (R11). */
-export function bakeFoamMapData(...args) { return finishBuild(bakeFoamMapDataSteps(...args)); }
-
-export function* bakeFoamMapDataSteps(size = OCEAN.foamTexSize) {
-  const pauseBuild = buildBudget();
+export function bakeFoamMapData(size = OCEAN.foamTexSize) {
   const data = new Uint8Array(size * size * 4);
   const ca = Math.cos(0.37);
   const sa = Math.sin(0.37);
   for (let j = 0; j < size; j += 1) {
-    if (pauseBuild()) yield null;
     for (let i = 0; i < size; i += 1) {
-      if (pauseBuild()) yield null;
       const u0 = i / size;
       const v0 = j / size;
       const wu = wrapNoise(u0, v0, 1.7) - 0.5;
@@ -3640,10 +3629,7 @@ export function nearshoreStats(geometry, city, plan) {
   return { near, total };
 }
 
-function buildBeachFoamGeometry(...args) { return finishBuild(buildBeachFoamGeometrySteps(...args)); }
-
-function* buildBeachFoamGeometrySteps(city, quality = 'high') {
-  const pauseBuild = buildBudget();
+function buildBeachFoamGeometry(city, quality = 'high') {
   const extent = city.extent ?? { x: 272, z: 272 };
   const azCount = quality === 'low' ? 72 : OCEAN.foamAz;
   const radCount = quality === 'low' ? 4 : OCEAN.foamRad;
@@ -3654,13 +3640,11 @@ function* buildBeachFoamGeometrySteps(city, quality = 'high') {
   const uvs = [];
   const indices = [];
   for (let ia = 0; ia <= azCount; ia += 1) {
-    if (pauseBuild()) yield null;
     const az = (ia / azCount) * Math.PI * 2 - Math.PI;
     const boardR = rayToSquare(az, hx, hz);
     const r0 = boardR + Math.max(2, face - 22);
     const r1 = boardR + face + 42;
     for (let ir = 0; ir <= radCount; ir += 1) {
-      if (pauseBuild()) yield null;
       const u = ir / radCount;
       // Cluster rows on the waterline (u=0.55 of the ribbon).
       const t = u * u * (3 - 2 * u);
@@ -3672,9 +3656,7 @@ function* buildBeachFoamGeometrySteps(city, quality = 'high') {
   }
   const stride = radCount + 1;
   for (let ia = 0; ia < azCount; ia += 1) {
-    if (pauseBuild()) yield null;
     for (let ir = 0; ir < radCount; ir += 1) {
-      if (pauseBuild()) yield null;
       const a = ia * stride + ir;
       const b = a + stride;
       const c = a + 1;
@@ -6735,17 +6717,7 @@ export function harbourReflectorAt(index = 0) {
 }
 
 export class OuterOcean {
-  constructor(...args) { finishBuild(this._buildStages(...args)); }
-
-  static *build(...args) {
-    const view = Object.create(this.prototype);
-    yield* view._buildStages(...args);
-    return view;
-  }
-
-  static create(...args) { return runBuild(this.build(...args), args[0]?.startup); }
-
-  *_buildStages({
+  constructor({
     parent,
     city,
     quality = 'high',
@@ -6754,7 +6726,6 @@ export class OuterOcean {
     interactUniforms = null,
     frame = null,
   } = {}) {
-    const pauseBuild = buildBudget();
     this.parent = parent;
     this.city = city;
     this.quality = quality;
@@ -6763,79 +6734,53 @@ export class OuterOcean {
     this._ownedMaterials = [];
     this.triangleBudget = { ocean: 0, foam: 0, wetEdge: 0 };
 
-    if (pauseBuild()) yield null;
     const plan = planEdgeMassing(city);
     this.plan = plan;
     const extent = city.extent ?? { x: 272, z: 272 };
-    if (pauseBuild()) yield null;
     const liveFrame = frame ?? dummyFrame(city);
 
     const depthSize = quality === 'low' ? 256 : quality === 'medium' ? 512 : OCEAN.depthTexSize;
-    if (pauseBuild()) yield null;
-    // COPY-DRAFT: startup progress.
-    yield 'Shaping the seabed';
-    const depthBake = (yield* bakeOceanDepthDataSteps(city, plan, depthSize));
-    if (pauseBuild()) yield null;
+    const depthBake = bakeOceanDepthData(city, plan, depthSize);
     this._depthTex = makeDataTex(depthBake.data, depthBake.size, THREE.ClampToEdgeWrapping);
-    if (pauseBuild()) yield null;
     this._disposables.push(this._depthTex);
     this._depthBake = depthBake;
     // W14-A (F3 and F4): the coast field and the shoaling table. Low quality binds an empty field and a gain of 0,
     // so the old front path stands there (DESIGN section 4, quality).
-    if (pauseBuild()) yield null;
     const coastT0 = typeof performance !== 'undefined' ? performance.now() : 0;
     const hxB = extent.x * 0.5;
     const hzB = extent.z * 0.5;
     // wave 75 (2b-1): with the spine on, low binds the real coast field (the 1 x 1 stub below made RIM_TINT read S = 0 and class 0 across the whole sea); uCoastGain stays 0 there.
-    if (pauseBuild()) yield null;
     const spineField = COAST_SPINE.on ? activeCoastSpine() : null;
-    if (pauseBuild()) yield null;
-    // COPY-DRAFT: startup progress.
-    yield 'Tracing the coast';
     this._coastBake = quality === 'low' && !spineField ? null : bakeCoastField({
       bedDepth: depthBake.bedDepth, size: depthBake.size, span: depthBake.span,
       originX: depthBake.originX, originZ: depthBake.originZ, classBytes: depthBake.coastClass,
       boardDistance: (x, z) => Math.max(Math.abs(x - hxB) - hxB, Math.abs(z - hzB) - hzB),
     });
-    if (pauseBuild()) yield null;
     this._coastBakeMs = typeof performance !== 'undefined' ? performance.now() - coastT0 : 0;
-    if (pauseBuild()) yield null;
     setOceanCoastField(quality === 'low' ? null : this._coastBake);
-    if (pauseBuild()) yield null;
     const coastTex = this._coastBake
       ? makeDataTex(this._coastBake.data, depthBake.size, THREE.ClampToEdgeWrapping)
       : new THREE.DataTexture(new Uint8Array([0, 0, 128, 0]), 1, 1, THREE.RGBAFormat);
     coastTex.needsUpdate = true;
     coastTex.minFilter = coastTex.magFilter = THREE.LinearFilter;
     coastTex.generateMipmaps = false;
-    if (pauseBuild()) yield null;
     this._disposables.push(coastTex);
-    if (pauseBuild()) yield null;
-    // COPY-DRAFT: startup progress.
-    yield 'Preparing the surf';
     const surfBake = bakeSurfLut();
     const surfTex = new THREE.DataTexture(surfBake.data, surfBake.width, surfBake.height, THREE.RGBAFormat, THREE.FloatType);
     surfTex.minFilter = surfTex.magFilter = THREE.LinearFilter;
     surfTex.wrapS = surfTex.wrapT = THREE.ClampToEdgeWrapping;
     surfTex.generateMipmaps = false;
     surfTex.needsUpdate = true;
-    if (pauseBuild()) yield null;
     this._disposables.push(surfTex);
     const bedTexture = new THREE.DataTexture(depthBake.bedDepth, depthBake.size,
       depthBake.size, THREE.RedFormat, THREE.FloatType);
     bedTexture.minFilter = bedTexture.magFilter = THREE.LinearFilter;
     bedTexture.generateMipmaps = false;
     bedTexture.needsUpdate = true;
-    if (pauseBuild()) yield null;
     this._disposables.push(bedTexture);
 
-    if (pauseBuild()) yield null;
-    // COPY-DRAFT: startup progress.
-    yield 'Preparing the sea surface';
-    const foamData = (yield* bakeFoamMapDataSteps());
-    if (pauseBuild()) yield null;
+    const foamData = bakeFoamMapData();
     this._foamTex = makeDataTex(foamData, OCEAN.foamTexSize, THREE.RepeatWrapping);
-    if (pauseBuild()) yield null;
     this._disposables.push(this._foamTex);
     this._foamLoadCancelled = false;
     this._paintLoadCancelled = false;
@@ -6843,24 +6788,16 @@ export class OuterOcean {
     const bayEdge = plan.bay;
     const portEdge = plan.port;
     const inlandEdge = plan.inland;
-    if (pauseBuild()) yield null;
     const bayOrigin = wallOrigin(bayEdge, extent);
-    if (pauseBuild()) yield null;
     const portOrigin = wallOrigin(portEdge, extent);
-    if (pauseBuild()) yield null;
     const inlandOrigin = wallOrigin(inlandEdge, extent);
-    if (pauseBuild()) yield null;
     const bayNormal = edgeAxes(bayEdge).seaward.clone();
-    if (pauseBuild()) yield null;
     const portNormal = edgeAxes(portEdge).seaward.clone();
-    if (pauseBuild()) yield null;
     const inlandNormal = edgeAxes(inlandEdge).seaward.clone();
 
-    if (pauseBuild()) yield null;
     const interact = interactUniforms ?? createInteractUniforms();
 
     const freezeT = reducedMotion ? OCEAN.freezeTime : 0;
-    if (pauseBuild()) yield null;
     this.uniforms = {
       uTime: { value: freezeT },
       uMotion: { value: reducedMotion ? 0 : 1 },
@@ -6936,7 +6873,6 @@ export class OuterOcean {
     // P16-W5 reflection uniforms. `uEnvMap` / `uHasEnv` already existed on the
     // block (surface.js contributes them) and were held at null / false; they
     // are live now and the ocean's own fragment shader declares them.
-    if (pauseBuild()) yield null;
     if (spineField) {
       // wave 75 (2b-1): the field's textures (d, beach weight), its rect, the beach offset and the bay frame's extent, the shelf's own values.
       const fr = spineField.curve?.info?.frame;
@@ -6951,7 +6887,6 @@ export class OuterOcean {
     this.uniforms.uMassSpan = { value: 1 };
     this.uniforms.uMassMaxH = { value: 1 };
     this.uniforms.uHasMass = { value: false };
-    if (pauseBuild()) yield null;
     this.uniforms.uMassTint = { value: srgb(REFLECT.blockedTint) };
     // P16-W6: the planar harbour reflection (prototype A) and the item-2 terms.
     this.uniforms.uReflMap = { value: this._foamTex };
@@ -6987,7 +6922,6 @@ export class OuterOcean {
     this.uniforms.uW20Hull = W20_HULL_GAIN;
     this.uniforms.uW19EnvIntensity = { value: 1 };
     // W22: reuse the accepted Imagen normal/foam assets in the aqua composition.
-    if (pauseBuild()) yield null;
     loadImagenWater((textures) => {
       if (!textures) return;
       if (this._paintLoadCancelled || !this.uniforms) {
@@ -7001,9 +6935,7 @@ export class OuterOcean {
     // Master gain on the ripple, 1 = the authored harbour / open-sea split.
     // A single knob so the A/B instrument can take the term out cleanly.
     this.uniforms.uRippleMix = { value: 1 };
-    if (pauseBuild()) yield null;
     this.uniforms.uShallowTint = { value: srgb(REFLECT.shallowTint) };
-    if (pauseBuild()) yield null;
     this.uniforms.uDeepTint = { value: srgb(REFLECT.deepTint) };
     this.uniforms.uDepthFallAmt = { value: REFLECT.depthFallAmt };
     this.uniforms.uFoamDepthAmt = { value: REFLECT.foamDepthAmt };
@@ -7016,29 +6948,23 @@ export class OuterOcean {
     // Radiance, not albedo: the foam layer is added to the graded frame without a
     // light, so the token is scaled by WATER_LAW.foamGain (it was a raw 0.72 linear,
     // which tone-mapped to pure white, V above 93).
-    if (pauseBuild()) yield null;
     this.uniforms.uFoamColor.value.copy(srgb(WATER_LAW.foam)).multiplyScalar(WATER_LAW.foamGain);
-    if (pauseBuild()) yield null;
     this.uniforms.uFoamShadow.value.copy(srgb('#c9d8d8')).multiplyScalar(WATER_LAW.foamGain);
     // P16-W5: the constructor's `envMap` option was accepted and then dropped
     // on the floor, and `WaterSurface` pushes the rig's equirect before this
     // object exists, so `setEnvMap` returned early on a null uniform block and
     // the sheet never saw a sky. Both paths land here.
     if (this.uniforms.uEnvMap) this.uniforms.uEnvMap.value = envMap ?? this._foamTex;
-    if (pauseBuild()) yield null;
     if (this.uniforms.uHasEnv) this.uniforms.uHasEnv.value = Boolean(envMap);
     const flatRipple = new THREE.DataTexture(new Uint8Array([128, 255, 128, 255]), 1, 1);
     flatRipple.needsUpdate = true;
-    if (pauseBuild()) yield null;
     this._disposables.push(flatRipple);
     this.uniforms.uRippleMap.value = flatRipple;
     if (this.uniforms.uGlitter) this.uniforms.uGlitter.value = 0;
     this.uniforms.uReflMax.value = 0.18;
     this.uniforms.uEnvIntensity.value = 0.76;
-    if (pauseBuild()) yield null;
     shareWorldCurveUniforms(this.uniforms);
 
-    if (pauseBuild()) yield null;
     this.material = new THREE.ShaderMaterial({
       vertexShader: spineField ? OCEAN_VERT_SPINE : OCEAN_VERT,
       // P21 R5 sea mount: aqua surface on the retained continuous coast mesh.
@@ -7061,19 +6987,14 @@ export class OuterOcean {
       side: THREE.FrontSide,
       fog: false,
     });
-    if (pauseBuild()) yield null;
     applyWorldRestyle(this.material, 'sea');
-    if (pauseBuild()) yield null;
     this._ownedMaterials.push(this.material);
 
-    if (pauseBuild()) yield null;
     const ocean = buildOceanGeometry(city, quality);
-    if (pauseBuild()) yield null;
     this._disposables.push(ocean.geometry);
     this.triangleBudget.ocean = ocean.triangles;
     this.mesh = new THREE.Mesh(ocean.geometry, this.material);
     this.mesh.name = 'nature:water:ocean';
-    if (pauseBuild()) yield null;
     bindAquaEnvironment(this.mesh, this.uniforms);
     this.mesh.userData.syncHullContact = camera => {
       rebuildHullContactLive(camera.position);
@@ -7086,7 +7007,6 @@ export class OuterOcean {
     // P19 X6: extra polar sheets only when LOD is on, and only when the camera
     // actually asks for mid/far — three copies of the ocean were a heap slab,
     // and the low mesh tore the waterline. W15 shore/shelf is not this block.
-    if (pauseBuild()) yield null;
     const waterLod = isLodEnabled() && quality === 'high';
     this.mesh.userData.waterLodGeos = [ocean.geometry, ocean.geometry, ocean.geometry];
     this.mesh.userData.lodFamily = 'water';
@@ -7108,14 +7028,10 @@ export class OuterOcean {
     }
     // Preserve the existing optional water LOD path. The default full-detail
     // path keeps every triangle, but stops submitting offscreen ocean patches.
-    if (pauseBuild()) yield null;
     if (quality === 'high' && !isLodEnabled()) this._disposables.push(...mountWaterPatches(this.mesh, { cellSize: 256 }));
-    if (pauseBuild()) yield null;
     parent.add(this.mesh);
 
-    if (pauseBuild()) yield null;
     const wetEdge = buildWetEdgeGeometry(city, plan, depthBake, quality);
-    if (pauseBuild()) yield null;
     this._disposables.push(wetEdge.geometry);
     this.triangleBudget.wetEdge = wetEdge.triangles;
     this.wetEdgeMaterial = new THREE.MeshStandardMaterial({
@@ -7162,7 +7078,6 @@ export class OuterOcean {
       shader.fragmentShader = insert(shader.fragmentShader, '#include <metalnessmap_fragment>',
         'metalnessFactor = mix(metalnessFactor, 0.0, clamp(vWetBeach.x, 0.0, 1.0));');
     };
-    if (pauseBuild()) yield null;
     this._ownedMaterials.push(this.wetEdgeMaterial);
     this.wetEdgeMesh = new THREE.Mesh(wetEdge.geometry, this.wetEdgeMaterial);
     this.wetEdgeMesh.name = 'nature:water:wet-edge';
@@ -7170,7 +7085,6 @@ export class OuterOcean {
     this.wetEdgeMesh.castShadow = false;
     this.wetEdgeMesh.renderOrder = 4;
     this.wetEdgeMesh.frustumCulled = false;
-    if (pauseBuild()) yield null;
     parent.add(this.wetEdgeMesh);
 
     this._foamUniforms = {
@@ -7206,7 +7120,6 @@ export class OuterOcean {
       // wave 78 (2b-3): the lip reads the spine's front: the field's textures, its rect, the beach offset and the bay frame's extent are the sea's own.
       for (const name of ['uCoastSpineD', 'uCoastSpineW', 'uCoastSpineRect', 'uCoastSpineBeachOffset', 'uCoastSpineExtent']) this._foamUniforms[name] = this.uniforms[name];
     }
-    if (pauseBuild()) yield null;
     shareWorldCurveUniforms(this._foamUniforms);
     this.foamMaterial = new THREE.ShaderMaterial({
       vertexShader: FOAM_LAYER_VERT,
@@ -7218,11 +7131,8 @@ export class OuterOcean {
       side: THREE.DoubleSide,
       fog: false,
     });
-    if (pauseBuild()) yield null;
     this._ownedMaterials.push(this.foamMaterial);
-    if (pauseBuild()) yield null;
-    const foam = (yield* buildBeachFoamGeometrySteps(city, quality));
-    if (pauseBuild()) yield null;
+    const foam = buildBeachFoamGeometry(city, quality);
     this._disposables.push(foam.geometry);
     this.triangleBudget.foam = foam.triangles;
     this.foamMesh = new THREE.Mesh(foam.geometry, this.foamMaterial);
@@ -7234,10 +7144,8 @@ export class OuterOcean {
     // taste-r1 (W14-A step 5): at high and medium the breaker lines and the shore lip (water/aqua.js) replace this ribbon.
     // Its source stays; low quality keeps it, because low has no coast field and so no lines.
     this.foamMesh.visible = quality === 'low';
-    if (pauseBuild()) yield null;
     parent.add(this.foamMesh);
 
-    if (pauseBuild()) yield null;
     loadAuthoredFoamPlates((plates) => {
       if (this._foamLoadCancelled) {
         if (plates) {
@@ -7262,7 +7170,6 @@ export class OuterOcean {
       this.uniforms.uFoamArtGain.value = 1;
     });
 
-    if (pauseBuild()) yield null;
     if (false) loadAuthoredPaintPlates((plates) => {
       if (this._paintLoadCancelled) {
         if (plates) {

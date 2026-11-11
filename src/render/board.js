@@ -1,4 +1,3 @@
-import { finishBuild, buildBudget, runBuild } from './startup.js';
 // District Deck V3.00 — the board.
 // Turns the frozen city into instanced geometry on the DDMG-1 lattice, and keeps the
 // ownership overlay in sync with run state. The renderer READS state; it never writes it.
@@ -1157,31 +1156,7 @@ export function rivalBoardTargets(state) {
 }
 
 export class Board {
-  constructor(...args) {
-    finishBuild(this._buildStages(...args));
-  }
-
-  static *build(...args) {
-    const view = Object.create(this.prototype);
-    yield* view._buildStages(...args);
-    return view;
-  }
-
-  static create(...args) {
-    const options = args[2] ?? {};
-    return runBuild(this.build(...args), options.startup);
-  }
-
-  // Keep the synchronous builder hooks virtual for specialised boards. Base
-  // implementations use their iterator so the staged path can still yield.
-  *_buildMethodSteps(name) {
-    if (this[name] !== Board.prototype[name]) return this[name]();
-    return yield* this[`${name}Steps`]();
-  }
-
-  *_buildStages(city, registry, { quality = 'high' } = {}) {
-    // COPY-DRAFT: loading stages describe work about to run.
-    yield 'Preparing the building kit';
+  constructor(city, registry, { quality = 'high' } = {}) {
     this.city = city;
     this.registry = registry;
     this.quality = quality;
@@ -1229,17 +1204,11 @@ export class Board {
     this._onLensChange = (event) => this.setLens(event.detail?.lens);
     globalThis.window?.addEventListener(BOARD_LENS_EVENT, this._onLensChange);
 
-    yield 'Public Tree Pits';
     this._publishPublicTreePits();
-    yield 'Plinth';
     this._buildPlinth();
-    yield 'Ground';
-    yield* this._buildMethodSteps('_buildGround');
-    yield 'Streetscape';
+    this._buildGround();
     this._buildStreetscape();
-    yield 'Topology';
-    yield* this._buildMethodSteps('_buildTopology');
-    yield 'Building the block cores';
+    this._buildTopology();
     const skipCores = typeof location !== 'undefined'
       && new URLSearchParams(location.search).get('cores') === '0';
     if (skipCores) {
@@ -1252,38 +1221,22 @@ export class Board {
         this.coreLayer = null;
       }
     }
-    yield 'Waterfront';
     this._buildWaterfront();
-    yield 'Buildings';
-    yield* this._buildMethodSteps('_buildBuildings');
-    yield 'Building Openings';
-    yield* this._buildMethodSteps('_buildBuildingOpenings');
-    yield 'Succession Overlays';
+    this._buildBuildings();
+    this._buildBuildingOpenings();
     this._buildSuccessionOverlays();
-    yield 'Civic Buildings';
-    yield* this._buildMethodSteps('_buildCivicBuildings');
+    this._buildCivicBuildings();
     // After civics so bus routes can lock to the single interchange kit frame.
-    yield 'Contact Shadows';
     this._buildContactShadows();
-    yield 'Trees';
     this._buildTrees();
-    yield 'Props';
     this._buildProps();
-    yield 'Transit';
     this._buildTransit();
-    yield 'Interchange Buses';
     this._buildInterchangeBuses();
-    yield 'Ownership Overlay';
     this._buildOwnershipOverlay();
-    yield 'Pick Targets';
     this._buildPickTargets();
-    yield 'Selection';
     this._buildSelection();
-    yield 'Amenity Affordance';
     this._buildAmenityAffordance();
-    yield 'Corridors';
     this._buildCorridors();
-    yield 'Rival Markers';
     this._buildRivalMarkers();
   }
 
@@ -1673,10 +1626,7 @@ export class Board {
     this.root.add(rim);
   }
 
-  _buildGround(...args) { return finishBuild(this._buildGroundSteps(...args)); }
-
-  *_buildGroundSteps() {
-    const pauseBuild = buildBudget();
+  _buildGround() {
     const { blocksX, blocksZ, corridors } = this.city;
     const modulesX = blocksX * MODULES_PER_PITCH + 1;
     const modulesZ = blocksZ * MODULES_PER_PITCH + 1;
@@ -1690,9 +1640,7 @@ export class Board {
     const tramRailPatches = [];
 
     for (let j = 0; j < modulesZ; j += 1) {
-      if (pauseBuild()) yield null;
       for (let i = 0; i < modulesX; i += 1) {
-        if (pauseBuild()) yield null;
         const x = i * TILE + TILE / 2;
         const z = j * TILE + TILE / 2;
         const roadCol = i % MODULES_PER_PITCH === 0;
@@ -1733,7 +1681,6 @@ export class Board {
     const concretePieces = [];
     let concreteModules = 0;
     for (const [id, placements] of byModel) {
-      if (pauseBuild()) yield null;
       const model = this._groundModel(id);
       if (!model) continue;
       const cut = id !== 'ground-tile' ? this._roadPlacementsOnPits(placements) : [];
@@ -1763,7 +1710,6 @@ export class Board {
       }
       const matrix = new THREE.Matrix4();
       for (let i = 0; i < cut.length; i += 1) {
-        if (pauseBuild()) yield null;
         const item = cut[i];
         matrix.compose(item.position, item.quaternion, item.scale);
         const rect = {
@@ -1774,7 +1720,6 @@ export class Board {
         };
         const holes = pitsTouchingRect(this.publicTreePits, rect).map((pit) => pit.rim);
         for (const part of model.parts) {
-          if (pauseBuild()) yield null;
           if (!this._remappedConcrete(part) || !holes.length) continue;
           const clipped = clipGeometryToWorld(part.geometry, matrix, holes);
           if (!clipped) continue;
@@ -1984,10 +1929,7 @@ export class Board {
    * dressing shares another. The semantic variety comes from instance colour and scale,
    * not one material or draw call per block.
    */
-  _buildTopology(...args) { return finishBuild(this._buildTopologySteps(...args)); }
-
-  *_buildTopologySteps() {
-    const pauseBuild = buildBudget();
+  _buildTopology() {
     const flats = [];
     const solids = [];
     const rounds = [];
@@ -2029,7 +1971,6 @@ export class Board {
     // still owns the public reserve and rights-of-way (other seats).
 
     for (const row of this.city.rightsOfWay ?? []) {
-      if (pauseBuild()) yield null;
       if (this.city.reserve && row.bx === this.city.reserve.bx && row.bz === this.city.reserve.bz) continue;
       const sx = row.axis === 'x' ? row.length : row.width;
       const sz = row.axis === 'z' ? row.length : row.width;
@@ -2068,7 +2009,6 @@ export class Board {
       // pit — while a seat in a tree's shade, which is the whole point of a park tree,
       // stays available.
       for (const tree of this.city.trees ?? []) {
-        if (pauseBuild()) yield null;
         if (Math.abs(tree.x - x) > LAY.HALF || Math.abs(tree.z - z) > LAY.HALF) continue;
         SITES.take(tree.x, tree.z, 1.25, 'tree');
       }
@@ -2103,7 +2043,6 @@ export class Board {
         let run = 0;
         let width = 2;
         for (let tj = 0; tj < TURF_N; tj += 1) {
-          if (pauseBuild()) yield null;
           bandOf[tj] = idx % 2;
           run += 1;
           if (run >= width) {
@@ -2114,9 +2053,7 @@ export class Board {
         }
       }
       for (let ti = 0; ti < TURF_N; ti += 1) {
-        if (pauseBuild()) yield null;
         for (let tj = 0; tj < TURF_N; tj += 1) {
-          if (pauseBuild()) yield null;
           const tx = x - HALF + (ti + 0.5) * TURF;
           const tz = z - HALF + (tj + 0.5) * TURF;
           if (LAY.onFeature(tx, tz, -0.8)) continue;   // pond and softfall lay their own
@@ -2153,12 +2090,10 @@ export class Board {
         const COPE_TONES = ['#969c98', '#a2a8a3', '#8e9691'];
         const steps = Math.floor((HALF * 2) / COPE_PITCH);
         for (const side of [-1, 1]) {
-          if (pauseBuild()) yield null;
           // The bevel is one long dark member per side. It is the shadow, not a stone.
           add(flats, x + side * BEVEL_MID, 0.14, z, 0.46, 0.26, HALF * 2 + 0.94, '#241f1a');
           add(flats, x, 0.14, z + side * BEVEL_MID, HALF * 2 + 0.94, 0.26, 0.46, '#241f1a');
           for (let i = 0; i < steps; i += 1) {
-            if (pauseBuild()) yield null;
             const run = -HALF + (i + 0.5) * COPE_PITCH;
             const tone = COPE_TONES[i % 3];
             add(flats, x + side * COPE_MID, 0.315, z + run, 0.60, 0.19, COPE_UNIT, tone);
@@ -2167,9 +2102,7 @@ export class Board {
         }
         // Corner stones, so the four returns are mitred rather than left open.
         for (const sx of [-1, 1]) {
-          if (pauseBuild()) yield null;
           for (const sz of [-1, 1]) {
-            if (pauseBuild()) yield null;
             add(flats, x + sx * COPE_MID, 0.315, z + sz * COPE_MID, 0.60, 0.19, 0.60, '#cdc2ab');
             add(flats, x + sx * BEVEL_MID, 0.14, z + sz * BEVEL_MID, 0.46, 0.26, 0.46, '#241f1a');
           }
@@ -2194,7 +2127,6 @@ export class Board {
         add(flats, cx, 0.298, cz, sx, 0.07, sz, '#6b5b45');
       };
       for (const s of [-1, 1]) {
-        if (pauseBuild()) yield null;
         loopRun(x + s * LOOP, z, false, LOOP + LOOP_HALF);
         loopRun(x, z + s * LOOP, true, LOOP + LOOP_HALF);
       }
@@ -2213,13 +2145,11 @@ export class Board {
           axis === 'x' ? PT : 1.68, 0.028, axis === 'z' ? PT : 1.68, tone);
       };
       for (let i = 0; i < 20; i += 1) {
-        if (pauseBuild()) yield null;
         const run = (i - 9.5) * PT;
         if (Math.abs(run) > PATH_END - PT * 0.4) continue;
         const u = runit(i, 740);
         const onApron = Math.abs(run) < APRON;
         for (const lane of [-1, 1]) {
-          if (pauseBuild()) yield null;
           const crown = lane * 0.84;
           const tone = u > 0.72 ? '#a5a79c' : u > 0.38 ? '#9c9e93' : '#939589';
           if (!onApron) {
@@ -2230,7 +2160,6 @@ export class Board {
         // Damp shaded margin against each kerb.
         if (!onApron) {
           for (const lane of [-1, 1]) {
-            if (pauseBuild()) yield null;
             add(pathTiles, x + lane * 1.56, 0.334, z + run, 0.40, 0.026, PT, '#74776d', 0);
             add(pathTiles, x + run, 0.332, z + lane * 1.56, PT, 0.026, 0.40, '#74776d');
           }
@@ -2251,16 +2180,13 @@ export class Board {
       const PAVER_W = 1.06;
       const PAVER_PITCH = 1.00;
       for (let i = 0; i < 40; i += 1) {
-        if (pauseBuild()) yield null;
         for (const lane of [-1, 1]) {
-          if (pauseBuild()) yield null;
           const run = (i - 19.5) * PAVER_PITCH + (lane > 0 ? PAVER_PITCH * 0.5 : 0);
           if (Math.abs(run) > LOOP + LOOP_HALF - 0.34) continue;
           const u = runit(i * 2 + (lane > 0 ? 1 : 0), 760);
           const tone = u > 0.74 ? '#a3aeaa' : u > 0.5 ? '#9aa5a1' : u > 0.24 ? '#929e99' : '#8a9691';
           const cross = lane * 0.55;
           for (const s of [-1, 1]) {
-            if (pauseBuild()) yield null;
             add(pathTiles, x + s * LOOP + cross, 0.334, z + run, PAVER_W, 0.030, PAVER_L, tone, 0);
             add(pathTiles, x + run, 0.332, z + s * LOOP + cross, PAVER_L, 0.030, PAVER_W, tone, 0);
           }
@@ -2268,7 +2194,6 @@ export class Board {
       }
       // Coarse aggregate scattered on the wearing course, heavier at the junctions.
       for (let pebble = 0; pebble < 64; pebble += 1) {
-        if (pauseBuild()) yield null;
         const axis = pebble % 2;
         const run = -21.0 + (pebble % 32) * (42 / 31);
         const cross = ((pebble * 7) % 11 - 5) * 0.32;
@@ -2298,11 +2223,8 @@ export class Board {
         add(flats, cx, 0.405, cz, along ? len : 0.30, 0.09, along ? 0.30 : len, tone);
       };
       for (const sign of [-1, 1]) {
-        if (pauseBuild()) yield null;
         for (const side of [-1, 1]) {
-          if (pauseBuild()) yield null;
           for (let i = 0; i < 12; i += 1) {
-            if (pauseBuild()) yield null;
             const run = sign * (APRON + 0.4 + i * 1.62);
             if (Math.abs(run) > PATH_END - 0.4) continue;
             const tone = i % 3 === 0 ? '#a9a294' : i % 3 === 1 ? '#c0b8a8' : '#b4ab9c';
@@ -2320,17 +2242,14 @@ export class Board {
       // the owner would have seen as shimmer down the middle of the park. The fringe runs
       // once per side now, where it always belonged.
       for (const side of [-1, 1]) {
-        if (pauseBuild()) yield null;
         fringe(x + side * (KERB_MID + 0.26), z, false, '#74ab41', PATH_END * 2 - 1.2);
         fringe(x, z + side * (KERB_MID + 0.26), true, '#74ab41', PATH_END * 2 - 1.2);
       }
       for (let i = 0; i < 26; i += 1) {
-        if (pauseBuild()) yield null;
         const run = (i - 12.5) * 1.72;
         if (Math.abs(run) < APRON + 0.6 || Math.abs(run) > PATH_END - 0.6) continue;
         const u = runit(i, 780);
         for (const side of [-1, 1]) {
-          if (pauseBuild()) yield null;
           const h = 0.30 + u * 0.20;
           add(blades, x + side * (KERB_MID + 0.24), 0.40 + h * 0.4, z + run,
             0.30, h, 0.26, u < 0.5 ? '#3f8130' : '#4f9a35');
@@ -2340,15 +2259,12 @@ export class Board {
       }
       // Circuit kerb, same unit, both sides of both pairs of legs.
       for (let i = 0; i < 24; i += 1) {
-        if (pauseBuild()) yield null;
         const run = (i - 11.5) * 1.62;
         if (Math.abs(run) > LOOP + LOOP_HALF - 0.4) continue;
         if (Math.abs(run) < PATH_HALF + 0.35) continue;   // the arms cross here
         const tone = i % 3 === 0 ? '#a9a294' : i % 3 === 1 ? '#c0b8a8' : '#b4ab9c';
         for (const s of [-1, 1]) {
-          if (pauseBuild()) yield null;
           for (const side of [-1, 1]) {
-            if (pauseBuild()) yield null;
             paver(x + s * LOOP + side * (LOOP_HALF + 0.2), 0.358, z + run, false, 0, tone);
             paver(x + run, 0.356, z + s * LOOP + side * (LOOP_HALF + 0.2), true, 0, tone);
           }
@@ -2359,12 +2275,10 @@ export class Board {
       // it. Radial mineral pavers connect the bandstand to the stone promenade;
       // the radial carriageways retain their warm loose aggregate.
       for (let i = 0; i < 26; i += 1) {
-        if (pauseBuild()) yield null;
         const a = (i / 26) * Math.PI * 2;
         const u = runit(i, 800);
         const tone = u > 0.66 ? '#bcc2bd' : u > 0.33 ? '#aeb6af' : '#9ea9a2';
         for (const [ring, len] of [[6.32, 1.34], [7.02, 1.06]]) {
-          if (pauseBuild()) yield null;
           add(pathTiles, x + Math.sin(a) * ring, 0.334, z + Math.cos(a) * ring,
             (2 * Math.PI * ring) / 26 + 0.06, 0.028, len, tone, (a * 180) / Math.PI);
         }
@@ -2372,7 +2286,6 @@ export class Board {
       // Apron kerb: the same paver unit turned round the rotunda so the circle is edged
       // in the same language as the straights.
       for (let i = 0; i < 34; i += 1) {
-        if (pauseBuild()) yield null;
         const a = (i / 34) * Math.PI * 2;
         const tone = i % 3 === 0 ? '#a9a294' : i % 3 === 1 ? '#c2baa9' : '#b4ab9c';
         // The `+ 90` here was the loose-slab bug. A yaw of θ sends the box's long axis to
@@ -2561,7 +2474,6 @@ export class Board {
       // approach at every cardinal direction, even though their centre claims
       // were legal. Close neighbours here overlap as planted groups.
       for (let s = 0; s < 20; s += 1) {
-        if (pauseBuild()) yield null;
         const quadrant = Math.floor(s / 5);
         const within = s % 5;
         const a = (quadrant + 0.5) * Math.PI / 2 + (within - 2) * 0.105;
@@ -2589,13 +2501,11 @@ export class Board {
         const PLAY_HUE = '#a04f44';
         // W4-B desire lines: a faint worn shortcut across each open lawn quadrant, arm to arm.
         for (const [qx, qz] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
-          if (pauseBuild()) yield null;
           const near = LAY.PATH_HALF + 0.6, far = 13.5;
           const line = { kind: 'desire-line', hw: 0.65,
             x0: LAY.x + qx * near, z0: LAY.z + qz * far, x1: LAY.x + qx * far, z1: LAY.z + qz * near };
           let open = true;
           for (let s = 0; s <= 8; s += 1) {
-            if (pauseBuild()) yield null;
             const f = s / 8;
             if (LAY.onFeature(line.x0 + (line.x1 - line.x0) * f, line.z0 + (line.z1 - line.z0) * f, 1.2)) open = false;
           }
@@ -2615,7 +2525,6 @@ export class Board {
           [-(LAY.play.hx - 0.2), 0, 0.42, LAY.play.hz * 2 - 0.9],
           [LAY.play.hx - 0.2, 0, 0.42, LAY.play.hz * 2 - 0.9],
         ]) {
-          if (pauseBuild()) yield null;
           add(solids, px + dx, 0.42, pz + dz, sx, 0.34, sz, '#7c5c39');
         }
         // Swing: two posts + crossbar + seats
@@ -2632,7 +2541,6 @@ export class Board {
         for (const [dx, dy, dz] of [
           [-0.9, 1.2, 2.2], [0.9, 1.2, 2.2], [-0.9, 1.2, 3.6], [0.9, 1.2, 3.6],
         ]) {
-          if (pauseBuild()) yield null;
           add(playPieces, px + dx, dy, pz + dz, 0.16, 2.0, 0.16, PLAY_HUE);
         }
         add(playPieces, px, 2.25, pz + 2.9, 2.0, 0.14, 1.6, PLAY_HUE);
@@ -2720,7 +2628,6 @@ export class Board {
       const stoneRuns = [[0.08, 0.70, 3], [2.12, 3.65, 4], [4.10, 5.75, 3]];
       let stoneIndex = 0;
       for (const [start, end, count] of stoneRuns) for (let i = 0; i < count; i += 1) {
-        if (pauseBuild()) yield null;
         const u = runit(stoneIndex, 520), a = start + (i + 0.5 + (u - 0.5) * 0.18) / count * (end - start);
         const r = 0.925 + runit(stoneIndex, 529) * 0.020;
         const height = 0.13 + runit(stoneIndex, 541) * 0.055;
@@ -2735,14 +2642,12 @@ export class Board {
       }
       // Marginal planting: reed clumps on the tapered blade batch, plus tussocks.
       for (let clump = 0; clump < 18; clump += 1) {
-        if (pauseBuild()) yield null;
         const a = (clump / 18) * Math.PI * 2 + 0.09;
         const u = runit(clump, 560);
         const cx = px + Math.sin(a) * (PRX * 0.84 + u * 0.6);
         const cz = pz + Math.cos(a) * (PRZ * 0.84 + u * 0.55);
         if (Math.abs(Math.sin(a) - 1) < 0.26) continue;
         for (let blade = 0; blade < 5; blade += 1) {
-          if (pauseBuild()) yield null;
           const bu = runit(clump * 5 + blade, 580);
           const h = 0.85 + bu * 0.75;
           add(blades,
@@ -2764,7 +2669,6 @@ export class Board {
         [2.0, -1.7, 0.64, '#426f35', 137], [-2.7, 2.3, 0.52, '#638947', 88],
         [-0.2, 2.5, 0.62, '#3b6832', 23], [1.8, 2.0, 0.48, '#587e3d', 156],
       ]) {
-        if (pauseBuild()) yield null;
         add(pondLeaves, px + dx, 0.386, pz + dz, s * 1.5, 0.045, s * 1.25, color, yaw);
         add(pondLeaves, px + dx + s * 0.52, 0.384, pz + dz - s * 0.36, s * 0.9, 0.04, s * 0.8,
           color, yaw + 40);
@@ -2793,7 +2697,6 @@ export class Board {
       // angular sector, so no two can occupy one point whatever the hash returns, and each
       // axis draws its own salt.
       for (let blade = 0; blade < 5; blade += 1) {
-        if (pauseBuild()) yield null;
         const bu = runit(blade, 1240);
         const bv = runit(blade, 1271);
         const a = ((blade + 0.5) / 5) * Math.PI * 2 + (bv - 0.5) * 0.9;
@@ -2815,21 +2718,17 @@ export class Board {
       add(solids, px + PRX * 1.60, 0.44, pz, 1.7, 0.14, 2.3, '#8c6a48');  // bank landing
       const planks = Math.max(5, Math.round(jettyLen / 0.52));
       for (let plank = 0; plank < planks; plank += 1) {
-        if (pauseBuild()) yield null;
         add(solids, jettyHead + (plank + 0.5) * (jettyLen / planks), 0.47, pz,
           (jettyLen / planks) - 0.06, 0.16, 1.5, plank % 2 ? '#8c6a48' : '#9a7752');
       }
       for (const zOff of [-0.52, 0.52]) {
-        if (pauseBuild()) yield null;
         add(solids, jettyHead + jettyLen * 0.5, 0.35, pz + zOff, jettyLen, 0.16, 0.16, '#5f4228');
         add(solids, jettyHead + jettyLen * 0.5, 1.05, pz + zOff, jettyLen - 0.5, 0.12, 0.12, '#6a4a28');
       }
       // End return: the head is closed by a rail across it, so nothing terminates in air.
       add(solids, jettyHead + 0.06, 1.05, pz, 0.12, 0.12, 1.16, '#6a4a28');
       for (const xOff of [jettyHead + 0.10, jettyBank - 0.20]) {
-        if (pauseBuild()) yield null;
         for (const zOff of [-0.62, 0.62]) {
-          if (pauseBuild()) yield null;
           add(solids, xOff, 0.72, pz + zOff, 0.18, 0.94, 0.18, '#5f4228');   // post
           add(rounds, xOff, 0.20, pz + zOff, 0.26, 0.62, 0.26, '#4a3420');   // pile to the bed
         }
@@ -2837,9 +2736,7 @@ export class Board {
       // Path-mouth bollards where each carriageway meets the perimeter — they used to sit
       // on the picnic tables at ±8.5 and read as white cylinders standing on the furniture.
       for (const [bx, bz] of [[0, -21.9], [0, 21.9], [-21.9, 0], [21.9, 0]]) {
-        if (pauseBuild()) yield null;
         for (const spread of [-1.35, 1.35]) {
-          if (pauseBuild()) yield null;
           const ox = bx === 0 ? spread : 0;
           const oz = bz === 0 ? spread : 0;
           // V3.70 §2.10 — off the municipal green with the lamps and the hoops. A bollard
@@ -2882,7 +2779,6 @@ export class Board {
       // Balustrade: bottom rail, capping rail and turned balusters in dark painted iron,
       // filling every bay but the two the N–S carriageway enters through.
       for (let bay = 0; bay < 8; bay += 1) {
-        if (pauseBuild()) yield null;
         const centre = bay * 45;
         if (centre === 0 || centre === 180) continue; // stair bays
         const a = centre * DEG;
@@ -2897,7 +2793,6 @@ export class Board {
         // with a mid bulge, four light bars between them, and three rails, so the light
         // through it is a rhythm of wide and narrow gaps rather than one pitch.
         for (let bal = 0; bal < 5; bal += 1) {
-          if (pauseBuild()) yield null;
           const off = (bal - 2) * 0.66;
           const bwx = bxp + Math.cos(a) * off;
           const bwz = bzp - Math.sin(a) * off;
@@ -2906,7 +2801,6 @@ export class Board {
           add(playPieces, bwx, 0.80, bwz, 0.22, 0.09, 0.21, '#1a3527', centre); // foot
         }
         for (let bal = 0; bal < 4; bal += 1) {
-          if (pauseBuild()) yield null;
           const off = (bal - 1.5) * 0.66;
           add(playPieces,
             bxp + Math.cos(a) * off, 1.34, bzp - Math.sin(a) * off,
@@ -2916,15 +2810,12 @@ export class Board {
       // Stair bays: timber treads stepping from the deck (top 0.56) down onto the plinth
       // (top 0.44), with stone cheeks either side. Each tread lands on the one below it.
       for (const facing of [1, -1]) {
-        if (pauseBuild()) yield null;
         for (let tread = 0; tread < 2; tread += 1) {
-          if (pauseBuild()) yield null;
           const zz = z + facing * (4.95 + tread * 0.70);
           add(solids, x, 0.475 - tread * 0.06, zz, 3.0 + tread * 0.34, 0.14, 0.66,
             tread % 2 ? '#8a5e35' : '#9d6c3d');
         }
         for (const cheek of [-1, 1]) {
-          if (pauseBuild()) yield null;
           add(rotundaStoneSolids, x + cheek * 1.78, 0.42, z + facing * 5.3,
             0.40, 0.34, 1.9, '#b7a98d');
           add(rotundaStoneSolids, x + cheek * 1.78, 0.60, z + facing * 4.85,
@@ -2937,7 +2828,6 @@ export class Board {
       // The shafts move to the painted-stone batch, and every base member from the plinth
       // up is strictly wider than the one above it, so nothing can oversail anything.
       for (const angle of COLUMN_ANGLES) {
-        if (pauseBuild()) yield null;
         const a = angle * DEG;
         const cx = x + Math.sin(a) * 4.5;
         const cz = z + Math.cos(a) * 4.5;
@@ -2951,7 +2841,6 @@ export class Board {
         // Six shallow engaged reeds. Their outer face sits on the shaft radius, so the
         // flutes model the shaft rather than standing off it.
         for (let flute = 0; flute < 6; flute += 1) {
-          if (pauseBuild()) yield null;
           const fa = (flute / 6) * Math.PI * 2 + a;
           add(columns,
             cx + Math.sin(fa) * 0.295,
@@ -2967,7 +2856,6 @@ export class Board {
         // Spandrel bracket: two raking members and a knee at each post head, dark against
         // pale, so the ornament reads as a bracket rather than as a green box.
         for (const side of [-1, 1]) {
-          if (pauseBuild()) yield null;
           const bx2 = cx + Math.cos(a) * side * 0.62;
           const bz2 = cz - Math.sin(a) * side * 0.62;
           add(playPieces, bx2, 5.24, bz2, 0.62, 0.13, 0.20, '#274a3a', angle);
@@ -2998,7 +2886,6 @@ export class Board {
       const BRONZE = '#5d4426';
       const BRONZE_LIT = '#7a5c33';
       for (const leg of [-0.15, 0.15]) {
-        if (pauseBuild()) yield null;
         add(columns, x + leg, 1.86, z, 0.24, 0.84, 0.26, BRONZE);
       }
       add(columns, x, 2.52, z, 0.60, 0.60, 0.42, BRONZE_LIT);                 // torso
@@ -3309,7 +3196,6 @@ export class Board {
     const leafSize = 128;
     const leafPixels = new Uint8Array(leafSize * leafSize * 4);
     for (let y = 0; y < leafSize; y += 1) for (let x = 0; x < leafSize; x += 1) {
-      if (pauseBuild()) yield null;
       const dx = (x + 0.5) / leafSize - 0.5;
       const dy = (y + 0.5) / leafSize - 0.5;
       const radius = Math.min(1, Math.hypot(dx, dy) * 2);
@@ -3382,11 +3268,9 @@ export class Board {
     if (reserve?.centre) {
       const ribs = [];
       for (let rib = 0; rib < 8; rib += 1) {
-        if (pauseBuild()) yield null;
         const angle = (rib / 8) * Math.PI;
         const points = [];
         for (let step = 0; step <= 10; step += 1) {
-          if (pauseBuild()) yield null;
           const t = (step / 10) * Math.PI;
           const radius = Math.cos(t) * 4.00;
           points.push(new THREE.Vector3(
@@ -6258,16 +6142,12 @@ export class Board {
     this.root.add(mesh);
   }
 
-  _buildBuildings(...args) { return finishBuild(this._buildBuildingsSteps(...args)); }
-
-  *_buildBuildingsSteps() {
-    const pauseBuild = buildBudget();
+  _buildBuildings() {
     // Batch by archetype + facade (0–3) + wall-family bucket. District wall bias
     // collapses into a few material families (not 6 district meshes); chroma rides
     // on instanceColor = DISTRICT_WALL_CHROMA × tintFor(parcelId).
     const byKey = new Map();
     for (const id of this._order()) {
-      if (pauseBuild()) yield null;
       const parcel = this._parcel(id);
       // Deterministic façade from parcel id — same seed → same street face.
       const facade = deterministicFacade(id);
@@ -6332,7 +6212,6 @@ export class Board {
     for (const {
       archetypeId, facade, districtId, bucket, lotSpan, conditionTier, hand, entries,
     } of byKey.values()) {
-      if (pauseBuild()) yield null;
       // Pass districtId so surfacesForArchetype / wall bias match the bucket.
       const model = this._modelFor(archetypeId, districtId, facade, lotSpan, conditionTier, hand);
       if (!model) continue;
@@ -6358,14 +6237,10 @@ export class Board {
    * Place interactive door/window leaves as live groups (not instanced) so a tap
    * can swing or slide them without splitting the building batch.
    */
-  _buildBuildingOpenings(...args) { return finishBuild(this._buildBuildingOpeningsSteps(...args)); }
-
-  *_buildBuildingOpeningsSteps() {
-    const pauseBuild = buildBudget();
+  _buildBuildingOpenings() {
     this.openingHinges = new Map();
     this.buildingOpenings = new Map();
     for (const [parcelId, rec] of this.staticBuildings) {
-      if (pauseBuild()) yield null;
       const parcel = this._parcel(parcelId);
       if (!parcel) continue;
       const model = this._modelFor(
@@ -6651,10 +6526,7 @@ export class Board {
    * current asset wave retain the warehouse-and-band fallback, so missing art never
    * changes the deterministic city layout or blocks rendering.
    */
-  _buildCivicBuildings(...args) { return finishBuild(this._buildCivicBuildingsSteps(...args)); }
-
-  *_buildCivicBuildingsSteps() {
-    const pauseBuild = buildBudget();
+  _buildCivicBuildings() {
     const civics = this.city.civicUses ?? [];
     if (!civics.length) return;
     // supermarket-strip A33 is the later texture-first Codex GLB. School keeps its
@@ -6689,7 +6561,6 @@ export class Board {
     const byUse = new Map();
     const kitByUse = new Map();
     for (const civic of civics) {
-      if (pauseBuild()) yield null;
       const model = this.registry.get(civic.useId);
       const hasRealGlb = Boolean(
         model
@@ -6727,7 +6598,6 @@ export class Board {
     }
 
     for (const { useId, facade, entries } of kitByUse.values()) {
-      if (pauseBuild()) yield null;
       // Force building-kit massing — do not resolve through _modelFor (GLB-first).
       const model = this.buildingKit?.get?.(useId, null, facade)
         ?? this._modelFor(useId, null, facade);
@@ -6763,7 +6633,6 @@ export class Board {
     }
 
     for (const [useId, entries] of byUse) {
-      if (pauseBuild()) yield null;
       const model = this._modelFor(useId) ?? this.registry.get(useId);
       const placements = entries.map((civic) => {
         // NO `lotSpan` here either: `_modelFor(useId)` above is called without a span, so this
@@ -9967,15 +9836,11 @@ export class Board {
     return strategicSelectionAtTile(this.city, tileId, this.lastState);
   }
 
-  prepareWorld() {
+  update(dt, elapsed) {
     // The port joins the scene a few frames after the board; stop looking after 600 frames on a scene without one.
     if (!this._surfaceRolesReady && (this._surfaceRoleTries = (this._surfaceRoleTries ?? 0) + 1) <= 600) {
       this._surfaceRolesReady = tagPortSurfaces(this.root.parent);
     }
-  }
-
-  update(dt, elapsed) {
-    this.prepareWorld();
     const wet = wetRoadFactor(weatherOf(this.lastState));
     updateWetRoadMaterial(this._roadMaterial, wet);
     this.coreLayer?.step(dt);

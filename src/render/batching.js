@@ -1,3 +1,4 @@
+import { finishBuild, buildBudget } from './startup.js';
 // P19 X1B — scene-level batching. Runs after the city graph is built.
 // InstancedMesh for repeated geom+material, mergeGeometries-style world-bake for
 // leftover static by material, a name registry so getObjectByName still resolves,
@@ -596,7 +597,10 @@ export function censusScene(scene) {
  * Batch the static world in place. Idempotent. Original names survive as
  * Object3D stubs plus `userData.mergedNames` on the replacement mesh.
  */
-export function batchStaticWorld(scene, { quality = 'high' } = {}) {
+export function batchStaticWorld(...args) { return finishBuild(batchStaticWorldSteps(...args)); }
+
+export function* batchStaticWorldSteps(scene, { quality = 'high' } = {}) {
+  const pauseBuild = buildBudget();
   if (scene.userData.batching) return scene.userData.batching;
   scene.updateMatrixWorld(true);
 
@@ -633,11 +637,14 @@ export function batchStaticWorld(scene, { quality = 'high' } = {}) {
     },
   };
 
+  // COPY-DRAFT: batching progress.
+  yield 'Collecting the city meshes';
   const all = collectMeshes(scene);
   batch.stats.inputMeshes = all.length;
 
   const staticMeshes = [];
   for (const mesh of all) {
+    if (pauseBuild()) yield null;
     if (mesh.parent === root) continue;
     if (mesh.isInstancedMesh) {
       batch.stats.skippedDynamic += 1;
@@ -652,6 +659,7 @@ export function batchStaticWorld(scene, { quality = 'high' } = {}) {
     let hidden = false;
     let dynamicVisibility = false;
     for (let p = mesh; p; p = p.parent) {
+      if (pauseBuild()) yield null;
       hidden ||= !p.visible;
       dynamicVisibility ||= p.userData?.dynamicVisibility === true;
     }
@@ -668,6 +676,8 @@ export function batchStaticWorld(scene, { quality = 'high' } = {}) {
   }
   batch.stats.staticCollected = staticMeshes.length;
 
+  // COPY-DRAFT: batching progress.
+  yield 'Preparing the city materials';
   batch.stats.sizeCulled = applyShadowSizeCull(staticMeshes);
   batch.stats.sizeCulled += applyShadowSizeCull(all.filter((m) => m.isInstancedMesh));
   const deduped = dedupeMaterials(staticMeshes);
@@ -675,8 +685,11 @@ export function batchStaticWorld(scene, { quality = 'high' } = {}) {
   batch.stats.materialsAfter = deduped.unique;
   batch.stats.materialsReplaced = deduped.replaced;
 
+  // COPY-DRAFT: batching progress.
+  yield 'Grouping the city meshes';
   const colorGroups = new Map();
   for (const mesh of staticMeshes) {
+    if (pauseBuild()) yield null;
     // Static, authored material groups must survive; no gameplay-dynamic marker.
     if (mesh.userData.preserveMaterialGroups) {
       batch.stats.skippedMaterialGroups += 1;
@@ -688,14 +701,18 @@ export function batchStaticWorld(scene, { quality = 'high' } = {}) {
     colorGroups.set(key, list);
   }
 
+  // COPY-DRAFT: batching progress.
+  yield 'Instancing the city meshes';
   const leftover = [];
   for (const group of colorGroups.values()) {
+    if (pauseBuild()) yield null;
     if (group.length < MIN_INSTANCE_COUNT) {
       leftover.push(...group);
       continue;
     }
     const colors = new Set();
     for (const mesh of group) {
+      if (pauseBuild()) yield null;
       const c = firstMaterial(mesh)?.color;
       colors.add(c ? `${q4(c.r)},${q4(c.g)},${q4(c.b)}` : '');
     }
@@ -706,8 +723,11 @@ export function batchStaticWorld(scene, { quality = 'high' } = {}) {
     else leftover.push(...group);
   }
 
+  // COPY-DRAFT: batching progress.
+  yield 'Merging the city details';
   const mergeGroups = new Map();
   for (const mesh of leftover) {
+    if (pauseBuild()) yield null;
     if (!mesh.parent) continue;
     const mat = firstMaterial(mesh);
     // The roof edge shader reads local coordinates; a world bake would move them.
@@ -727,10 +747,13 @@ export function batchStaticWorld(scene, { quality = 'high' } = {}) {
     mergeGroups.set(key, list);
   }
   for (const group of mergeGroups.values()) {
+    if (pauseBuild()) yield null;
     const used = mergeBatch(batch, group, firstMaterial(group[0]));
     batch.stats.mergedFrom += used;
   }
 
+  // COPY-DRAFT: batching progress.
+  yield 'Finishing the city batches';
   freezeStaticMatrices(scene);
 
   // Invisible pick proxies still count as meshes in the budget. Demote them
@@ -742,6 +765,7 @@ export function batchStaticWorld(scene, { quality = 'high' } = {}) {
     if (o.isMesh && firstMaterial(o)?.visible === false && !o.userData.mischiefKey) invisible.push(o);
   });
   for (const mesh of invisible) {
+    if (pauseBuild()) yield null;
     mesh.castShadow = false;
     mesh.receiveShadow = false;
     demoteToStub(mesh, batch.retiredGeometries);
@@ -754,6 +778,7 @@ export function batchStaticWorld(scene, { quality = 'high' } = {}) {
   casters.sort((a, b) => (b.userData.shadowSizeM || 0) - (a.userData.shadowSizeM || 0));
   const CASTER_CAP = 3000;
   for (let i = CASTER_CAP; i < casters.length; i += 1) {
+    if (pauseBuild()) yield null;
     casters[i].castShadow = false;
     casters[i].userData.shadowCulledSize = true;
   }
@@ -773,6 +798,7 @@ export function batchStaticWorld(scene, { quality = 'high' } = {}) {
   });
   let disposedSources = 0;
   for (const geom of batch.retiredGeometries) {
+    if (pauseBuild()) yield null;
     if (!geom || usedGeo.has(geom.uuid)) continue;
     geom.dispose();
     disposedSources += 1;

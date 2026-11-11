@@ -1,3 +1,4 @@
+import { finishBuild, buildBudget, runBuild } from './startup.js';
 // District Deck — landscape fringe beyond the playable board.
 // Presentation only: hills, Yarra, expansion ghosts, alpine haze. No sim, no Math.random.
 //
@@ -48,9 +49,9 @@ import { OVERLAY_OUTER, overlayPitchAt } from './ring-metrics.js';
 import {
   planEdgeMassing, waternessAt, surroundHeightAt, surroundHeightSheetAt, drawnCrustHeightAt, coastRimAt, surroundColorAt, RING_LAYOUT,
   creekFieldAt, seatBatterAt, seatBankLiftLimitAt, ONE_GROUND,
-  bakeRingAlbedo, attachRingAlbedo, stampRingAlbedoLine, RING_ALBEDO,
-  bakeRingHeight, EDGE_APRON, ringAlbedoUv, LANDFORM_TRIAL, COAST_FAR, RING_SEAM,
-  SHEET_SHORE, bakeSheetShore, attachSheetShore,
+  bakeRingAlbedoSteps, attachRingAlbedo, stampRingAlbedoLine, RING_ALBEDO,
+  bakeRingHeightSteps, EDGE_APRON, ringAlbedoUv, LANDFORM_TRIAL, COAST_FAR, RING_SEAM,
+  SHEET_SHORE, bakeSheetShoreSteps, attachSheetShore,
 } from './edge-massing.js';
 import { addPort, updatePort } from './fringe/port.js';
 import { updateContainerFittings } from './fringe/ships.js';
@@ -67,7 +68,7 @@ import { addAirport, updateAirport } from './fringe/airport.js';
 import { restyleAirport } from './style/restyle.js';
 import { addStation, updateStation } from './fringe/station.js';
 import { addApostles, updateApostles } from './fringe/apostles.js';
-import { addEvents, updateEvents } from './fringe/events.js';
+import { addEvents, addEventsSteps, updateEvents } from './fringe/events.js';
 import { addRailLink, updateRailLink } from './fringe/rail-link.js';
 import { applyGroundShadowFloor } from './fringe/transit.js';
 import { LAND_EDGE, landStartRadius, landEdgeForPlan, landEdgeAt, landModelFor, activeLandEdge, setActiveLandEdge, onVenueReach } from './land-edge.js';
@@ -1726,7 +1727,10 @@ export const FENCE_EDGES = {
  * ({ x, z, yaw, len }, yaw from +Z), comparing the middle 60% of each at four points; panels of one edge never conflict with each other.
  * Order is the list's order, so the first edge keeps its line. Returns { kept, dropped }.
  */
-export function dropDoubleFences(panels, others = []) {
+export function dropDoubleFences(...args) { return finishBuild(dropDoubleFencesSteps(...args)); }
+
+export function* dropDoubleFencesSteps(panels, others = []) {
+  const pauseBuild = buildBudget();
   const T = [0.2, 0.4, 0.6, 0.8], lim = FENCE_EDGES.doubleM * FENCE_EDGES.doubleM;
   const pts = [], cell = 8, grid = new Map();
   const put = (gx, x, z) => {
@@ -1743,6 +1747,7 @@ export function dropDoubleFences(panels, others = []) {
   };
   const kept = [], dropped = [];
   for (const p of panels) {
+    if (pauseBuild()) yield null;
     const mine = T.map((t) => [p.a[0] + (p.b[0] - p.a[0]) * t, p.a[1] + (p.b[1] - p.a[1]) * t]);
     if (mine.some(([x, z]) => near(p.gx, x, z))) { dropped.push(p); continue; }
     kept.push(p);
@@ -1799,11 +1804,15 @@ export const FENCE_TIDY = {
  * Copies of the boundary samples `isHedged` picks, with `start`, `end`, `x` and `z` moved `offM` metres to one side of the line (`sideOf(sample)`
  * is +1 or -1; the normal at a shared vertex is the mean of the two samples' normals, so a chain does not kink), marked `rest` and `hedged`.
  */
-export function offsetHedgedFields(fields, isHedged, offM, sideOf) {
+export function offsetHedgedFields(...args) { return finishBuild(offsetHedgedFieldsSteps(...args)); }
+
+export function* offsetHedgedFieldsSteps(fields, isHedged, offM, sideOf) {
+  const pauseBuild = buildBudget();
   const byEdge = new Map(), out = [];
   for (const b of fields) if (isHedged(b)) { const l = byEdge.get(b.gx); if (l) l.push(b); else byEdge.set(b.gx, [b]); }
   const mix = (u, v) => { const x = u[0] + v[0], z = u[1] + v[1], l = Math.hypot(x, z); return l < 0.5 ? u : [x / l, z / l]; };
   for (const list of byEdge.values()) {
+    if (pauseBuild()) yield null;
     list.sort((a, b) => a.gz - b.gz);
     const nrm = list.map((b) => {
       const dx = b.end[0] - b.start[0], dz = b.end[1] - b.start[1], l = Math.hypot(dx, dz) || 1, s = sideOf(b);
@@ -1838,13 +1847,19 @@ export function segmentGap(p, q, r, s) {
  * Drops each panel (a, b) whose line lies within `nearM` of a run in `others` ({ x, z, yaw, len }, yaw from +Z, drawn as the segment through
  * its centre). Returns { kept, dropped }.
  */
-export function dropNearRuns(panels, others, nearM) {
+export function dropNearRuns(...args) { return finishBuild(dropNearRunsSteps(...args)); }
+
+export function* dropNearRunsSteps(panels, others, nearM) {
+  const pauseBuild = buildBudget();
   const segs = others.map((o) => {
     const hx = Math.sin(o.yaw) * o.len / 2, hz = Math.cos(o.yaw) * o.len / 2;
     return [[o.x - hx, o.z - hz], [o.x + hx, o.z + hz]];
   });
   const kept = [], dropped = [];
-  for (const p of panels) (segs.some((sg) => segmentGap(p.a, p.b, sg[0], sg[1]) < nearM) ? dropped : kept).push(p);
+  for (const p of panels) {
+    if (pauseBuild()) yield null;
+    (segs.some((sg) => segmentGap(p.a, p.b, sg[0], sg[1]) < nearM) ? dropped : kept).push(p);
+  }
   return { kept, dropped };
 }
 
@@ -1855,23 +1870,34 @@ export function dropNearRuns(panels, others, nearM) {
  * round(length / 8) panels, each scaled along its length to fit; a panel centred on a gate sample of a run of six or more is
  * left out. Also returns the edges (parcel pair) that are mostly fenced, which the ground shader draws the track under.
  */
-export function planParcelFences(fields, { carried, blocked }) {
+export function planParcelFences(...args) { return finishBuild(planParcelFencesSteps(...args)); }
+
+export function* planParcelFencesSteps(fields, { carried, blocked }) {
+  const pauseBuild = buildBudget();
   const edges = new Map();
   for (const b of fields) {
+    if (pauseBuild()) yield null;
     const list = edges.get(b.gx);
     if (list) list.push(b); else edges.set(b.gx, [b]);
   }
   const panels = [], flagged = [];
   let freeSamples = 0, gateGaps = 0;
   for (const list of edges.values()) {
+    if (pauseBuild()) yield null;
     list.sort((a, b) => a.gz - b.gz);
     const fenceable = list.filter((b) => b.rest || b.mask >= PARCEL_FENCES.maskMin).length;
     let fenced = 0, edgePanels = 0;
-    const free = list.map((b, k) => (b.rest || b.mask >= PARCEL_FENCES.maskMin)
-      && !carried(b, list[k - 1]?.gz === b.gz - 1 ? list[k - 1] : null, list[k + 1]?.gz === b.gz + 1 ? list[k + 1] : null)
-      && !blocked(b.x, b.z) && !blocked(b.start[0], b.start[1]) && !blocked(b.end[0], b.end[1]));
+    const free = [];
+    for (let k = 0; k < list.length; k += 1) {
+      if (pauseBuild()) yield null;
+      const b = list[k];
+      free.push((b.rest || b.mask >= PARCEL_FENCES.maskMin)
+        && !carried(b, list[k - 1]?.gz === b.gz - 1 ? list[k - 1] : null, list[k + 1]?.gz === b.gz + 1 ? list[k + 1] : null)
+        && !blocked(b.x, b.z) && !blocked(b.start[0], b.start[1]) && !blocked(b.end[0], b.end[1]));
+    }
     let i = 0;
     while (i < list.length) {
+      if (pauseBuild()) yield null;
       if (!free[i]) { i += 1; continue; }
       let j = i;
       while (j + 1 < list.length && free[j + 1] && list[j + 1].gz === list[j].gz + 1) j += 1;
@@ -1880,6 +1906,7 @@ export function planParcelFences(fields, { carried, blocked }) {
         freeSamples += n;
         const pts = [list[i].start], cum = [0];
         for (let k = i; k <= j; k += 1) {
+          if (pauseBuild()) yield null;
           const e = list[k].end, q = pts[pts.length - 1];
           pts.push(e); cum.push(cum[cum.length - 1] + Math.hypot(e[0] - q[0], e[1] - q[1]));
         }
@@ -1892,6 +1919,7 @@ export function planParcelFences(fields, { carried, blocked }) {
         };
         const count = Math.max(1, Math.round(total / PARCEL_FENCES.panelM)), pl = total / count;
         for (let pn = 0; pn < count; pn += 1) {
+          if (pauseBuild()) yield null;
           const a = at(pn * pl), b = at((pn + 1) * pl), mid = at((pn + 0.5) * pl);
           const s = list[i + mid[2]];
           // a gate every 38 m is a gate in every panel; one gate in three is left open
@@ -1914,16 +1942,21 @@ export function planParcelFences(fields, { carried, blocked }) {
 }
 
 /** The parcel-edge flag texture for the ground shader: `flagged` is planParcelFences' list, null gives the empty 1 x 1 texture. Returns [texture, origin x, origin z, size]. */
-function parcelFenceTexture(flagged) {
+function parcelFenceTexture(...args) { return finishBuild(parcelFenceTextureSteps(...args)); }
+
+function* parcelFenceTextureSteps(flagged) {
+  const pauseBuild = buildBudget();
   if (!flagged?.length) {
     const t = new THREE.DataTexture(new Uint8Array(4), 1, 1, THREE.RGBAFormat);
     t.needsUpdate = true;
     return t;
   }
   let x0 = Infinity, z0 = Infinity, x1 = -Infinity, z1 = -Infinity;
-  for (const f of flagged) { x0 = Math.min(x0, f.cell[0]); x1 = Math.max(x1, f.cell[0]); z0 = Math.min(z0, f.cell[1]); z1 = Math.max(z1, f.cell[1]); }
+  for (const f of flagged) {
+    if (pauseBuild()) yield null; x0 = Math.min(x0, f.cell[0]); x1 = Math.max(x1, f.cell[0]); z0 = Math.min(z0, f.cell[1]); z1 = Math.max(z1, f.cell[1]); }
   const size = Math.max(x1 - x0, z1 - z0) + 1, data = new Uint8Array(size * size * 4);
   for (const f of flagged) {
+    if (pauseBuild()) yield null;
     const ch = f.off[0] === 1 ? f.off[1] + 1 : 3; // (1,-1) r, (1,0) g, (1,1) b, (0,1) a
     data[((f.cell[1] - z0) * size + (f.cell[0] - x0)) * 4 + ch] = 255;
   }
@@ -2421,7 +2454,10 @@ function buildOccupancy(root, skipNames) {
  */
 export const HINTERLAND_TREE_GROUPS = 1;
 
-function treePlacements(city, roles, seed, cap, crust) {
+function treePlacements(...args) { return finishBuild(treePlacementsSteps(...args)); }
+
+function* treePlacementsSteps(city, roles, seed, cap, crust) {
+  const pauseBuild = buildBudget();
   const { extent } = city;
   const trees = [];
   const edge = roles.hillsEdge;
@@ -2447,6 +2483,7 @@ function treePlacements(city, roles, seed, cap, crust) {
   const grouped = HINTERLAND_TREE_GROUPS > 0;
   const shrubs = [];
   while (!grouped && trees.length < cap && attempts < cap * 6) {
+    if (pauseBuild()) yield null;
     attempts += 1;
     const u = idxUnit(1, i, 0, seed);
     const v = idxUnit(2, i, 0, seed);
@@ -2483,6 +2520,7 @@ function treePlacements(city, roles, seed, cap, crust) {
       return !(onWater(p.x, p.z) || offRing(p.x, p.z));
     };
     while (load < budget && attempts < cap * 6) {
+      if (pauseBuild()) yield null;
       attempts += 1;
       const u = idxUnit(1, i, 0, seed);
       const v = idxUnit(2, i, 0, seed);
@@ -2504,6 +2542,7 @@ function treePlacements(city, roles, seed, cap, crust) {
       gid += 1;
       const placed = [];
       for (let m = 0; m < n; m += 1) {
+        if (pauseBuild()) yield null;
         let mp = p;
         let mo = out;
         let ma = along;
@@ -2530,6 +2569,7 @@ function treePlacements(city, roles, seed, cap, crust) {
       // Two to four low shrubs at the feet, in the existing scrub family.
       const ns = 2 + Math.min(2, Math.floor(idxUnit(406, i, 0, seed) * 3));
       for (let k = 0; k < ns; k += 1) {
+        if (pauseBuild()) yield null;
         const ang = idxUnit(407, i, k, seed) * TAU;
         const rr = 3 + idxUnit(408, i, k, seed) * 7;
         const mo = out + Math.cos(ang) * rr;
@@ -2550,6 +2590,7 @@ function treePlacements(city, roles, seed, cap, crust) {
   const riverEdge = roles.yarraEdge;
   const riverL = alongLength(riverEdge, extent);
   for (let n = 0; n < bankCap; n += 1) {
+    if (pauseBuild()) yield null;
     if (grouped && n >= Math.ceil(bankCap * 0.55)) break;
     if (grouped && n % 3 !== 0) continue;
     const u = idxUnit(7, n, 0, seed);
@@ -2575,6 +2616,7 @@ function treePlacements(city, roles, seed, cap, crust) {
       // W20-B: the bank trees come in threes, the two companions 4 to 8 m off along the bank, smaller.
       const kind = idxUnit(13, n, 0, seed) > 0.35 ? 2 : 0;
       for (let m = 1; m <= 2; m += 1) {
+        if (pauseBuild()) yield null;
         const ang = idxUnit(414, n, m, seed) * TAU;
         const rr = 4 + idxUnit(415, n, m, seed) * 4;
         const q = shorePoint(riverEdge, extent, out + Math.cos(ang) * rr, along + side + Math.sin(ang) * rr);
@@ -2641,7 +2683,10 @@ export const CREST_TREES = {
   shade: { k: 0.5, dark: 0.6, lift: 0.15 }, // the contact decal: radius over tree height, the value at its centre, metres over the drawn crust (+0.05 in makeTreeShade = 0.2)
 };
 
-function crestTreePlacements(extent, seed, crust, tier) {
+function crestTreePlacements(...args) { return finishBuild(crestTreePlacementsSteps(...args)); }
+
+function* crestTreePlacementsSteps(extent, seed, crust, tier) {
+  const pauseBuild = buildBudget();
   const P = CREST_TREES;
   const trees = [];
   trees.stats = { lines: 0, groups: 0, spurGroups: 0, gullyGroups: 0, tris: 0, eucalypt: 0, cypress: 0 };
@@ -2656,6 +2701,7 @@ function crestTreePlacements(extent, seed, crust, tier) {
   const W = new Float32Array(N * N);
   const C = new Float32Array(N * N);
   for (let j = 0; j < N; j += 1) for (let i = 0; i < N; i += 1) {
+    if (pauseBuild()) yield null;
     const x = cx + (i - half) * G;
     const z = cz + (j - half) * G;
     H[j * N + i] = surroundHeightSheetAt(x, z, extent, crust);
@@ -2665,9 +2711,11 @@ function crestTreePlacements(extent, seed, crust, tier) {
   const ring = [[K, 0], [-K, 0], [0, K], [0, -K], [K - 1, K - 1], [1 - K, K - 1], [K - 1, 1 - K], [1 - K, 1 - K]];
   const cell = (i, j) => j * N + i;
   for (let j = K; j < N - K; j += 1) for (let i = K; i < N - K; i += 1) {
+    if (pauseBuild()) yield null;
     let sum = 0;
     let n = 0;
     for (const [di, dj] of ring) {
+      if (pauseBuild()) yield null;
       const k = cell(i + di, j + dj);
       if (W[k] < 0.2) { sum += H[k]; n += 1; }
     }
@@ -2729,6 +2777,7 @@ function crestTreePlacements(extent, seed, crust, tier) {
   const spurs = [];
   const gullies = [];
   for (let j = lo; j < N - lo; j += 1) for (let i = lo; i < N - lo; i += 1) {
+    if (pauseBuild()) yield null;
     const x = cx + (i - half) * G;
     const z = cz + (j - half) * G;
     const r = radius(x, z);
@@ -2768,6 +2817,7 @@ function crestTreePlacements(extent, seed, crust, tier) {
   // Lines: walk the contour (the tangent to the height's gradient) from each seed, both ways, re-centring on the crest at each step.
   const lineMax = Math.floor(cap * P.lineShare);
   for (const s of seeds) {
+    if (pauseBuild()) yield null;
     if (trees.length >= lineMax) break;
     if (crowded(s.x, s.z, 36) || !dryAt(s.x, s.z)) continue;
     const t = smoothstep(P.r0, P.r1, s.r);
@@ -2820,6 +2870,7 @@ function crestTreePlacements(extent, seed, crust, tier) {
     trees.stats.lines += 1;
     id += 1000;
     for (let k = 0; k < pts.length; k += 1) {
+      if (pauseBuild()) yield null;
       plant(pts[k].x, pts[k].z, 0.8 + idxUnit(510, k, id, seed) * 0.3, idxUnit(511, k, id, seed), 'crest', 2000 + trees.stats.lines);
     }
   }
@@ -2875,6 +2926,7 @@ function crestTreePlacements(extent, seed, crust, tier) {
   const cells = [];
   const nf = Math.ceil(F.r1 / F.pitch) + 1;
   for (let j = -nf; j <= nf; j += 1) for (let i = -nf; i <= nf; i += 1) {
+    if (pauseBuild()) yield null;
     const x = cx + (i + 0.5 + (idxUnit(520, i, j, seed) - 0.5) * 0.9) * F.pitch;
     const z = cz + (j + 0.5 + (idxUnit(521, i, j, seed) - 0.5) * 0.9) * F.pitch;
     const r = radius(x, z);
@@ -2886,12 +2938,14 @@ function crestTreePlacements(extent, seed, crust, tier) {
   trees.stats.featherSites = cells.length;
   const beforeF = trees.length;
   for (const s of cells) {
+    if (pauseBuild()) yield null;
     if (trees.length >= fcap) break;
     if (!dryAt(s.x, s.z) || !apart(s.x, s.z, 16)) continue;
     const n = 2 + Math.floor(idxUnit(523, s.i, s.j, seed) * 4);
     const gid = 6000 + trees.stats.groups;
     const was = { n: trees.length, tris, eucalypt: trees.stats.eucalypt, cypress: trees.stats.cypress };
     for (let m = 0; m < n; m += 1) {
+      if (pauseBuild()) yield null;
       let x = s.x;
       let z = s.z;
       if (m > 0) {
@@ -3031,7 +3085,10 @@ function parcelBrowChains(bounds, cx, cz, R, isGround, seed) {
  * transparent and nothing here is a clone array at even pitch: every run is
  * broken by seeded gaps and every instance carries its own scale and heading.
  */
-function hinterlandPlacements(city, roles, seed, tier, crust) {
+function hinterlandPlacements(...args) { return finishBuild(hinterlandPlacementsSteps(...args)); }
+
+function* hinterlandPlacementsSteps(city, roles, seed, tier, crust) {
+  const pauseBuild = buildBudget();
   const { extent } = city;
   const empty = {
     fields: [], hedges: [], belts: [], dams: [], damTiers: [0, 0], sheds: [], bales: [],
@@ -3060,6 +3117,7 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
   // while the exact bisector carries the Falls seat on the seed-0 layout.
   const receiptAz = hillsAz + cornerDelta * 0.38;
   for (let n = 0; n < bounds.length; n += 1) {
+    if (pauseBuild()) yield null;
     const b = bounds[n];
     const g = idxUnit(30 + b.dir, b.gx, b.gz, seed);
     /**
@@ -3325,6 +3383,7 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
     ...b, mask: workedGroundAt(b.x, b.z, extent, crust, null),
   }));
   for (const b of plantingBounds) {
+    if (pauseBuild()) yield null;
     if (treeRun !== b.gx) {
       treeRun = b.gx; travelled = 0;
       nextTree = 25 + workedHash(b.gx, 81, seed) * 35;
@@ -3341,6 +3400,7 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
     else nextTree = travelled + 25 + workedHash(b.gx, b.gz + 91, seed) * 35;
     const count = clump ? 2 + Math.floor(workedHash(b.gx, b.gz + 17, seed) * 4) : 1;
     for (let j = 0; j < count; j += 1) {
+      if (pauseBuild()) yield null;
       const theta = workedHash(b.gx + j, b.gz + 11, seed) * TAU;
       const radius = clump ? 1.5 + workedHash(b.gx + j, b.gz + 29, seed) * 4 : 0;
       const x = (clump ? anchor[0] : b.x) + Math.cos(theta) * radius;
@@ -3368,11 +3428,14 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
   const cxS = extent.x * 0.5;
   const czS = extent.z * 0.5;
   for (let pass = 0; pass < PITCH_LIST.length; pass += 1) {
+    if (pauseBuild()) yield null;
   const { pitch: PITCH, maxR, gain } = PITCH_LIST[pass];
   const salt = pass * 40;
   const reach = Math.ceil((Math.min(HINTERLAND.outer, maxR) - 20) / PITCH);
   for (let gi = -reach; gi <= reach; gi += 1) {
+    if (pauseBuild()) yield null;
     for (let gj = -reach; gj <= reach; gj += 1) {
+      if (pauseBuild()) yield null;
       if (scatter.length >= scatterCap && scrub.length >= scrubCap) break;
       const jx = (idxUnit(100 + salt, gi, gj, seed) - 0.5) * PITCH * 0.92;
       const jz = (idxUnit(101 + salt, gi, gj, seed) - 0.5) * PITCH * 0.92;
@@ -3505,6 +3568,7 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
   {
     const seenField = new Set();
     for (let n = 0; n < bounds.length && windrows.length < windrowCap; n += 1) {
+      if (pauseBuild()) yield null;
       const b = bounds[n];
       // Identity from the SUB-field, land use from the COARSE one. One-per-field
       // furniture has to count the fields a viewer can see edges around, or a
@@ -3523,6 +3587,7 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
       const cxF = b.x + (idxUnit(124, cell.ix, cell.iz, seed) - 0.5) * HINTERLAND.paddock * 0.45;
       const czF = b.z + (idxUnit(125, cell.ix, cell.iz, seed) - 0.5) * HINTERLAND.paddock * 0.45;
       for (let k = 0; k < rows && windrows.length < windrowCap; k += 1) {
+        if (pauseBuild()) yield null;
         const off = (k - (rows - 1) * 0.5) * gap;
         const wx = cxF + Math.cos(yaw) * off;
         const wz = czF - Math.sin(yaw) * off;
@@ -3553,6 +3618,7 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
   const cz = extent.z * 0.5;
   const seenPaddock = new Set();
   for (let n = 0; n < bounds.length; n += 1) {
+    if (pauseBuild()) yield null;
     const b = bounds[n];
     // As with the windrows: identity and jitter from the SUB-field, land use
     // from the coarse cell the ground is tinted by.
@@ -3616,8 +3682,10 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
       // Two tiers, preferring flat-clear. A dam on the levee slope is a
       // different defect from a dam in the water, and worth more offsets to avoid.
       for (let want = 0; want < 2 && tier === 0; want += 1) {
+        if (pauseBuild()) yield null;
         const needFlat = want === 0;
         for (let k = 0; k < 12; k += 1) {
+          if (pauseBuild()) yield null;
           const ang = (k / 12) * TAU + idxUnit(64, cell.ix, cell.iz, seed) * TAU;
           const reach = k === 0 ? 0 : 18 + k * 11;
           const qx = px + Math.sin(ang) * reach;
@@ -3648,6 +3716,7 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
         const bx0 = px + Math.cos(sy2) * 8.0;
         const bz0 = pz - Math.sin(sy2) * 8.0;
         for (let k = 0; k < count; k += 1) {
+          if (pauseBuild()) yield null;
           const bx = bx0 + Math.sin(sy2) * (Math.floor(k / 2) - (Math.ceil(count / 2) - 1) * 0.5) * 1.8 + Math.cos(sy2) * (k % 2 - 0.5) * 1.8;
           const bz = bz0 + Math.cos(sy2) * (Math.floor(k / 2) - (Math.ceil(count / 2) - 1) * 0.5) * 1.8 - Math.sin(sy2) * (k % 2 - 0.5) * 1.8;
           bales.push({ x: bx, z: bz, y: ground(bx, bz), yaw: sy2 + (idxUnit(78 + k, cell.ix, cell.iz, seed) - 0.5) * 0.2 });
@@ -3665,6 +3734,7 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
       const count = 3 + Math.floor(idxUnit(69, cell.ix, cell.iz, seed) * 7);
       const yaw = idxUnit(70, cell.ix, cell.iz, seed) * TAU;
       for (let k = 0; k < count; k += 1) {
+        if (pauseBuild()) yield null;
         const off = (Math.floor(k / 2) - (Math.ceil(count / 2) - 1) * 0.5) * 1.8;
         const row = (k % 2 - 0.5) * 1.8;
         const bx = px + Math.sin(yaw) * off + Math.cos(yaw) * row;
@@ -3728,8 +3798,10 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
         && !dams.some((d) => Math.hypot(d.x - b.x, d.z - b.z) < 70));
       candidates.sort((a, b) => Math.hypot(a.x - tx, a.z - tz) - Math.hypot(b.x - tx, b.z - tz));
       for (const b of candidates) {
+        if (pauseBuild()) yield null;
         let clearWater = true;
         for (let k = 0; k < 8; k += 1) {
+          if (pauseBuild()) yield null;
           const a = (k / 8) * TAU;
           const qx = b.x + Math.sin(a) * 12;
           const qz = b.z + Math.cos(a) * 12;
@@ -3778,7 +3850,9 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
     const pitch = 52;
     const reach = Math.ceil((HINTERLAND.outer - 40) / pitch);
     for (let gi = -reach; gi <= reach && copses.length < copseCap; gi += 1) {
+      if (pauseBuild()) yield null;
       for (let gj = -reach; gj <= reach && copses.length < copseCap; gj += 1) {
+        if (pauseBuild()) yield null;
         if (idxUnit(160, gi, gj, seed) > 0.30) continue;
         const x = cx + gi * pitch + (idxUnit(161, gi, gj, seed) - 0.5) * pitch * 0.7;
         const z = cz + gj * pitch + (idxUnit(162, gi, gj, seed) - 0.5) * pitch * 0.7;
@@ -3799,6 +3873,7 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
         let planted = 0;
         let far = 0;
         for (let k = 0; k < n; k += 1) {
+          if (pauseBuild()) yield null;
           const ang = (k / n) * TAU + idxUnit(165 + k, gi, gj, seed) * 1.6;
           const rad = k === 0 ? 0 : 1.8 + idxUnit(170 + k, gi, gj, seed) * 3.6;
           const tx = x + Math.sin(ang) * rad;
@@ -3834,6 +3909,7 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
   const falls = crust?.seats?.find?.((s) => s.id === 'falls-creek');
   if (falls) {
     for (let n = 0; n < 70; n += 1) {
+      if (pauseBuild()) yield null;
       const ang = (n / 70) * TAU + idxUnit(190, n, 0, seed) * 0.4;
       const d = (falls.radius ?? 96) + 22 + idxUnit(191, n, 0, seed) * 64;
       const tx = falls.x + Math.sin(ang) * d;
@@ -3857,7 +3933,9 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
   if (crust?.hills) {
     const edge = crust.hills;
     for (let along = -400; along <= 400 && reeds.length < reedCap; along += 7) {
+      if (pauseBuild()) yield null;
       for (let sea = 90; sea <= 260; sea += 14) {
+        if (pauseBuild()) yield null;
         const p = shorePoint(edge, extent, sea, along);
         const out = Math.max(-p.z, p.z - extent.z, -p.x, p.x - extent.x);
         const c = creekFieldAt(p.x, p.z, extent, crust, crust.seats, out, 0);
@@ -3894,7 +3972,9 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
     const pitch = 46;
     const reach = Math.ceil(HINTERLAND_WORK.stockOuterR / pitch);
     for (let gi = -reach; gi <= reach && stock.length < HINTERLAND_WORK.stockCap; gi += 1) {
+      if (pauseBuild()) yield null;
       for (let gj = -reach; gj <= reach && stock.length < HINTERLAND_WORK.stockCap; gj += 1) {
+        if (pauseBuild()) yield null;
         if (idxUnit(230, gi, gj, seed) > 0.44) continue;
         const x = cx + gi * pitch + (idxUnit(231, gi, gj, seed) - 0.5) * pitch * 0.7;
         const z = cz + gj * pitch + (idxUnit(232, gi, gj, seed) - 0.5) * pitch * 0.7;
@@ -3916,6 +3996,7 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
         const spacing = sheepMob ? 2.2 : 4.2;
         const drift = idxUnit(234, gi, gj, seed) * TAU;
         for (let k = 0; k < mob; k += 1) {
+          if (pauseBuild()) yield null;
           const ring = Math.sqrt(k + 0.5) * spacing * (0.85 + idxUnit(235 + k, gi, gj, seed) * 0.30);
           const ang = drift + k * 2.399963;
           const bx = x + Math.sin(ang) * ring;
@@ -3959,6 +4040,7 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
     const R = HINTERLAND.browR;
     const n = medium ? 150 : HINTERLAND_WORK.rimWoodCap;
     for (let i = 0; i < n; i += 1) {
+      if (pauseBuild()) yield null;
       const a = (i / n) * TAU + idxUnit(260, i, 0, seed) * 0.05;
       const rr = R + (idxUnit(261, i, 0, seed) - 0.5) * 2 * HINTERLAND_WORK.rimWoodSpread;
       const tx = cx + Math.sin(a) * rr;
@@ -4022,6 +4104,7 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
       for (const chain of parcelBrowChains(bounds, cx, cz, R, (x, z) => workedGroundAt(x, z, extent, crust, null), seed)) rimBrow.push(chain);
     }
     for (let i = 0; i <= (BROW_PARCEL.on ? -1 : n); i += 1) {
+      if (pauseBuild()) yield null;
       const a = (i / n) * TAU;
       const rr = R + wander(i);
       const x = cx + Math.sin(a) * rr;
@@ -4044,7 +4127,9 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
   // first; the existing seated bank/water geometry and contact clearing remain.
   let fieldAreaKm2 = 0;
   for (let x = cx - HINTERLAND.outer; x < cx + HINTERLAND.outer; x += 20) {
+    if (pauseBuild()) yield null;
     for (let z = cz - HINTERLAND.outer; z < cz + HINTERLAND.outer; z += 20) {
+      if (pauseBuild()) yield null;
       if (hinterlandDrawMaskAt(x + 10, z + 10, extent, crust) > 0.35) fieldAreaKm2 += 0.0004;
     }
   }
@@ -4068,6 +4153,7 @@ function hinterlandPlacements(city, roles, seed, tier, crust) {
     }
   };
   for (const list of [scatter, scrub, windrows, fences, walls, hedges, windbreaks, belts, sheds, bales, stock, rimWoods]) {
+    if (pauseBuild()) yield null;
     clearDamFootprints(list, 1.5);
   }
 
@@ -4528,7 +4614,10 @@ export function trunkTuftPlacements(list, tier, seed, fenceSegs = [], stats = nu
  * generators below. Every instance keeps a minimum spacing from its neighbours (a stable spatial hash) and is rejected on
  * crop rows, venue ground, sand, water, the coast rim and seat batter.
  */
-function tuftPlacements({ extent, seed, crust, ground, hinterland, trees, tier }) {
+function tuftPlacements(...args) { return finishBuild(tuftPlacementsSteps(...args)); }
+
+function* tuftPlacementsSteps({ extent, seed, crust, ground, hinterland, trees, tier }) {
+  const pauseBuild = buildBudget();
   const T = TUFT_PARAMS;
   const tune = HINTERLAND_TUFT_TUNE > 0;
   const caps = tune ? (tier === 'high' ? T.tuneCapHigh : T.tuneCapMedium) : (tier === 'high' ? T.capHigh : T.capMedium);
@@ -4623,6 +4712,7 @@ function tuftPlacements({ extent, seed, crust, ground, hinterland, trees, tier }
   // (A) Ragged strips along parcel boundaries. Edge by edge: some lines stay clean, each has its own width, and the strip
   // breaks up along its length.
   for (const b of workedParcelBoundaries(extent, seed)) {
+    if (pauseBuild()) yield null;
     if (Math.hypot(b.x - cx, b.z - cz) > HINTERLAND.outer - 30) continue;
     if (idxUnit(520, b.gx, 0, seed) > 0.58) continue;
     const w = 2 + idxUnit(521, b.gx, 1, seed) * 4;
@@ -4633,6 +4723,7 @@ function tuftPlacements({ extent, seed, crust, ground, hinterland, trees, tier }
     const n = Math.floor(e + idxUnit(522, b.gx, b.gz, seed));
     const ax = Math.sin(b.yaw); const az = Math.cos(b.yaw);
     for (let k = 0; k < n; k += 1) {
+      if (pauseBuild()) yield null;
       const off = (idxUnit(523, b.gx * 3 + k, b.gz, seed) - 0.5) * w;
       const al = (idxUnit(524, b.gx * 3 + k, b.gz, seed) - 0.5) * 4.4;
       const x = b.x + ax * al + az * off;
@@ -4647,6 +4738,7 @@ function tuftPlacements({ extent, seed, crust, ground, hinterland, trees, tier }
   // (B) Farm-track verges: tussock mostly, in broken runs, outside the 4.8 m bed.
   const sheds = hinterland.sheds ?? [];
   for (let s = 0; s < sheds.length; s += 1) {
+    if (pauseBuild()) yield null;
     const sh = sheds[s];
     const qx = Math.max(0, Math.min(extent.x, sh.x));
     const qz = Math.max(0, Math.min(extent.z, sh.z));
@@ -4655,6 +4747,7 @@ function tuftPlacements({ extent, seed, crust, ground, hinterland, trees, tier }
     if (len < 14) continue;
     const ux = dx / len; const uz = dz / len;
     for (let d = 10; d < len - 4; d += 3.6) {
+      if (pauseBuild()) yield null;
       const ragged = smoothstep(0.38, 0.62, valueNoise2(d * 0.05 + s * 5.3, s * 2.7, sd + 504));
       if (idxUnit(530, s, Math.floor(d), seed) > 0.62 * ragged) continue;
       const side = idxUnit(531, s, Math.floor(d), seed) < 0.5 ? -1 : 1;
@@ -4673,6 +4766,7 @@ function tuftPlacements({ extent, seed, crust, ground, hinterland, trees, tier }
   for (const t of trees) groves.push(t);
   for (const list of [hinterland.scatter, hinterland.belts, hinterland.rimWoods]) for (const t of list ?? []) groves.push(t);
   for (let i = 0; i < groves.length; i += 1) {
+    if (pauseBuild()) yield null;
     const t = groves[i];
     const gk = t.group !== undefined ? t.group : Math.round(t.x / 40) * 977 + Math.round(t.z / 40);
     if (idxUnit(540, gk, 0, seed) > 0.36) continue;
@@ -4682,6 +4776,7 @@ function tuftPlacements({ extent, seed, crust, ground, hinterland, trees, tier }
     const lee = idxUnit(542, gk, 2, seed) * TAU;
     const n = idxUnit(543, i, 0, seed) < 0.65 ? 1 : 2;
     for (let k = 0; k < n; k += 1) {
+      if (pauseBuild()) yield null;
       const ang = lee + (idxUnit(544, i, k, seed) + idxUnit(545, i, k, seed) - 1) * Math.PI * 0.9;
       const dist = crownR * (0.95 + idxUnit(546, i, k, seed) * 0.6);
       const x = t.x + Math.cos(ang) * dist;
@@ -4700,7 +4795,9 @@ function tuftPlacements({ extent, seed, crust, ground, hinterland, trees, tier }
     const R = HINTERLAND.outer - 24;
     const reach = Math.ceil(R / P);
     for (let gi = -reach; gi <= reach; gi += 1) {
+      if (pauseBuild()) yield null;
       for (let gj = -reach; gj <= reach; gj += 1) {
+        if (pauseBuild()) yield null;
         const x = cx + gi * P + (idxUnit(550, gi, gj, seed) - 0.5) * P * 0.9;
         const z = cz + gj * P + (idxUnit(551, gi, gj, seed) - 0.5) * P * 0.9;
         if (Math.hypot(x - cx, z - cz) > R) continue;
@@ -4713,6 +4810,7 @@ function tuftPlacements({ extent, seed, crust, ground, hinterland, trees, tier }
         if (idxUnit(553, gi, gj, seed) > w * 0.95) continue;
         const n = 2 + Math.floor(idxUnit(554, gi, gj, seed) * 4);
         for (let k = 0; k < n; k += 1) {
+          if (pauseBuild()) yield null;
           const a = idxUnit(555, gi * 7 + k, gj, seed) * TAU;
           const rr = Math.sqrt(idxUnit(556, gi * 7 + k, gj, seed)) * 4.5;
           const px = x + Math.cos(a) * rr; const pz = z + Math.sin(a) * rr;
@@ -4731,7 +4829,9 @@ function tuftPlacements({ extent, seed, crust, ground, hinterland, trees, tier }
     const R = HINTERLAND.outer - 24;
     const reach = Math.ceil(R / P);
     for (let gi = -reach; gi <= reach; gi += 1) {
+      if (pauseBuild()) yield null;
       for (let gj = -reach; gj <= reach; gj += 1) {
+        if (pauseBuild()) yield null;
         const x = cx + gi * P + (idxUnit(570, gi, gj, seed) - 0.5) * P * 0.9;
         const z = cz + gj * P + (idxUnit(571, gi, gj, seed) - 0.5) * P * 0.9;
         if (Math.hypot(x - cx, z - cz) > R) continue;
@@ -4741,6 +4841,7 @@ function tuftPlacements({ extent, seed, crust, ground, hinterland, trees, tier }
         const rad = 12 + idxUnit(573, gi, gj, seed) * 18;
         const n = Math.round(rad * rad * 0.34);
         for (let k = 0; k < n; k += 1) {
+          if (pauseBuild()) yield null;
           const a = idxUnit(574, gi * 31 + k, gj, seed) * TAU;
           const f = Math.sqrt(idxUnit(575, gi * 31 + k, gj, seed));
           const px = x + Math.cos(a) * rad * f; const pz = z + Math.sin(a) * rad * f;
@@ -4762,7 +4863,9 @@ function tuftPlacements({ extent, seed, crust, ground, hinterland, trees, tier }
     const R = HINTERLAND.outer - 24;
     const reach = Math.ceil(R / P);
     for (let gi = -reach; gi <= reach; gi += 1) {
+      if (pauseBuild()) yield null;
       for (let gj = -reach; gj <= reach; gj += 1) {
+        if (pauseBuild()) yield null;
         const x = cx + gi * P + (idxUnit(580, gi, gj, seed) - 0.5) * P * 0.95;
         const z = cz + gj * P + (idxUnit(581, gi, gj, seed) - 0.5) * P * 0.95;
         if (Math.hypot(x - cx, z - cz) > R) continue;
@@ -4786,7 +4889,9 @@ function tuftPlacements({ extent, seed, crust, ground, hinterland, trees, tier }
       return c;
     };
     for (let gi = -reach; gi <= reach; gi += 1) {
+      if (pauseBuild()) yield null;
       for (let gj = -reach; gj <= reach; gj += 1) {
+        if (pauseBuild()) yield null;
         const x = cx + gi * P + (idxUnit(610, gi, gj, seed) - 0.5) * P * 0.8;
         const z = cz + gj * P + (idxUnit(611, gi, gj, seed) - 0.5) * P * 0.8;
         if (Math.hypot(x - cx, z - cz) > R) continue;
@@ -4797,6 +4902,7 @@ function tuftPlacements({ extent, seed, crust, ground, hinterland, trees, tier }
         const rad = 9 + idxUnit(613, gi, gj, seed) * 8;
         const n = Math.round(rad * rad * 0.2);
         for (let k = 0; k < n; k += 1) {
+          if (pauseBuild()) yield null;
           const a = idxUnit(614, gi * 31 + k, gj, seed) * TAU;
           const f = Math.sqrt(idxUnit(615, gi * 31 + k, gj, seed));
           const px = x + Math.cos(a) * rad * f; const pz = z + Math.sin(a) * rad * f;
@@ -4817,7 +4923,9 @@ function tuftPlacements({ extent, seed, crust, ground, hinterland, trees, tier }
     const R = HINTERLAND.outer - 24;
     const reach = Math.ceil(R / P);
     for (let gi = -reach; gi <= reach; gi += 1) {
+      if (pauseBuild()) yield null;
       for (let gj = -reach; gj <= reach; gj += 1) {
+        if (pauseBuild()) yield null;
         if (idxUnit(620, gi, gj, seed) > 0.16) continue;
         const x = cx + gi * P + (idxUnit(621, gi, gj, seed) - 0.5) * P;
         const z = cz + gj * P + (idxUnit(622, gi, gj, seed) - 0.5) * P;
@@ -4836,6 +4944,7 @@ function tuftPlacements({ extent, seed, crust, ground, hinterland, trees, tier }
   // Caps and the far thinning, both by a stable hash of the instance's own place.
   const keep = [];
   for (const t of out) {
+    if (pauseBuild()) yield null;
     const r = Math.hypot(t.x - cx, t.z - cz);
     const far = smoothstep(T.farFrom, T.farTo, r);
     const h = idxUnit(590, Math.round(t.x * 3), Math.round(t.z * 3), seed);
@@ -4925,7 +5034,10 @@ export const PADDOCK_TUFT_PARAMS = {
  * W28: every group is anchored on one to three shrubs of the scrub shrub's form (2.4 to 4.5 m across, olive), the clumps are tussocks at 1.8 times
  * their size or more in the anchors' hue family, and each anchor stands on a soft contact decal (see the mesh build).
  */
-function paddockTuftPlacements({ extent, seed, crust, ground, tier }) {
+function paddockTuftPlacements(...args) { return finishBuild(paddockTuftPlacementsSteps(...args)); }
+
+function* paddockTuftPlacementsSteps({ extent, seed, crust, ground, tier }) {
+  const pauseBuild = buildBudget();
   const P = PADDOCK_TUFT_PARAMS;
   const T = TUFT_PARAMS;
   const cap = tier === 'high' ? P.capHigh : P.capMedium;
@@ -5013,7 +5125,9 @@ function paddockTuftPlacements({ extent, seed, crust, ground, tier }) {
   const probe = { cells: 0, eligible: 0, wDraw: 0, wVerge: 0, wSeat: 0, wBatter: 0, keepOut: 0, worked: 0, rim: 0, tone: 0, firstKeepOut: 0, firstTone: 0, firstWorked: 0, firstRim: 0, passed: 0 };
   const reach = Math.ceil(R / P.cell);
   for (let gi = -reach; gi <= reach; gi += 1) {
+    if (pauseBuild()) yield null;
     for (let gj = -reach; gj <= reach; gj += 1) {
+      if (pauseBuild()) yield null;
       const gx = cx + gi * P.cell + (idxUnit(700, gi, gj, seed) - 0.5) * P.cell * 0.8;
       const gz = cz + gj * P.cell + (idxUnit(701, gi, gj, seed) - 0.5) * P.cell * 0.8;
       if (Math.hypot(gx - cx, gz - cz) > R) continue;
@@ -5059,6 +5173,7 @@ function paddockTuftPlacements({ extent, seed, crust, ground, tier }) {
       // The anchors: the scrub shrub (`tuftForm` 'shrub') at `anchorW` across, its colour recipe; a companion touches one already laid.
       const anchors = [];
       for (let k = 0; k < na * 6 && anchors.length < na; k += 1) {
+        if (pauseBuild()) yield null;
         const ik = gi * 61 + k;
         const variant = Math.min(2, Math.floor(idxUnit(721, ik, gj, seed) * 3));
         const scale = widthAt(anchors.length); // the form is 1 m across
@@ -5081,6 +5196,7 @@ function paddockTuftPlacements({ extent, seed, crust, ground, tier }) {
       // The tussocks gather within `gather` metres of an anchor, outside its body.
       const clumps = [];
       for (let k = 0; k < want * 5 && clumps.length < want; k += 1) {
+        if (pauseBuild()) yield null;
         const ik = gi * 61 + k;
         const o = anchors[Math.min(anchors.length - 1, Math.floor(idxUnit(730, ik, gj, seed) * anchors.length))];
         const a = idxUnit(710, ik, gj, seed) * TAU;
@@ -5104,6 +5220,7 @@ function paddockTuftPlacements({ extent, seed, crust, ground, tier }) {
       if (clumps.length >= P.tussocksN[0]) {
         groups.push({ order: idxUnit(707, gi, gj, seed), items: anchors.concat(clumps) });
         for (const c of mine) {
+          if (pauseBuild()) yield null;
           const key = `${Math.floor(c.x / 4)}|${Math.floor(c.z / 4)}`;
           if (!placed.has(key)) placed.set(key, []);
           placed.get(key).push(c);
@@ -5119,11 +5236,13 @@ function paddockTuftPlacements({ extent, seed, crust, ground, tier }) {
   const nearGroups = new Set();
   const nearItems = { anchors: 0, tussocks: 0 };
   for (const g of groups) {
+    if (pauseBuild()) yield null;
     const gt = g.items.reduce((n, c) => n + c.tris, 0);
     if (out.length + g.items.length > cap || tris + gt > P.triMax) continue;
     laid += 1;
     tris += gt;
     for (const c of g.items) {
+      if (pauseBuild()) yield null;
       c.y = ground(c.x, c.z);
       out.push(c);
       if (c.kind === 'shrub') anchorsLaid += 1;
@@ -5137,7 +5256,10 @@ function paddockTuftPlacements({ extent, seed, crust, ground, tier }) {
   return out;
 }
 
-export function planFringe(city, quality = 'high') {
+export function planFringe(...args) { return finishBuild(planFringeSteps(...args)); }
+
+export function* planFringeSteps(city, quality = 'high') {
+  const pauseBuild = buildBudget();
   const tier = qualityTier(quality);
   const roles = planFringeRoles(city);
   const seed = (city.seed ?? 0) >>> 0;
@@ -5166,26 +5288,26 @@ export function planFringe(city, quality = 'high') {
   // made the `river: []` argument inside `treePlacements` a red herring, since
   // its result never survived. Trees now keep the crust height they were
   // planted at.
-  const trees = treePlacements(city, roles, seed, treeCap, crust);
-  const crestTrees = crestTreePlacements(extent, seed, crust, tier); // W27: [] at CREST_TREES 0 and at the low tier
-  const hinterland = hinterlandPlacements(city, roles, seed, tier, crust);
+  const trees = (yield* treePlacementsSteps(city, roles, seed, treeCap, crust));
+  const crestTrees = (yield* crestTreePlacementsSteps(extent, seed, crust, tier)); // W27: [] at CREST_TREES 0 and at the low tier
+  const hinterland = (yield* hinterlandPlacementsSteps(city, roles, seed, tier, crust));
   if (HINTERLAND_SCRUB_TUFTS > 0 && tier !== 'low') {
     // W22-A: the low layer is card-built tufts in gatherings. It replaces the old scrub scatter and the blob shrubs at the feet of the groups.
     hinterland.scrub = [];
-    hinterland.tufts = tuftPlacements({
+    hinterland.tufts = (yield* tuftPlacementsSteps({
       extent, seed, crust, hinterland, trees, tier,
       ground: (x, z) => hinterlandGroundAt(x, z, extent, crust, seed),
-    });
+    }));
   } else if (trees.shrubs?.length && tier !== 'low') {
     // W20-B: the shrubs at the feet of the hinterland groups join the existing scrub family (one instanced mesh, no new draw call).
     hinterland.scrub.push(...trees.shrubs);
   }
   if (PADDOCK_TUFTS > 0 && tier !== 'low') {
     // W27: the paddock tier, its own list so the tufts above are untouched.
-    hinterland.paddockTufts = paddockTuftPlacements({
+    hinterland.paddockTufts = (yield* paddockTuftPlacementsSteps({
       extent, seed, crust, tier,
       ground: (x, z) => hinterlandGroundAt(x, z, extent, crust, seed),
-    });
+    }));
   }
   for (const p of river) p.y = heightWorld(p.x, p.z, draft) + 0.05;
   const hillsAz = edgeOutAzimuth(roles.hillsEdge);
@@ -5381,7 +5503,10 @@ function paintAnnulusColors(geo, plan, hazeColor, far) {
   colAttr.needsUpdate = true;
 }
 
-function makeAnnulus(plan, far, hazeColor) {
+function makeAnnulus(...args) { return finishBuild(makeAnnulusSteps(...args)); }
+
+function* makeAnnulusSteps(plan, far, hazeColor) {
+  const pauseBuild = buildBudget();
   const { extent, azCount, radCount, innerPad, nearR, farR, roles } = plan;
   const hx = extent.x * 0.5;
   const hz = extent.z * 0.5;
@@ -5395,10 +5520,12 @@ function makeAnnulus(plan, far, hazeColor) {
   const col = new THREE.Color();
   const haze = hazeColor.clone();
   for (let ia = 0; ia <= azCount; ia += 1) {
+    if (pauseBuild()) yield null;
     const az = (ia / azCount) * TAU - Math.PI;
     const boardR = rayToSquare(az, hx, hz);
     const inner = boardR + innerPad;
     for (let ir = 0; ir <= radCount; ir += 1) {
+      if (pauseBuild()) yield null;
       const u = ir / radCount;
       const r = lerp(Math.max(inner, r0), r1, u);
       const x = cx + Math.sin(az) * r;
@@ -5412,7 +5539,9 @@ function makeAnnulus(plan, far, hazeColor) {
   }
   const stride = radCount + 1;
   for (let ia = 0; ia < azCount; ia += 1) {
+    if (pauseBuild()) yield null;
     for (let ir = 0; ir < radCount; ir += 1) {
+      if (pauseBuild()) yield null;
       const a = ia * stride + ir;
       const b = a + stride;
       const ax = positions[a * 3];
@@ -6027,13 +6156,17 @@ function windrowTriangles(pieces, ringM) {
  * change from ring to ring; the first and last rings are half the size and the next nearly full, so the ends are blunt and soft, not pointed; two straw tones (a gold and a
  * bleached one) blend along the piece, the feet darker than the crown. Non-indexed, flat normals. No end caps and no underside.
  */
-function makeWindrowGeometry(pieces, { sampleY, seed, ringM }) {
+function makeWindrowGeometry(...args) { return finishBuild(makeWindrowGeometrySteps(...args)); }
+
+function* makeWindrowGeometrySteps(pieces, { sampleY, seed, ringM }) {
+  const pauseBuild = buildBudget();
   const toneA = new THREE.Color().setHSL(0.122, 0.40, 0.26, THREE.SRGBColorSpace);
   const toneB = new THREE.Color().setHSL(0.140, 0.34, 0.37, THREE.SRGBColorSpace);
   const c = new THREE.Color();
   const pos = [];
   const col = [];
-  pieces.forEach((pc, pid) => {
+  for (const [pid, pc] of pieces.entries()) {
+    if (pauseBuild()) yield null;
     const dx = Math.sin(pc.yaw);
     const dz = Math.cos(pc.yaw);
     const nx = dz;
@@ -6079,7 +6212,7 @@ function makeWindrowGeometry(pieces, { sampleY, seed, ringM }) {
         for (const tri of [[a0, a1, b0], [a1, b1, b0]]) for (const v of tri) { pos.push(...v.p); col.push(...v.c); }
       }
     }
-  });
+  }
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
   g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
@@ -6157,12 +6290,15 @@ function chainLineItems(items) {
  * (0.43, −0.90)) so the strip has a shadow side even where the key light's
  * shadow camera does not reach. No Math.random.
  */
-function makeMergedBankGeometryRaw(chains, {
+function makeMergedBankGeometryRaw(...args) { return finishBuild(makeMergedBankGeometryRawSteps(...args)); }
+
+function* makeMergedBankGeometryRawSteps(chains, {
   width, height, sampleY, hue0 = 0.27, sat = 0.36, lit = 0.22, shade = 0.10,
   varyH = 0,
   varyWidth = false,
   seed = 0,
 } = {}) {
+  const pauseBuild = buildBudget();
   const positions = [];
   const colors = [];
   const indices = [];
@@ -6172,6 +6308,7 @@ function makeMergedBankGeometryRaw(chains, {
   const col = new THREE.Color();
   let base = 0;
   for (let c = 0; c < chains.length; c += 1) {
+    if (pauseBuild()) yield null;
     const run = chains[c];
     if (!run.length) continue;
     const stations = [];
@@ -6184,6 +6321,7 @@ function makeMergedBankGeometryRaw(chains, {
       z: first.z - cy0 * (first.len ?? 8) * 0.5,
     });
     for (let i = 0; i < run.length; i += 1) {
+      if (pauseBuild()) yield null;
       stations.push({ x: run[i].x, z: run[i].z });
     }
     const sy1 = Math.sin(last.yaw);
@@ -6195,6 +6333,7 @@ function makeMergedBankGeometryRaw(chains, {
     if (stations.length < 2) continue;
     const n = stations.length;
     for (let i = 0; i < n; i += 1) {
+      if (pauseBuild()) yield null;
       const prev = stations[Math.max(0, i - 1)];
       const next = stations[Math.min(n - 1, i + 1)];
       let dx = next.x - prev.x;
@@ -6284,9 +6423,11 @@ function makeMergedBankGeometryRaw(chains, {
     }
     const STRIDE = 6;
     for (let i = 0; i < n - 1; i += 1) {
+      if (pauseBuild()) yield null;
       const a = base + i * STRIDE;
       const b = a + STRIDE;
       for (let k = 0; k < STRIDE - 1; k += 1) {
+        if (pauseBuild()) yield null;
         indices.push(a + k, a + k + 1, b + k, a + k + 1, b + k + 1, b + k);
       }
     }
@@ -6294,6 +6435,7 @@ function makeMergedBankGeometryRaw(chains, {
     const s0 = base;
     const sN = base + (n - 1) * STRIDE;
     for (let k = 1; k < STRIDE - 1; k += 1) {
+      if (pauseBuild()) yield null;
       indices.push(s0, s0 + k + 1, s0 + k);
       indices.push(sN, sN + k, sN + k + 1);
     }
@@ -6305,6 +6447,7 @@ function makeMergedBankGeometryRaw(chains, {
   geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
   const uv = new Float32Array(positions.length / 3 * 2);
   for (let i = 0; i < uv.length / 2; i += 1) {
+    if (pauseBuild()) yield null;
     uv[i * 2] = 0.04 + (i % 6) / 5 * 0.39;
     uv[i * 2 + 1] = (Math.floor(i / 6) % 8) / 7;
   }
@@ -6522,7 +6665,10 @@ function snapDrawEdgeToCoast(xs, zs, masks, azCount, radCount, extent, crust) {
  */
 export const FINE_SHEET = { on: (typeof location !== 'undefined' && location?.search && new URLSearchParams(location.search).get('fineSheet') === '0') ? 0 : 1, ka: 3, kr: 4, box: [-470, -200, 110, 420] };
 
-function makeHinterlandFields(plan, occ) {
+function makeHinterlandFields(...args) { return finishBuild(makeHinterlandFieldsSteps(...args)); }
+
+function* makeHinterlandFieldsSteps(plan, occ) {
+  const pauseBuild = buildBudget();
   const {
     extent, crust, seed, hinterlandAz: azCount, hinterlandRad: radCount,
   } = plan;
@@ -6537,9 +6683,11 @@ function makeHinterlandFields(plan, occ) {
   const zs = new Float64Array(vn);
   const masks = new Float64Array(vn);
   for (let ia = 0; ia <= azCount; ia += 1) {
+    if (pauseBuild()) yield null;
     const az = (ia / azCount) * TAU - Math.PI;
     const inner = sheetR0(az, { x: hx * 2, z: hz * 2 });
     for (let ir = 0; ir <= radCount; ir += 1) {
+      if (pauseBuild()) yield null;
       const u = ir / radCount;
       // Radial walk biased inward: the near half of the ring is what fills the
       // plates, and it is where a 17 m triangle showed as a shading seam. The
@@ -6592,11 +6740,13 @@ function makeHinterlandFields(plan, occ) {
     * (occ ? occ.clearance(px, pz) : 1);
   const carry = new Float64Array(vn);
   for (let i = 0; i < vn; i += 1) {
+    if (pauseBuild()) yield null;
     const r = Math.hypot(xs[i] - hx, zs[i] - hz);
     carry[i] = hinterlandCarryMaskAt(xs[i], zs[i], extent, crust, r, carryBase);
   }
 
   for (let i = 0; i < vn; i += 1) {
+    if (pauseBuild()) yield null;
     const x = xs[i];
     const z = zs[i];
     // Same two terms and the same ceiling as `hinterlandGroundAt`, so the built
@@ -6615,12 +6765,15 @@ function makeHinterlandFields(plan, occ) {
   if (FINE_SHEET.on && LANDFORM_TRIAL.gain > 0) {
     const [bx0, bx1, bz0, bz1] = FINE_SHEET.box;
     for (let ia = 0; ia < azCount; ia += 1) {
+      if (pauseBuild()) yield null;
       for (let ir = 4; ir < radCount; ir += 1) {
+        if (pauseBuild()) yield null;
         const a = ia * stride + ir;
         const corners = [a, a + stride, a + 1, a + stride + 1];
         if (corners.some((k) => masks[k] < 0.9)) continue;
         let ok = false;
         for (const k of corners) {
+          if (pauseBuild()) yield null;
           if (xs[k] > bx0 && xs[k] < bx1 && zs[k] > bz0 && zs[k] < bz1) ok = true;
         }
         if (ok) refined.add(ia * radCount + ir);
@@ -6678,10 +6831,13 @@ function makeHinterlandFields(plan, occ) {
       return id;
     };
     for (const cell of refined) {
+      if (pauseBuild()) yield null;
       const ia = Math.floor(cell / radCount);
       const ir = cell - ia * radCount;
       for (let sa = 0; sa < ka; sa += 1) {
+        if (pauseBuild()) yield null;
         for (let sr = 0; sr < kr; sr += 1) {
+          if (pauseBuild()) yield null;
           const fa = ia * ka + sa;
           const fr = ir * kr + sr;
           const a = fineVertex(fa, fr);
@@ -6694,7 +6850,9 @@ function makeHinterlandFields(plan, occ) {
     }
   }
   for (let ia = 0; ia < azCount; ia += 1) {
+    if (pauseBuild()) yield null;
     for (let ir = 0; ir < radCount; ir += 1) {
+      if (pauseBuild()) yield null;
       if (refined.size && refined.has(ia * radCount + ir)) continue;
       const a = ia * stride + ir;
       const b = a + stride;
@@ -7207,9 +7365,7 @@ function sunXZFromScene(scene, key = null, profile = null) {
 // (a rebuild that disposes the geometry it replaces) leaves the sink as large as the live geometries it shades; before, every call was kept (GATE-W79 Open 2).
 let shadeSink = null;
 let shadeRebaking = false;
-function sunBaked(build) {
-  return (...args) => {
-    const geo = build(...args);
+function registerSunBake(geo, build, args) {
     const sink = shadeSink;
     if (GROUND_SURFACE.on > 0 && sink && !shadeRebaking) {
       if (!sink.has(geo)) {
@@ -7226,8 +7382,16 @@ function sunBaked(build) {
       }
     }
     return geo;
-  };
+
 }
+function sunBaked(build) {
+  return (...args) => registerSunBake(build(...args), build, args);
+}
+function* sunBakedSteps(steps, build, args) {
+  const geo = yield* steps(...args);
+  return registerSunBake(geo, build, args);
+}
+
 function rebakeShades(sink) {
   shadeRebaking = true;
   try {
@@ -7243,10 +7407,14 @@ function rebakeShades(sink) {
   } finally { shadeRebaking = false; }
 }
 const makeMergedBankGeometry = sunBaked(makeMergedBankGeometryRaw);
+function* makeMergedBankGeometrySteps(...args) { return yield* sunBakedSteps(makeMergedBankGeometryRawSteps, makeMergedBankGeometryRaw, args); }
 const makeCropRows = sunBaked(makeCropRowsRaw);
 const makeTreeShade = sunBaked(makeTreeShadeRaw);
+function* makeTreeShadeSteps(...args) { return yield* sunBakedSteps(makeTreeShadeRawSteps, makeTreeShadeRaw, args); }
 const makeCrestFoot = sunBaked(makeCrestFootRaw);
+function* makeCrestFootSteps(...args) { return yield* sunBakedSteps(makeCrestFootRawSteps, makeCrestFootRaw, args); }
 const makeStripContact = sunBaked(makeStripContactRaw);
+function* makeStripContactSteps(...args) { return yield* sunBakedSteps(makeStripContactRawSteps, makeStripContactRaw, args); }
 /** LS-SHADESINK, for the tests: the sun-baked builder for a raw one (an entry's `build`), so a test can rebuild a live geometry after construction, and the rebake. */
 export const SHADE_SINK_PROBE = Object.freeze({
   wrapperOf: (raw) => new Map([
@@ -7256,7 +7424,10 @@ export const SHADE_SINK_PROBE = Object.freeze({
   rebake: (sink) => rebakeShades(sink),
 });
 
-function makeTreeShadeRaw(plan, trees, sampleY) {
+function makeTreeShadeRaw(...args) { return finishBuild(makeTreeShadeRawSteps(...args)); }
+
+function* makeTreeShadeRawSteps(plan, trees, sampleY) {
+  const pauseBuild = buildBudget();
   const { extent, crust, seed } = plan;
   const positions = [];
   const colors = [];
@@ -7265,6 +7436,7 @@ function makeTreeShadeRaw(plan, trees, sampleY) {
   const groundY = (x, z) => sampleY?.(x, z) ?? hinterlandGroundAt(x, z, extent, crust, seed);
   let base = 0;
   for (const t of trees) {
+    if (pauseBuild()) yield null;
     // Capped at 3.4 m for trees; a copse patch declares its own radius because it
     // is standing in for three to five discs that would otherwise overlap into a
     // dark blot with a lumpy edge.
@@ -7299,8 +7471,10 @@ function makeTreeShadeRaw(plan, trees, sampleY) {
     positions.push(t.x, groundY(t.x, t.z) + 0.05, t.z);
     colors.push(dark, dark, dark * 1.04);
     for (let ring = 0; ring < 2; ring += 1) {
+      if (pauseBuild()) yield null;
       const rk = ring === 0 ? 0.60 : 1.0;
       for (let i = 0; i < SEG; i += 1) {
+        if (pauseBuild()) yield null;
         const a = (i / SEG) * TAU + t.yaw;
         const sx = Math.sin(a);
         const sz = Math.cos(a);
@@ -7319,6 +7493,7 @@ function makeTreeShadeRaw(plan, trees, sampleY) {
     const inner = base + 1;
     const outer = base + 1 + SEG;
     for (let i = 0; i < SEG; i += 1) {
+      if (pauseBuild()) yield null;
       const j = (i + 1) % SEG;
       indices.push(base, inner + i, inner + j);
       indices.push(inner + i, outer + i, outer + j);
@@ -7341,7 +7516,10 @@ function makeTreeShadeRaw(plan, trees, sampleY) {
  * r / R)), exactly 1 on the last ring. Each tree carries its own radius (`patchRadius`, from its crown) and leans up to 28% farther
  * away from the sun like the legacy decal. Seated by `sampleY` (the drawn crust) + 0.05.
  */
-function makeCrestFootRaw(trees, sampleY, F = CREST_SHADE) {
+function makeCrestFootRaw(...args) { return finishBuild(makeCrestFootRawSteps(...args)); }
+
+function* makeCrestFootRawSteps(trees, sampleY, F = CREST_SHADE) {
+  const pauseBuild = buildBudget();
   const positions = [];
   const colors = [];
   const indices = [];
@@ -7359,7 +7537,9 @@ function makeCrestFootRaw(trees, sampleY, F = CREST_SHADE) {
     const parent = trees.map((_, i) => i);
     const find = (i) => { while (parent[i] !== i) { parent[i] = parent[parent[i]]; i = parent[i]; } return i; };
     for (let i = 0; i < trees.length; i += 1) {
+      if (pauseBuild()) yield null;
       for (let j = i + 1; j < trees.length; j += 1) {
+        if (pauseBuild()) yield null;
         const reach = 1.28 * (trees[i].patchRadius + trees[j].patchRadius);
         const dx = trees[i].x - trees[j].x;
         const dz = trees[i].z - trees[j].z;
@@ -7419,9 +7599,11 @@ function makeCrestFootRaw(trees, sampleY, F = CREST_SHADE) {
   // and widened until the clump's triangles are within the fan budget (56 a tree) it was counted at.
   const budget = 8 + 16 * (RINGS.length - 1);
   for (const members of clumps) {
+    if (pauseBuild()) yield null;
     const ts = members.map((i) => trees[i]);
     let x0 = Infinity; let x1 = -Infinity; let z0 = Infinity; let z1 = -Infinity; let rMin = Infinity;
     for (const t of ts) {
+      if (pauseBuild()) yield null;
       const r = t.patchRadius * 1.28;
       x0 = Math.min(x0, t.x - r); x1 = Math.max(x1, t.x + r); z0 = Math.min(z0, t.z - r); z1 = Math.max(z1, t.z + r);
       rMin = Math.min(rMin, t.patchRadius);
@@ -7429,23 +7611,29 @@ function makeCrestFootRaw(trees, sampleY, F = CREST_SHADE) {
     let cell = Math.max(0.3 * rMin, 0.35);
     let grid = null;
     for (let tries = 0; tries < 12; tries += 1) {
+      if (pauseBuild()) yield null;
       const nx = Math.max(1, Math.ceil((x1 - x0) / cell));
       const nz = Math.max(1, Math.ceil((z1 - z0) / cell));
       const sx = (x1 - x0) / nx;
       const sz = (z1 - z0) / nz;
       const val = new Float32Array((nx + 1) * (nz + 1));
       for (let k = 0; k <= nz; k += 1) {
+        if (pauseBuild()) yield null;
         for (let i = 0; i <= nx; i += 1) {
+          if (pauseBuild()) yield null;
           const px = x0 + i * sx;
           const pz = z0 + k * sz;
           let v = 1;
-          for (const t of ts) { const q = profile(t, px, pz); if (q < v) v = q; }
+          for (const t of ts) {
+            if (pauseBuild()) yield null; const q = profile(t, px, pz); if (q < v) v = q; }
           val[k * (nx + 1) + i] = v;
         }
       }
       const cells = [];
       for (let k = 0; k < nz; k += 1) {
+        if (pauseBuild()) yield null;
         for (let i = 0; i < nx; i += 1) {
+          if (pauseBuild()) yield null;
           const a = k * (nx + 1) + i;
           if (val[a] < 0.9999 || val[a + 1] < 0.9999 || val[a + nx + 1] < 0.9999 || val[a + nx + 2] < 0.9999) cells.push([i, k]);
         }
@@ -7471,6 +7659,7 @@ function makeCrestFootRaw(trees, sampleY, F = CREST_SHADE) {
       return id;
     };
     for (const [i, k] of cells) {
+      if (pauseBuild()) yield null;
       const a = vert(i, k); const b = vert(i + 1, k); const c = vert(i, k + 1); const d = vert(i + 1, k + 1);
       if ((i + k) % 2 === 0) { indices.push(a, c, d); indices.push(a, d, b); } else { indices.push(a, c, b); indices.push(b, c, d); }
     }
@@ -7489,12 +7678,16 @@ function makeCrestFootRaw(trees, sampleY, F = CREST_SHADE) {
  * Built off the SAME chains the strip itself is built from, so the shadow cannot
  * drift off the hedge when the ground shortens a run.
  */
-function makeStripContactRaw(chains, { width, sampleY, dark = 0.80, cuts = null }) {
+function makeStripContactRaw(...args) { return finishBuild(makeStripContactRawSteps(...args)); }
+
+function* makeStripContactRawSteps(chains, { width, sampleY, dark = 0.80, cuts = null }) {
+  const pauseBuild = buildBudget();
   const positions = [];
   const colors = [];
   const indices = [];
   let base = 0;
   for (let ci = 0; ci < chains.length; ci += 1) {
+    if (pauseBuild()) yield null;
     const run = chains[ci];
     if (!run || run.length < 1) continue;
     const runWidth = typeof width === 'function' ? width(run) : width;
@@ -7533,6 +7726,7 @@ function makeStripContactRaw(chains, { width, sampleY, dark = 0.80, cuts = null 
       parts = [];
       let from = 0;
       for (const [, c0, c1] of [...here, [0, total, total]]) {
+        if (pauseBuild()) yield null;
         if (c0 - from > 0.3) {
           const part = [ptAt(from)];
           for (let i = 0; i < full.length; i += 1) if (cum[i] > from + 1e-6 && cum[i] < c0 - 1e-6) part.push(full[i]);
@@ -7543,8 +7737,10 @@ function makeStripContactRaw(chains, { width, sampleY, dark = 0.80, cuts = null 
       }
     }
     for (const stations of parts) {
+      if (pauseBuild()) yield null;
       const n = stations.length;
       for (let i = 0; i < n; i += 1) {
+        if (pauseBuild()) yield null;
         const prev = stations[Math.max(0, i - 1)];
         const next = stations[Math.min(n - 1, i + 1)];
         let dx = next.x - prev.x;
@@ -7561,6 +7757,7 @@ function makeStripContactRaw(chains, { width, sampleY, dark = 0.80, cuts = null 
         const offs = [-outer * (sunSide > 0 ? 0.45 : 1), -halfW, 0, halfW, outer * (sunSide > 0 ? 1 : 0.45)];
         const vals = [1, dark + (1 - dark) * 0.35, dark, dark + (1 - dark) * 0.35, 1];
         for (let k = 0; k < 5; k += 1) {
+          if (pauseBuild()) yield null;
           const ox = x + px * offs[k];
           const oz = z + pz * offs[k];
           positions.push(ox, (sampleY?.(ox, oz) ?? 0) + 0.045, oz);
@@ -7569,9 +7766,11 @@ function makeStripContactRaw(chains, { width, sampleY, dark = 0.80, cuts = null 
         }
       }
       for (let i = 0; i < n - 1; i += 1) {
+        if (pauseBuild()) yield null;
         const a = base + i * 5;
         const b = a + 5;
         for (let k = 0; k < 4; k += 1) {
+          if (pauseBuild()) yield null;
           indices.push(a + k, a + k + 1, b + k, a + k + 1, b + k + 1, b + k);
         }
       }
@@ -7810,12 +8009,30 @@ function makeHinterlandDamWater(plan, dams, sampleY) {
 }
 
 export class FringeLayer {
-  constructor(scene, city, { quality = 'high', reducedMotion = false, key = null } = {}) {
+  constructor(...args) {
+    finishBuild(this._buildStages(...args));
+  }
+
+  static *build(...args) {
+    const view = Object.create(this.prototype);
+    yield* view._buildStages(...args);
+    return view;
+  }
+
+  static create(...args) {
+    const options = args[2] ?? {};
+    return runBuild(this.build(...args), options.startup);
+  }
+
+  *_buildStages(scene, city, { quality = 'high', reducedMotion = false, key = null } = {}) {
+    const pauseBuild = buildBudget();
+    // COPY-DRAFT: landscape loading stages.
+    yield 'Planning the landscape';
     this.scene = scene;
     this.city = city;
     this.quality = quality;
     this.reducedMotion = reducedMotion;
-    this.plan = planFringe(city, quality);
+    this.plan = (yield* planFringeSteps(city, quality));
     this._key = key; // taste W79 (GROUND_SURFACE, G2b): the rig's key light, which the CPU-baked shade sides read
     this._shadeBakes = new Map(); // LS-SHADESINK: geometry -> { geo, build, args, drop }
     if (GROUND_SURFACE.on > 0) {
@@ -7827,7 +8044,7 @@ export class FringeLayer {
     this.root.name = 'fringe:landscape';
     this.pickTargets = [];
     this._haze = new THREE.Color('#c5d4de');
-    this._build();
+    yield* this._buildSteps();
     this._hideTableRim(scene);
     scene.add(this.root);
   }
@@ -7842,7 +8059,11 @@ export class FringeLayer {
     });
   }
 
-  _build() {
+  _build() { return finishBuild(this._buildSteps()); }
+
+  *_buildSteps() {
+    const pauseBuild = buildBudget();
+    yield 'Building the landscape ring';
     const plan = this.plan;
     const haze = this._haze;
 
@@ -7861,7 +8082,7 @@ export class FringeLayer {
     // live build and fails if a venue has moved out from under its seat.
     this.root.userData.crustPlan = plan.crust ?? null;
 
-    const nearGeo = makeAnnulus(plan, false, haze);
+    const nearGeo = (yield* makeAnnulusSteps(plan, false, haze));
     const nearMat = new THREE.MeshStandardMaterial({
       vertexColors: true,
       roughness: 0.96,
@@ -7876,7 +8097,7 @@ export class FringeLayer {
     // Extra slope sheet photographed as giant blades over the Apostles lookout.
     // Headland relief already lives on the dense annulus.
 
-    const farGeo = makeAnnulus(plan, true, haze);
+    const farGeo = (yield* makeAnnulusSteps(plan, true, haze));
     const farMat = new THREE.MeshBasicMaterial({ vertexColors: true, fog: true });
     const far = new THREE.Mesh(farGeo, farMat);
     far.name = 'fringe:annulus-far';
@@ -7909,6 +8130,7 @@ export class FringeLayer {
       const s = new THREE.Vector3();
       const eul = new THREE.Euler();
       for (let i = 0; i < plan.expansion.length; i += 1) {
+        if (pauseBuild()) yield null;
         const b = plan.expansion[i];
         p.set(b.x, b.y, b.z);
         eul.set(0, b.yaw, 0);
@@ -7962,19 +8184,26 @@ export class FringeLayer {
       heightAt: (x, z) => heightWorld(x, z, plan),
       groundAt: hinterlandGroundSampler(plan),
     };
+    yield 'Building the port';
     this._port = addPort(this.root, this.city, livePlan, { reducedMotion: this.reducedMotion });
+    yield 'Building the Apostles';
     this._apostles = addApostles(this.root, this.city, livePlan);
+    yield 'Building the airport';
     this._airport = addAirport(this.root, this.city, livePlan, { reducedMotion: this.reducedMotion });
     restyleAirport(this._airport);
     // P22 (ruling 91): T2 and its stand follow the venue count, so the world batch keeps them live.
     // The flag is set here because ruling 89 freezes airport.js.
     for (const name of ['fringe:tullamarine-t2', 'fringe:tullamarine-t2-stand']) {
+      if (pauseBuild()) yield null;
       const node = this._airport?.getObjectByName?.(name);
       if (node) node.userData.dynamicVisibility = true;
     }
+    yield 'Building the station';
     this._station = addStation(this.root, this.city, livePlan, { reducedMotion: this.reducedMotion });
+    yield 'Building the rail link';
     this._rail = addRailLink(this.root, this.city, livePlan);
-    this._events = addEvents(this.root, this.city, livePlan);
+    yield 'Building the event venues';
+    this._events = yield* addEventsSteps(this.root, this.city, livePlan);
     // taste-r1 W79 fix 2 (L2): the venues now stand, so the land edge takes each pad's drawn-lawn outline (Rod Laver's table, the lawn meshes of the Grand Prix, Tullamarine and
     // Southern Cross) before anything below reads the precinct weight; the plan's own seats, so the model differs from the plan's only in the outlines.
     if (LAND_EDGE.on && plan.crust?.seats) {
@@ -7998,7 +8227,7 @@ export class FringeLayer {
 
     // Everything on the ring goes down last, against a keep-out measured from
     // the venues that are now standing.
-    this._buildHinterland();
+    yield* this._buildHinterlandSteps();
   }
 
   /**
@@ -8006,7 +8235,11 @@ export class FringeLayer {
    * `buildOccupancy` reads live world AABBs rather than authored radii — the
    * lesson of the hard-copied (60,500) r=120 circle this replaces.
    */
-  _buildHinterland() {
+  _buildHinterland() { return finishBuild(this._buildHinterlandSteps()); }
+
+  *_buildHinterlandSteps() {
+    const pauseBuild = buildBudget();
+    yield 'Building the countryside';
     const plan = this.plan;
     const { extent, crust, seed, hinterland } = plan;
     this._hinterlandStats = {
@@ -8016,20 +8249,24 @@ export class FringeLayer {
       cropRuns: 0, farmTracks: 0, stock: 0, rimWoods: 0, dunes: 0, rimBrowRuns: 0,
       assetPointContacts: 0, assetRunContacts: 0,
     };
+    if (pauseBuild()) yield null;
     if (plan.quality === 'low' || !crust) {
-      this._plantTrees(plan.trees, []);
+      (yield* this._plantTreesSteps(plan.trees, []));
       return;
     }
     // The legacy stand-ins are hidden at runtime and are not obstacles; the
     // giant water sheets are ground, not obstacles either (they are excluded by
     // the span cap, but naming them keeps the intent explicit).
+    if (pauseBuild()) yield null;
     const skip = new Set([
       'fringe:annulus-near', 'fringe:annulus-far', 'fringe:expansion', 'fringe:alpine',
       'fringe:far-sea-beyond', 'fringe:yarra',
     ]);
+    if (pauseBuild()) yield null;
     const occ = buildOccupancy(this.root, skip);
     this._occupancy = occ;
     // W85 fix 1: the model the venues' reach lives in (null without LAND_EDGE or without a reach: the tests below then cost nothing)
+    if (pauseBuild()) yield null;
     const reachModel = LAND_EDGE.on && LAND_EDGE.readers.venue ? landModelFor(extent) : null;
     const onReach = reachModel && reachModel.reach ? (x, z) => onVenueReach(x, z, reachModel, REACH_KEEP_WEIGHT) || onVenueReach(x, z, reachModel, REACH_PASTURE_MAX) : null;
     const clear = (item) => {
@@ -8056,18 +8293,25 @@ export class FringeLayer {
       return false;
     };
 
-    const fieldsGeo = makeHinterlandFields(plan, occ);
+    yield 'Shaping the fields';
+    if (pauseBuild()) yield null;
+    const fieldsGeo = (yield* makeHinterlandFieldsSteps(plan, occ));
+    if (pauseBuild()) yield null;
     this._hinterlandStats.venueRecessVertices = recessVenuePaths(fieldsGeo, extent);
-    const albedo = bakeRingAlbedo(extent, crust, {
+    yield 'Painting the fields';
+    if (pauseBuild()) yield null;
+    const albedo = (yield* bakeRingAlbedoSteps(extent, crust, {
       seed,
       modulate: (x, z, rgb) => modulateRingPaddock(x, z, rgb, seed),
       postModulate: (x, z, rgb) => finishRingPaddock(x, z, rgb, seed),
-    });
-    const heightTex = bakeRingHeight(extent, crust, {
+    }));
+    yield 'Baking the terrain relief';
+    if (pauseBuild()) yield null;
+    const heightTex = (yield* bakeRingHeightSteps(extent, crust, {
       // taste-r1 W14-C: the shader reads this texture for normals only, so it carries the ground
       // without the terraced 30 m treads whose risers were drawn as contour rings.
       heightAt: (x, z) => hinterlandGroundAt(x, z, extent, crust, seed, undefined, true),
-    });
+    }));
     this.root.userData.ringAlbedo = albedo;
     // taste-r1 (W24-B): the tray band ribbon wears the sheet's own shader hooks (edge-massing cannot import this file).
     this.root.userData.groundHooks = { attachWorkedPaddock, attachVenueGround, attachGroundDetail, applyGroundShadowFloor };
@@ -8080,6 +8324,7 @@ export class FringeLayer {
     const trackLines = [];
     const routeSheds = []; // W80 (TRACK_ROUTE): the sheds that have a line today, handed to the router once the sheet's sampler exists
     for (let s = 0; s < shedsForTracks.length; s += 1) {
+      if (pauseBuild()) yield null;
       const sh = shedsForTracks[s];
       const hx = extent.x * 0.5;
       const hz = extent.z * 0.5;
@@ -8137,6 +8382,7 @@ export class FringeLayer {
     }
     this._trackLines = trackLines;
     this._routeSheds = routeSheds;
+    if (pauseBuild()) yield null;
     const fieldsMat = new THREE.MeshStandardMaterial({
       vertexColors: false,
       flatShading: false,
@@ -8169,50 +8415,71 @@ export class FringeLayer {
       polygonOffsetUnits: RING_SEAM.offsetUnits, // -2
     });
     fieldsMat.userData.envIntensityBase = 0.28;
+    if (pauseBuild()) yield null;
     attachRingAlbedo(fieldsMat, albedo, extent, seed, heightTex);
     // taste W45 (SHEET_SHORE): the sheet's seaward edge on a smooth contour of the far coast field, the ribbon drawing the beach (`?sheetShore=0` leaves the shader as it was).
+    if (pauseBuild()) yield null;
     if (SHEET_SHORE.on) {
-      this._sheetShore = bakeSheetShore(extent, crust);
+      yield 'Tracing the shoreline';
+    this._sheetShore = (yield* bakeSheetShoreSteps(extent, crust));
       attachSheetShore(fieldsMat, this._sheetShore);
       this.root.userData.sheetShore = this._sheetShore; // W50 (CRUST_SHORE): the crust wears the same discard
     }
+    if (pauseBuild()) yield null;
     attachWorkedPaddock(fieldsMat, seed, extent);
+    if (pauseBuild()) yield null;
     attachVenueGround(fieldsMat, { extent, seed });
     // taste-r1 W14-C: luminance detail from the ground pack, composed after the palette and the venue ground.
+    if (pauseBuild()) yield null;
     attachGroundDetail(fieldsMat, { extent, seed, near: plan.quality !== 'low' });
+    if (pauseBuild()) yield null;
     applyGroundShadowFloor(fieldsMat);
+    if (pauseBuild()) yield null;
     applyWorldRestyle(fieldsMat, 'hinterland');
+    if (pauseBuild()) yield null;
     const fields = new THREE.Mesh(fieldsGeo, fieldsMat);
     fields.name = 'fringe:hinterland-fields';
     fields.receiveShadow = true;
     fields.renderOrder = -16;
+    if (pauseBuild()) yield null;
     noPick(fields);
+    if (pauseBuild()) yield null;
     this.root.add(fields);
     this._fieldsMat = fieldsMat;
     this._fieldsGeo = fieldsGeo;
     // taste-r1 W14-C: the coast ribbon carries the bluff, platform and coves the sheet ends short of.
+    yield 'Building the coast';
+    if (pauseBuild()) yield null;
     this._coastRim = buildCoastRim({ extent, plan: crust, seed, liftAt: (x, z) => hinterlandLiftAt(x, z, extent, crust, seed) });
+    if (pauseBuild()) yield null;
     if (this._coastRim) {
       this.root.add(this._coastRim);
       this._coastBoulders = buildCoastBoulders({ extent, plan: crust, ribbon: this._coastRim, seed });
       if (this._coastBoulders) this.root.add(this._coastBoulders);
     }
+    if (pauseBuild()) yield null;
     this._syncCrustTint();
 
     // Reground everything on the surface that was actually built, not on the
     // function it was built from. Off the overlay the analytic value stands.
+    yield 'Seating the landscape';
+    if (pauseBuild()) yield null;
     const sampleY = makeSurfaceSampler(fieldsGeo);
     this._sampleHinterlandY = sampleY;
     // taste-r1 (W22-B): blocks on the trial ridge, seated on the built sheet (nothing is built with the trial gain at 0).
+    if (pauseBuild()) yield null;
     this._ridgeBoulders = buildRidgeBoulders({ groundAt: (x, z) => sampleY(x, z), seed });
+    if (pauseBuild()) yield null;
     if (this._ridgeBoulders) this.root.add(this._ridgeBoulders);
-    const reground = (list) => {
+    const regroundSteps = function* (list) {
+      const pauseBuild = buildBudget();
       for (let i = 0; i < list.length; i += 1) {
+        if (pauseBuild()) yield null;
         const y = sampleY(list[i].x, list[i].z);
         if (y !== null) list[i].y = y;
       }
       return list;
-    };
+    }.bind(this);
     /**
      * Elongated objects take the LOWEST of their two ends and their centre.
      * Grounding an 8 m hedge on its centre alone passed a centre-only probe at
@@ -8245,6 +8512,7 @@ export class FringeLayer {
     // W80 (TRACK_ROUTE): the farm tracks routed on the ground the ribbon is seated on (`sampleGround`: the built sheet, the crust's fallback).
     // Every reader of `_trackLines` below takes the routed segments; the corridors go to the ribbon.
     this._trackRoute = null;
+    if (pauseBuild()) yield null;
     if (trackRouteActive()) {
       const keepM = 10.5; // the ribbon's reach and a 10 m verge: no part of a corridor lies within 10 m of venue ground (the first pass kept 3.5 m)
       // the items a track should not run through: the router pays for them, and what the smoothed line still touches is thinned below
@@ -8254,6 +8522,7 @@ export class FringeLayer {
       for (const t of hinterland.sheds ?? []) pts.push([t.x, t.z, 9.55, 8.95]);
       const segs = [];
       for (const list of [hinterland.fences, hinterland.hedges, hinterland.windbreaks]) {
+        if (pauseBuild()) yield null;
         for (const t of list ?? []) if (t.len > 0 && Number.isFinite(t.yaw)) { const hx = Math.sin(t.yaw) * t.len * 0.5; const hz = Math.cos(t.yaw) * t.len * 0.5; segs.push([t.x - hx, t.z - hz, t.x + hx, t.z + hz, 3.6]); }
       }
       const routeArgs = {
@@ -8268,7 +8537,9 @@ export class FringeLayer {
       const bedG = RING_ALBEDO.landGain, bedRgb = [0.28 * bedG, 0.25 * bedG, 0.19 * bedG];
       let trackStamps = 0;
       for (const c of routed.corridors) {
+        if (pauseBuild()) yield null;
         for (let k = 1; k < c.simple.length; k += 1) {
+          if (pauseBuild()) yield null;
           stampRingAlbedoLine(albedo, extent, c.simple[k - 1][0], c.simple[k - 1][1], c.simple[k][0], c.simple[k][1], bedRgb, 4.8);
           trackStamps += 1;
         }
@@ -8295,10 +8566,12 @@ export class FringeLayer {
     };
     // T15: shared F2 canopy at shrub scale. One instance draw and one merged
     // T11 contact draw, regardless of population; seat on the rendered sheet.
+    if (pauseBuild()) yield null;
     {
       const regions = venueGroundRegions(extent), paths = venueGroundPaths(extent);
       const plants = [];
       for (let x = -160; x < extent.x - 20; x += 5) for (let z = 35; z < extent.z + 140; z += 5) {
+        if (pauseBuild()) yield null;
         const u = idxUnit(151, Math.round(x), Math.round(z), seed);
         const v = idxUnit(157, Math.round(z), Math.round(x), seed);
         const px = x + u * 3.5, pz = z + v * 3.5;
@@ -8333,6 +8606,7 @@ export class FringeLayer {
         scrubMean = Math.max(0.2, scrubMean / Math.max(1, scrubVc.count));
         const scrubTokens = ['#5C6E3E', '#6E7D48', '#7A8468'].map((hex) => new THREE.Color(hex).multiplyScalar(1 / scrubMean));
         for (let i = 0; i < plants.length; i++) {
+          if (pauseBuild()) yield null;
           const t = plants[i];
           dummy.scale.set(t.scale, t.scale * 0.68, t.scale * 0.83);
           dummy.position.set(t.x, t.y - geo.boundingBox.min.y * dummy.scale.y - 0.04, t.z);
@@ -8340,7 +8614,7 @@ export class FringeLayer {
           mesh.setColorAt(i, scrubTokens[Math.floor(((t.yaw / TAU) * 7.3 + t.patchRadius * 3.1) % 1 * 3) % 3]);
         }
         mesh.instanceMatrix.needsUpdate = true; noPickCasting(mesh); this.root.add(mesh);
-        const contact = new THREE.Mesh(makeTreeShade(plan, plants, sampleGround), makeContactMaterial());
+        const contact = new THREE.Mesh((yield* makeTreeShadeSteps(plan, plants, sampleGround)), makeContactMaterial());
         contact.name = 'fringe:venue-ground-scrub-contact';
         contact.renderOrder = 3; noPick(contact); this.root.add(contact);
         mesh.userData.venueGround = { plants, paths: paths.map((p) => p.toArray()), drawCalls: 2 };
@@ -8355,6 +8629,7 @@ export class FringeLayer {
      * take, so they follow the built sheet and not the analytic field. They share
      * one material and one albedo with the sheet under them (`makeRingPaintMaterial`).
      */
+    if (pauseBuild()) yield null;
     {
       const paint = makeRingPaintMaterial(albedo);
       this._ringPaintMat = paint;
@@ -8382,8 +8657,10 @@ export class FringeLayer {
       }
     }
 
-    const regroundRun = (list) => {
+    const regroundRunSteps = function* (list) {
+      const pauseBuild = buildBudget();
       for (let i = 0; i < list.length; i += 1) {
+        if (pauseBuild()) yield null;
         const it = list[i];
         const sy = Math.sin(it.yaw);
         const cy = Math.cos(it.yaw);
@@ -8395,6 +8672,7 @@ export class FringeLayer {
         // dropped rather than stubbed; the run loses one link and reads as a
         // gateway, which is a thing a hedge actually has.
         for (let pass = 0; pass < 4 && half > MIN_RUN * 0.5; pass += 1) {
+          if (pauseBuild()) yield null;
           const a = sampleGround(it.x + sy * half, it.z + cy * half);
           const b = sampleGround(it.x - sy * half, it.z - cy * half);
           if (Math.abs(a - b) <= SAFE_DROP) break;
@@ -8408,13 +8686,14 @@ export class FringeLayer {
         it.len = half * 2;
         let y = null;
         for (const sgn of [0, -1, 1]) {
+          if (pauseBuild()) yield null;
           const e = sampleGround(it.x + sy * half * sgn, it.z + cy * half * sgn);
           y = y === null ? e : Math.min(y, e);
         }
         it.y = y;
       }
       return list.filter((it) => !it.drop);
-    };
+    }.bind(this);
 
     /**
      * Drop hedge segments that end up ALONE.
@@ -8427,13 +8706,16 @@ export class FringeLayer {
      * Neighbours are counted on the SURVIVING set, twice, because dropping one
      * segment can orphan the next.
      */
-    const dropLoneHedges = (list) => {
+    const dropLoneHedgesSteps = function* (list) {
+      const pauseBuild = buildBudget();
       const REACH = HINTERLAND.boundaryStep * 1.8;
       let live = list;
       for (let pass = 0; pass < 2; pass += 1) {
+        if (pauseBuild()) yield null;
         const cell = new Map();
         const key = (x, z) => `${Math.floor(x / REACH)}:${Math.floor(z / REACH)}`;
         for (const h of live) {
+          if (pauseBuild()) yield null;
           const k = key(h.x, h.z);
           const bucket = cell.get(k);
           if (bucket) bucket.push(h); else cell.set(k, [h]);
@@ -8458,14 +8740,22 @@ export class FringeLayer {
       }
       this._hinterlandStats.loneHedgesDropped = list.length - live.length;
       return live;
-    };
-    const hedges = dropLoneHedges(regroundRun(hinterland.hedges.filter(clear)));
-    const windbreakPts = regroundRun((hinterland.windbreaks ?? []).filter(clear));
-    const fences = regroundRun((hinterland.fences ?? []).filter(clear));
+    }.bind(this);
+    if (pauseBuild()) yield null;
+    // COPY-DRAFT: startup progress.
+    yield 'Seating the field boundaries';
+    const hedges = (yield* dropLoneHedgesSteps((yield* regroundRunSteps(hinterland.hedges.filter(clear)))));
+    if (pauseBuild()) yield null;
+    const windbreakPts = (yield* regroundRunSteps((hinterland.windbreaks ?? []).filter(clear)));
+    if (pauseBuild()) yield null;
+    const fences = (yield* regroundRunSteps((hinterland.fences ?? []).filter(clear)));
     // taste W33 (WALL_TRACK): the farm-track lines (the ring's and every surveyed paddock's access track), as segments [x0, z0, x1, z1].
+    if (pauseBuild()) yield null;
     const wallTrackLines = (this._trackLines ?? []).map((t) => [t.x0, t.z0, t.x1, t.z1]);
     for (const farm of (surveyedPaddocks(this.city) ?? [])) {
+      if (pauseBuild()) yield null;
       for (let k = 1; k < farm.accessTrack.length; k += 1) {
+        if (pauseBuild()) yield null;
         wallTrackLines.push([farm.accessTrack[k - 1][0], farm.accessTrack[k - 1][1], farm.accessTrack[k][0], farm.accessTrack[k][1]]);
       }
     }
@@ -8475,11 +8765,16 @@ export class FringeLayer {
       const reach = WALL_TRACK.clearM + (w.width ?? 0.55) * 0.5;
       return wallTrackLines.some((t) => segSegDistance(w.x - hx, w.z - hz, w.x + hx, w.z + hz, t[0], t[1], t[2], t[3]) < reach);
     };
-    const wallsGrounded = regroundRun((hinterland.walls ?? []).filter(clear)); // the run as drawn: regroundRun shortens it on a slope
+    if (pauseBuild()) yield null;
+    const wallsGrounded = (yield* regroundRunSteps((hinterland.walls ?? []).filter(clear))); // the run as drawn: regroundRun shortens it on a slope
     this._hinterlandStats.wallsGrounded = wallsGrounded.length;
+    if (pauseBuild()) yield null;
     this._hinterlandStats.wallsOnTrack = WALL_TRACK.on ? wallsGrounded.filter(wallOnTrack).length : 0;
+    if (pauseBuild()) yield null;
     const walls = WALL_TRACK.on ? wallsGrounded.filter((w) => !wallOnTrack(w)) : wallsGrounded;
+    if (pauseBuild()) yield null;
     const wallsTumbled = new Set(wallsGrounded.filter((_, i) => i % 4 === 3)); // every fourth run, counted before any is dropped, so a kept wall keeps its form
+    if (pauseBuild()) yield null;
     const reeds = (hinterland.reeds ?? []).filter((r) => {
       if (inVenueKeepOut(r.x, r.z)) return false;
       if (onReach && onReach(r.x, r.z)) return false; // W85 fix 1
@@ -8487,14 +8782,17 @@ export class FringeLayer {
       r.y = surroundHeightAt(r.x, r.z, extent, crust) - 0.04;
       return true;
     });
-    const scrub = regroundRun(hinterland.scrub.filter(clear));
-    let windrows = regroundRun(hinterland.windrows.filter(clear)); // taste W31: reassigned to the cut pieces under WINDROW_FORM
+    if (pauseBuild()) yield null;
+    const scrub = (yield* regroundRunSteps(hinterland.scrub.filter(clear)));
+    if (pauseBuild()) yield null;
+    let windrows = (yield* regroundRunSteps(hinterland.windrows.filter(clear))); // taste W31: reassigned to the cut pieces under WINDROW_FORM
     if (!WINDROWS.on) windrows = []; // taste W32: filtered as before (the occupancy count stays), then not drawn
     // The rim treeline rides the same four archetypes as the belts and the
     // copses, so the band that terminates the world costs no extra draw call.
-    const belts = reground(
+    if (pauseBuild()) yield null;
+    const belts = (yield* regroundSteps(
       thin('Trees', hinterland.belts.concat(hinterland.scatter, hinterland.rimWoods ?? []).filter(clear)),
-    );
+    ));
     // A capped planner choice can be occupied after venues mount. Retain the
     // seeded fallback sites, then cap the actual surviving dam/contact pairs.
     // TASTE R1: a dam is tested against the venues' live boxes exactly (circle
@@ -8511,7 +8809,9 @@ export class FringeLayer {
         return Math.hypot(dam.x - nx, dam.z - nz) < reach;
       });
     };
+    if (pauseBuild()) yield null;
     const dams = (hinterland.damCandidates ?? hinterland.dams).filter(damClear).slice(0, hinterland.dams.length);
+    if (pauseBuild()) yield null;
     if (dams.length) fieldsMat.userData.workedPaddock.dam.value.set(dams[0].x, dams[0].z, dams[0].radius);
     /**
      * ── A DAM HAS A REED FRINGE, AND WITHOUT ONE IT IS A DISC ──
@@ -8528,6 +8828,7 @@ export class FringeLayer {
      * costs no extra draw call.
      */
     for (let d = 0; d < dams.length; d += 1) {
+      if (pauseBuild()) yield null;
       const dam = dams[d];
       const shape = damShape(plan, dam, sampleY);
       const key = Math.round(dam.x);
@@ -8536,6 +8837,7 @@ export class FringeLayer {
       const arc = TAU * (0.52 + idxUnit(213, key, key2, seed) * 0.24);
       const n = Math.max(5, Math.round(dam.radius * 0.85));
       for (let i = 0; i < n; i += 1) {
+        if (pauseBuild()) yield null;
         const t = i / (n - 1 || 1);
         const a = a0 + arc * t;
         const jitter = idxUnit(214 + (i % 6), key, key2, seed);
@@ -8556,18 +8858,30 @@ export class FringeLayer {
         });
       }
     }
-    const sheds = regroundRun(hinterland.sheds.filter(clear));
-    const bales = reground(thin('Bales', hinterland.bales.filter(clear)));
-    const stock = reground((hinterland.stock ?? []).filter(clear));
-    const trees = reground(thin('ParcelTrees', plan.trees.filter(clear)));
+    if (pauseBuild()) yield null;
+    const sheds = (yield* regroundRunSteps(hinterland.sheds.filter(clear)));
+    if (pauseBuild()) yield null;
+    const bales = (yield* regroundSteps(thin('Bales', hinterland.bales.filter(clear))));
+    if (pauseBuild()) yield null;
+    const stock = (yield* regroundSteps((hinterland.stock ?? []).filter(clear)));
+    if (pauseBuild()) yield null;
+    const trees = (yield* regroundSteps(thin('ParcelTrees', plan.trees.filter(clear))));
 
+    if (pauseBuild()) yield null;
     const m = new THREE.Matrix4();
+    if (pauseBuild()) yield null;
     const p = new THREE.Vector3();
+    if (pauseBuild()) yield null;
     const q = new THREE.Quaternion();
+    if (pauseBuild()) yield null;
     const s = new THREE.Vector3();
+    if (pauseBuild()) yield null;
     const eul = new THREE.Euler();
+    if (pauseBuild()) yield null;
     const c = new THREE.Color();
+    if (pauseBuild()) yield null;
     const footprintV = new THREE.Vector3();
+    if (pauseBuild()) yield null;
     const footprintBases = new WeakMap();
     /**
      * Seat every actual base vertex, not just an instance origin. Most of these
@@ -8578,7 +8892,9 @@ export class FringeLayer {
      */
     // W11-B: `slope` (rise per metre along the run, local +X) shears the instance so a long run
     // of fence or wall follows the ground with its posts still upright; 0 leaves it rigid.
+    if (pauseBuild()) yield null;
     const shearM = new THREE.Matrix4();
+    if (pauseBuild()) yield null;
     const unit = new THREE.Vector3(1, 1, 1);
     const runSlope = (x, z, yaw, length) => {
       const dx = Math.cos(yaw) * length * 0.5;
@@ -8637,14 +8953,18 @@ export class FringeLayer {
 
     // taste W29 (HEDGEROW_TIDY): the tracks and roads a hedge or the rim brow opens a gateway at where it crosses: the shed tracks and the
     // surveyed farms' access tracks (6.4 m, the crowned ribbon's width) and the venue service paths (5 m). Null with the switch off.
+    if (pauseBuild()) yield null;
     const gatesOn = !!trackGatesActive(); // taste W82 (TRACK_GATES)
+    if (pauseBuild()) yield null;
     const hedgeTidy = !!hedgerowTidyActive() && !!hedgerowFormActive();
+    if (pauseBuild()) yield null;
     const hedgeCrossings = hedgeTidy ? [
       ...(this._trackLines ?? []).map((t) => (gatesOn ? [t.x0, t.z0, t.x1, t.z1, 6.4, 1] : [t.x0, t.z0, t.x1, t.z1, 6.4])),
       ...(surveyedPaddocks(this.city) ?? []).flatMap((farm) => farm.accessTrack.slice(1).map((q, k) => [farm.accessTrack[k][0], farm.accessTrack[k][1], q[0], q[1], 6.4])),
       ...venueGroundPaths(extent).map((vp) => [vp.x, vp.y, vp.z, vp.w, 5]),
     ] : null;
     // taste W82 (TRACK_GATES): the band index over the track lines, the gateways kept for part 2 (`_trackGates`), the counts for the stats key
+    if (pauseBuild()) yield null;
     const gateIndex = gatesOn ? makeTrackBandIndex((this._trackLines ?? []).map((t) => [t.x0, t.z0, t.x1, t.z1])) : null;
     const gateList = gatesOn ? [] : null;
     const gateStats = gatesOn ? {} : null;
@@ -8668,7 +8988,11 @@ export class FringeLayer {
       noteGates(g.kind, r, { dropped: g.dropped, dropAt: g.dropAt, ends: pr.left });
     };
     let hedgeHw = null; // W55 (TUFT_CLEAR): the built hedge mesh's half-width along each item, for the foot clumps
+    if (pauseBuild()) yield null;
     const hedgeG = hedgeGates('hedge');
+    if (pauseBuild()) yield null;
+    // COPY-DRAFT: startup progress.
+    yield 'Building the hedgerows';
     if (hedges.length) {
       const chains = chainLineItems(hedges);
       const hedgeForm = !!hedgerowFormActive(); // taste W28
@@ -8717,7 +9041,7 @@ export class FringeLayer {
       this._hinterlandStats.hedgeStrips = chains.length;
       // The hedge's own contact, on the same chains so it cannot drift off the
       // run when the ground shortens one.
-      const cgeo = makeStripContact(chains, {
+      const cgeo = (yield* makeStripContactSteps(chains, {
         // T10: 0.80 -> 0.88, for the same reason as the tree patch — the hedge
         // throws a real shadow again and the ribbon is now the under-hedge term.
         // T12: 0.6 m cast-shadow band past the hedge body, plus a darker
@@ -8727,7 +9051,7 @@ export class FringeLayer {
         // less of a moat.
         width: HEDGE_SECTION.width + 1.20, sampleY: sampleGround, dark: hedgeForm ? 0.78 : 0.74,
         cuts: geo.userData?.treeForm?.gateCuts ?? null, // taste W29 (HEDGEROW_TIDY): the ribbon stops where the hedge opens a gateway at a track
-      });
+      }));
       const cmat = makeContactMaterial();
       const cmesh = new THREE.Mesh(cgeo, cmat);
       cmesh.name = 'fringe:hinterland-hedge-contact';
@@ -8737,7 +9061,9 @@ export class FringeLayer {
       this._hedgeContact = { geo: cgeo, mat: cmat };
     }
 
+    if (pauseBuild()) yield null;
     const browG = hedgeGates('brow');
+    if (pauseBuild()) yield null;
     if ((hinterland.rimBrow ?? []).length) {
       // The chains are authored as chains already — the brow is one line round the
       // ring, not a set of boundary samples to be grouped — so it goes straight to
@@ -8766,7 +9092,7 @@ export class FringeLayer {
           shadeSat: 0.55,
           seed,
         })
-        : makeMergedBankGeometry(hinterland.rimBrow, {
+        : (yield* makeMergedBankGeometrySteps(hinterland.rimBrow, {
         // TASTE R1: a 13 x 6.2 m extruded bar is the "raised bar" the bible bans
         // (section 8); the brow is the underscrub of the rim treeline, hedge-sized.
           width: HEDGE_SECTION.width,
@@ -8778,7 +9104,7 @@ export class FringeLayer {
           shade: 0.10,
           varyH: 0.6,
           seed,
-        });
+        }));
       const mat = new THREE.MeshStandardMaterial({
         vertexColors: true,
         roughness: 0.97,
@@ -8796,6 +9122,7 @@ export class FringeLayer {
       this._hinterlandStats.rimBrowRuns = hinterland.rimBrow.length;
     }
 
+    if (pauseBuild()) yield null;
     if (windbreakPts.length) {
       const chains = chainLineItems(windbreakPts);
       // W11-A: the windbreak row IS the row of cypress now. The 28-triangle prism that
@@ -8846,10 +9173,10 @@ export class FringeLayer {
       this._windbreakStrips = { geo, mat };
       this._hinterlandStats.windbreaks = windbreakPts.length;
       this._hinterlandStats.windbreakStrips = chains.length;
-      const cgeo = makeStripContact(chains, {
+      const cgeo = (yield* makeStripContactSteps(chains, {
         width: 2.6, sampleY: sampleGround, dark: 0.88,
         ...(gatesOn ? { cuts: runs.flatMap((st, ci) => bandCuts(gateIndex, st, ci, TRACK_GATE_BAND + 2.5)) } : {}), // W82: the ribbon stops with the row
-      });
+      }));
       const cmat = makeContactMaterial();
       const cmesh = new THREE.Mesh(cgeo, cmat);
       cmesh.name = 'fringe:hinterland-windbreak-contact';
@@ -8864,13 +9191,17 @@ export class FringeLayer {
     // A run served by a gateway already built within 4 m (a fence beside a hedge) ends at its own band edge with its own end post.
     // W82 fix 2: the run-out keeps 0.5 m off every other run: the hedges, the brow and the windbreaks (each by its half width), the rail fences, the walls and the parcel fences as planned.
     const gateRunSegs = [];
+    if (pauseBuild()) yield null;
     if (gatesOn) {
       const alongSeg = (it, r) => { const hx = Math.sin(it.yaw) * it.len * 0.5; const hz = Math.cos(it.yaw) * it.len * 0.5; gateRunSegs.push([it.x - hx, it.z - hz, it.x + hx, it.z + hz, r]); };
       for (const it of hedges.concat(windbreakPts)) alongSeg(it, (it.width ?? HEDGE_SECTION.width) * 0.5); // the run-out keeps 0.5 m off the hedge's edge
       for (const run of hinterland.rimBrow ?? []) for (const it of run) alongSeg(it, (it.width ?? HEDGE_SECTION.width) * 0.5);
     }
     // W83 (item 1, part 3): each planted and crest tree's own trunk, as the triangles of its form within 1.6 m of the root at its own scale and lean (`_gateTrunkTris`); a run-out keeps `GATE_KIT.runOutClear` off them.
-    const gateTrunks = gatesOn ? this._gateTrunkTris(this._plantedTrees(trees, belts), (this._trackRoute ? (plan.crestTrees ?? []).filter(clear).filter((it) => routedClear(it.x, it.z)) : (plan.crestTrees ?? []).filter(clear))) : null;
+    if (pauseBuild()) yield null;
+    // COPY-DRAFT: startup progress.
+    yield 'Mapping the tree trunks';
+    const gateTrunks = gatesOn ? (yield* this._gateTrunkTrisSteps(this._plantedTrees(trees, belts), (this._trackRoute ? (plan.crestTrees ?? []).filter(clear).filter((it) => routedClear(it.x, it.z)) : (plan.crestTrees ?? []).filter(clear)))) : null;
     this._trackTrunkTris = gateTrunks ? { count: gateTrunks.count, crest: gateTrunks.crest } : null; // the footprint triangles behind the run-out test, and how many are the crest trees' (the test pins both)
     const gateClearPoint = (x, z) => {
       if (inVenueKeepOut(x, z)) return false;
@@ -8919,6 +9250,7 @@ export class FringeLayer {
       return out;
     };
     let fenceDraw = fences;
+    if (pauseBuild()) yield null;
     if (gatesOn && fences.length) {
       const fenceProbe = makeFenceGeometry();
       fenceProbe.computeBoundingBox();
@@ -8926,6 +9258,7 @@ export class FringeLayer {
       fenceProbe.dispose();
       fenceDraw = gatedPanels(fences, { kind: 'rail-fence', tol: 1.2, half: () => fenceHalf });
     }
+    if (pauseBuild()) yield null;
     if (fenceDraw.length) {
       const geo = makeFenceGeometry();
       // W11-B: post-and-rail, modelled at true size (8 m run, posts 1.3 m); the vertex colour
@@ -8934,6 +9267,7 @@ export class FringeLayer {
       const mesh = new THREE.InstancedMesh(geo, mat, fenceDraw.length);
       mesh.name = 'fringe:hinterland-fences';
       for (let i = 0; i < fenceDraw.length; i += 1) {
+        if (pauseBuild()) yield null;
         const f = fenceDraw[i];
         // Planner yaw is measured from +Z; the fence run lies on local +X, 8 m long, so
         // neighbouring runs meet on a shared post.
@@ -8952,6 +9286,9 @@ export class FringeLayer {
     }
 
     let windrowFenceSegs = []; // taste W31: the parcel fence panels as segments, for the windrow gates
+    if (pauseBuild()) yield null;
+    // COPY-DRAFT: countryside loading progress.
+    yield 'Building the paddock fences';
     if (PARCEL_FENCES.on && plan.quality !== 'low') {
       // taste-r1 (W25): PARCEL_FENCES. Every boundary sample that carries no hedge, wall, windbreak or fence gets post-and-wire panels,
       // seated the way the hedges are; the edges that end up mostly fenced are marked for the ground shader's stock track.
@@ -8969,7 +9306,9 @@ export class FringeLayer {
       };
       const tracks = (this._trackLines ?? []).map((t) => [t.x0, t.z0, t.x1, t.z1, 6.5]);
       for (const farm of (surveyedPaddocks(this.city) ?? [])) {
+        if (pauseBuild()) yield null;
         for (let k = 1; k < farm.accessTrack.length; k += 1) {
+          if (pauseBuild()) yield null;
           tracks.push([farm.accessTrack[k - 1][0], farm.accessTrack[k - 1][1], farm.accessTrack[k][0], farm.accessTrack[k][1], 6.5]);
         }
       }
@@ -9001,24 +9340,33 @@ export class FringeLayer {
         for (const bx of occ.boxes) if (inBox(x, z, bx, 3)) return true;
         return false;
       };
-      const planned = planParcelFences(FENCE_EDGES.on ? hinterland.fields.concat(hinterland.fenceRest ?? []) : hinterland.fields, { carried, blocked });
+      const planned = yield* planParcelFencesSteps(FENCE_EDGES.on ? hinterland.fields.concat(hinterland.fenceRest ?? []) : hinterland.fields, { carried, blocked });
+      // Keep the original predicate order while giving the ground samplers a budget.
+      function* filterPanels(panels, keep) {
+        const kept = [];
+        for (const panel of panels) {
+          if (pauseBuild()) yield null;
+          if (keep(panel)) kept.push(panel);
+        }
+        return kept;
+      }
       // taste-r1 (W26): FENCE_CARRY bakes the weathered post and wire tokens into the vertex colours (white material); at 0, W25's greys and '#a29f94'.
       const fenceK = FENCE_HEDGED.on ? FENCE_HEDGED.timberGain : FENCE_EDGES.on ? FENCE_EDGES.timberGain : 1;
       const postTint = FENCE_HEDGED.on ? FENCE_HEDGED.postTint : FENCE_EDGES.postTint;
       const geo = makeWireFenceGeometry(FENCE_CARRY.on ? { post: tokenLinear(TASTE.built.fenceTimber).map((v, ch) => v * fenceK * (FENCE_EDGES.on ? postTint[ch] : 1)), wire: tokenLinear(TASTE.built.fenceWire).map((v) => v * fenceK) } : null);
       const tris = geo.index.count / 3;
       const slopeOk = (pf) => Math.abs(sampleGround(pf.a[0], pf.a[1]) - sampleGround(pf.b[0], pf.b[1])) / pf.len < 0.42;
-      let list = planned.panels.filter((pf) => slopeOk(pf) && !blocked(pf.x, pf.z));
+      let list = yield* filterPanels(planned.panels, (pf) => slopeOk(pf) && !blocked(pf.x, pf.z));
       let doubles = null;
       if (FENCE_EDGES.on) {
         // W27: one line where two edges would each draw one (against the panels kept so far and the post-and-rail runs and walls placed)
-        doubles = dropDoubleFences(list, fences.concat(walls));
+        doubles = yield* dropDoubleFencesSteps(list, fences.concat(walls));
         list = doubles.kept;
       }
       // W28 (FENCE_HEDGED): the panels that lie within 2 m of a rail run or a wall are dropped
       let nearRuns = null;
       if (FENCE_HEDGED.on) {
-        nearRuns = dropNearRuns(list, fences.concat(walls), FENCE_HEDGED.nearM);
+        nearRuns = yield* dropNearRunsSteps(list, fences.concat(walls), FENCE_HEDGED.nearM);
         list = nearRuns.kept;
       }
       // W29 (FENCE_TIDY): no panel with a point on venue ground (weight `venueMax` or more); the line is zero such points
@@ -9026,7 +9374,7 @@ export class FringeLayer {
       const onVenue = (pf) => [0, 0.25, 0.5, 0.75, 1].some((t) => venueGroundWeight(pf.a[0] + (pf.b[0] - pf.a[0]) * t, pf.a[1] + (pf.b[1] - pf.a[1]) * t, fenceVenue) >= FENCE_TIDY.venueMax);
       if (FENCE_TIDY.on) {
         const before = list.length;
-        list = list.filter((pf) => !onVenue(pf));
+        list = yield* filterPanels(list, (pf) => !onVenue(pf));
         venueDropped = before - list.length;
       }
       const capPanels = Math.floor(PARCEL_FENCES.maxTriangles * (plan.quality === 'medium' ? 0.5 : 1) / tris);
@@ -9038,14 +9386,14 @@ export class FringeLayer {
       let hedgedAdded = 0, hedgedCut = 0, hedgedPlanned = 0;
       if (FENCE_HEDGED.on) {
         const hedgeOnly = new Set(hedges.map((h) => `${h.gx}:${h.gz}`));
-        const offFields = offsetHedgedFields(hinterland.fields, (b) => hedgeOnly.has(`${b.gx}:${b.gz}`),
-          HEDGE_SECTION.width / 2 + FENCE_HEDGED.offM, (b) => (b.gx % 2 ? 1 : -1));
-        const hp = planParcelFences(offFields, { carried: () => false, blocked });
+        const offFields = (yield* offsetHedgedFieldsSteps(hinterland.fields, (b) => hedgeOnly.has(`${b.gx}:${b.gz}`),
+          HEDGE_SECTION.width / 2 + FENCE_HEDGED.offM, (b) => (b.gx % 2 ? 1 : -1)));
+        const hp = yield* planParcelFencesSteps(offFields, { carried: () => false, blocked });
         const along = (pf) => [0.25, 0.5, 0.75].every((t) => !blocked(pf.a[0] + (pf.b[0] - pf.a[0]) * t, pf.a[1] + (pf.b[1] - pf.a[1]) * t));
-        let hl = hp.panels.filter((pf) => slopeOk(pf) && along(pf));
-        hl = dropNearRuns(hl, fences.concat(walls), FENCE_HEDGED.nearM).kept;
-        hl = dropDoubleFences(hl, fences.concat(walls, list.map((o) => ({ x: o.x, z: o.z, yaw: o.yaw, len: o.len })))).kept;
-        if (FENCE_TIDY.on) { const before = hl.length; hl = hl.filter((pf) => !onVenue(pf)); venueDropped += before - hl.length; }
+        let hl = yield* filterPanels(hp.panels, (pf) => slopeOk(pf) && along(pf));
+        hl = (yield* dropNearRunsSteps(hl, fences.concat(walls), FENCE_HEDGED.nearM)).kept;
+        hl = (yield* dropDoubleFencesSteps(hl, fences.concat(walls, list.map((o) => ({ x: o.x, z: o.z, yaw: o.yaw, len: o.len }))))).kept;
+        if (FENCE_TIDY.on) { const before = hl.length; hl = yield* filterPanels(hl, (pf) => !onVenue(pf)); venueDropped += before - hl.length; }
         hedgedPlanned = hl.length;
         const room = Math.max(0, capPanels - list.length);
         if (hl.length > room) hl = hl.sort((u, v) => Math.hypot(u.x - cx0, u.z - cz0) - Math.hypot(v.x - cx0, v.z - cz0)).slice(0, room);
@@ -9060,6 +9408,7 @@ export class FringeLayer {
         const mesh = new THREE.InstancedMesh(geo, mat, list.length);
         mesh.name = 'fringe:hinterland-parcel-fences';
         for (let i = 0; i < list.length; i += 1) {
+          if (pauseBuild()) yield null;
           const f = list[i];
           const gy = Math.min(sampleGround(f.x, f.z), sampleGround(f.a[0], f.a[1]), sampleGround(f.b[0], f.b[1]));
           mesh.setMatrixAt(i, composeGrounded(geo, f.x, f.z, gy - 0.04, f.yaw - Math.PI * 0.5, f.len / PARCEL_FENCES.panelM, 1, 1,
@@ -9076,7 +9425,7 @@ export class FringeLayer {
           for (const f of list) perEdge.set(f.gx, (perEdge.get(f.gx) ?? 0) + 1);
           stripFlagged = planned.flagged.filter((f) => (perEdge.get(f.gx) ?? 0) >= FENCE_HEDGED.minPanels);
         }
-        const fenceTex = parcelFenceTexture(stripFlagged);
+        const fenceTex = (yield* parcelFenceTextureSteps(stripFlagged));
         const uni = fieldsMat.userData.workedPaddock.fence;
         if (uni) {
           uni.tex.value.dispose();
@@ -9104,6 +9453,9 @@ export class FringeLayer {
       }
     }
 
+    if (pauseBuild()) yield null;
+    // COPY-DRAFT: countryside loading progress.
+    yield 'Building the field walls';
     if (walls.length) {
       // W11-B: dry-stone basalt, a 9 m run 1.1 m high; every fourth run has a tumbled gap.
       const geo = makeStoneWallGeometry(false);
@@ -9117,10 +9469,12 @@ export class FringeLayer {
         { name: 'fringe:hinterland-walls-tumbled', geo: makeStoneWallGeometry(true), list: wallDraw.filter((w) => wallsTumbled.has(w.srcRef ?? w)) },
       ];
       for (const set of wallSets) {
+        if (pauseBuild()) yield null;
         if (!set.list.length) { if (set.geo !== geo) set.geo.dispose(); continue; }
         const mesh = new THREE.InstancedMesh(set.geo, mat, set.list.length);
         mesh.name = set.name;
         for (let i = 0; i < set.list.length; i += 1) {
+          if (pauseBuild()) yield null;
           const w = set.list[i];
           mesh.setMatrixAt(i, composeGrounded(
             set.geo, w.x, w.z, w.y - 0.08, w.yaw - Math.PI * 0.5, w.len / 9, w.height / 1.1, 1,
@@ -9136,14 +9490,18 @@ export class FringeLayer {
       this._wallsTumbled = { geo: wallSets[1].geo, mat: null };
       this._hinterlandStats.walls = walls.length;
     }
+    if (pauseBuild()) yield null;
     if (gatesOn) {
       // W82 fix 2: the double-track cases (two tracks through one gap): `pair` one gateway over both bands (centrelines 7.6 m or less), `between` refused (over 7.6, under 11.6 m), `restore` the run between the bands restored, a gateway to each track (11.6 m or more)
       const dbl = { pair: { built: 0, refused: 0 }, between: { refused: 0 }, restore: { gateways: 0, refused: 0 } };
-      for (const g of gateList) { if (g.pair) dbl.pair.built += 1; if (g.restored) dbl.restore.gateways += 1; }
-      for (const v of Object.values(gateStats)) for (const q of v.rejected ?? []) { if (q.dcase === 'pair') dbl.pair.refused += 1; else if (q.dcase === 'between') dbl.between.refused += 1; else if (q.dcase === 'restore') dbl.restore.refused += 1; }
+      for (const g of gateList) {
+        if (pauseBuild()) yield null; if (g.pair) dbl.pair.built += 1; if (g.restored) dbl.restore.gateways += 1; }
+      for (const v of Object.values(gateStats)) for (const q of v.rejected ?? []) {
+        if (pauseBuild()) yield null; if (q.dcase === 'pair') dbl.pair.refused += 1; else if (q.dcase === 'between') dbl.between.refused += 1; else if (q.dcase === 'restore') dbl.restore.refused += 1; }
       this._hinterlandStats.trackGates = { band: TRACK_GATE_BAND, gates: gateList.length, byKind: gateStats, double: dbl, tone: trackGateToneActive() };
     }
 
+    if (pauseBuild()) yield null;
     if (reeds.length) {
       // W11-A: a bulrush clump (blades bent outward, brown seed heads), geometry only.
       const geo = reedForm({ variant: 0 });
@@ -9151,6 +9509,7 @@ export class FringeLayer {
       const mesh = new THREE.InstancedMesh(geo, mat, reeds.length);
       mesh.name = 'fringe:hinterland-reeds';
       for (let i = 0; i < reeds.length; i += 1) {
+        if (pauseBuild()) yield null;
         const r = reeds[i];
         mesh.setMatrixAt(i, composeGrounded(
           geo, r.x, r.z, r.y, r.yaw, r.scale, r.height, r.scale,
@@ -9171,6 +9530,9 @@ export class FringeLayer {
     // taste W31 (WINDROW_FORM): the gates swept on every planned row, with the switch off as well (the audit counts the rows each gate
     // fails), and with it on the rows cut into pieces where hay can lie.
     let windrowForm = null;
+    if (pauseBuild()) yield null;
+    // COPY-DRAFT: countryside loading progress.
+    yield 'Planning the field rows';
     if (windrows.length) {
       const segs = [];
       const along = (it, r, bit) => {
@@ -9184,7 +9546,9 @@ export class FringeLayer {
       for (const run of hinterland.rimBrow ?? []) for (const it of run) along(it, 3, WR_BIT.rim);
       for (const t of this._trackLines ?? []) segs.push([t.x0, t.z0, t.x1, t.z1, 3.2, WR_BIT.track]);
       for (const farm of (surveyedPaddocks(this.city) ?? [])) {
+        if (pauseBuild()) yield null;
         for (let k = 1; k < farm.accessTrack.length; k += 1) {
+          if (pauseBuild()) yield null;
           segs.push([farm.accessTrack[k - 1][0], farm.accessTrack[k - 1][1], farm.accessTrack[k][0], farm.accessTrack[k][1], 3.2, WR_BIT.track]);
         }
       }
@@ -9224,8 +9588,11 @@ export class FringeLayer {
       }
       this._hinterlandStats.windrowGate = gate;
     }
+    if (pauseBuild()) yield null;
+    // COPY-DRAFT: countryside loading progress.
+    yield 'Building the field rows';
     if (windrows.length && windrowForm) {
-      const geo = makeWindrowGeometry(windrowForm.pieces, { sampleY: sampleGround, seed, ringM: windrowForm.ringM });
+      const geo = yield* makeWindrowGeometrySteps(windrowForm.pieces, { sampleY: sampleGround, seed, ringM: windrowForm.ringM });
       const mat = new THREE.MeshStandardMaterial({ color: '#ffffff', vertexColors: true, roughness: 0.96, metalness: 0 });
       const mesh = new THREE.Mesh(geo, mat);
       mesh.name = 'fringe:hinterland-windrows';
@@ -9242,6 +9609,7 @@ export class FringeLayer {
       const mesh = new THREE.InstancedMesh(geo, mat, windrows.length);
       mesh.name = 'fringe:hinterland-windrows';
       for (let i = 0; i < windrows.length; i += 1) {
+        if (pauseBuild()) yield null;
         const b = windrows[i];
         const hy = b.height / 0.866;
         mesh.setMatrixAt(i, composeGrounded(
@@ -9261,6 +9629,7 @@ export class FringeLayer {
       this._hinterlandStats.windrowTriangles = windrows.length * 24;
     }
 
+    if (pauseBuild()) yield null;
     if (scrub.length) {
       // W11-A: a low shrub mass of domed lobes in a 1 x 1 x 0.866 m unit (the instance scale gives metres).
       const geo = scrubForm({ variant: 0 });
@@ -9269,6 +9638,7 @@ export class FringeLayer {
       const mesh = new THREE.InstancedMesh(geo, mat, scrub.length);
       mesh.name = 'fringe:hinterland-scrub';
       for (let i = 0; i < scrub.length; i += 1) {
+        if (pauseBuild()) yield null;
         const b = scrub[i];
         const hy = b.height / 0.866;
         mesh.setMatrixAt(i, composeGrounded(
@@ -9291,12 +9661,16 @@ export class FringeLayer {
 
     // W22-A: the low layer. Shrubs and tussocks built of cards, one instanced mesh per form variant (six at most), every
     // instance seated on the built sheet by the lowest of its footprint points and sunk a hand's breadth.
+    if (pauseBuild()) yield null;
     let tufts = (hinterland.tufts ?? []).filter(clear);
+    if (pauseBuild()) yield null;
     if (this._trackRoute) tufts = tufts.filter((t) => t.kind !== 0 || routedClear(t.x, t.z)); // W80 (TRACK_ROUTE): no shrub on a routed track
     // W83 (TRACK_GATES, item 1): a shrub or tuft planted after the gating whose footprint comes within `GATE_KIT.runOutClear` of a drawn run-out is dropped (the fence wins).
     // The footprint is the disc of its form's widest vertex at the instance's scale; the counts are per kind (`foot`: of those, the fence-foot ones).
     const runOutDrop = { shrub: 0, tussock: 0, paddockShrub: 0, paddockTuft: 0, foot: 0 };
+    if (pauseBuild()) yield null;
     const runOutSegs = gatesOn ? (this._trackRunOuts ?? []).map((r) => [r.a[0], r.a[1], r.b[0], r.b[1]]) : [];
+    if (pauseBuild()) yield null;
     const tuftReachMemo = new Map();
     const nearRunOut = (t, kind) => {
       if (!runOutSegs.length) return false;
@@ -9311,6 +9685,7 @@ export class FringeLayer {
       return runOutSegs.some((q) => gateIndex.segD(t.x, t.z, q) < reach);
     };
     let footPlanted = [];
+    if (pauseBuild()) yield null;
     if (TRUNK_TUFTS.on && plan.quality !== 'low') {
       // W46: the foot growth of the eucalypts, appended to the same sets (the earlier instances keep their places).
       // the post-and-rail runs (8 m, centred, along (sin yaw, cos yaw)) and the parcel fence panels, as segments: no clump over a fence line
@@ -9329,6 +9704,7 @@ export class FringeLayer {
       this._hinterlandStats.footTufts = foot.length;
       this._hinterlandStats.footShrubs = foot.filter((t) => t.kind === 0).length;
     }
+    if (pauseBuild()) yield null;
     if (gatesOn && runOutSegs.length) {
       const footSet = new Set(footPlanted);
       tufts = tufts.filter((t) => {
@@ -9337,6 +9713,9 @@ export class FringeLayer {
         return false;
       });
     }
+    if (pauseBuild()) yield null;
+    // COPY-DRAFT: countryside loading progress.
+    yield 'Planting the field tufts';
     if (tufts.length) {
       const mat = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.98, metalness: 0, vertexColors: true });
       applyFoliageDetail(mat, { puff: true, cards: true });
@@ -9360,7 +9739,9 @@ export class FringeLayer {
       const geos = [];
       const shrubSeats = [];
       for (let kind = 0; kind < 2; kind += 1) {
+        if (pauseBuild()) yield null;
         for (let variant = 0; variant < 3; variant += 1) {
+          if (pauseBuild()) yield null;
           const list = tufts.filter((t) => t.kind === kind && t.variant === variant);
           if (!list.length) continue;
           const geo = tuftForm({ kind: kind === 0 ? 'shrub' : 'tussock', variant });
@@ -9368,10 +9749,12 @@ export class FringeLayer {
           const mesh = new THREE.InstancedMesh(geo, kind === 0 ? shrubMat : mat, list.length);
           mesh.name = kind === 0 ? 'fringe:hinterland-shrub' : 'fringe:hinterland-tussock';
           for (let i = 0; i < list.length; i += 1) {
+            if (pauseBuild()) yield null;
             const t = list[i];
             const rr = (kind === 0 ? 0.46 : 0.32) * t.scale;
             let y = sampleY(t.x, t.z) ?? t.y;
             for (let q = 0; q < 4; q += 1) {
+              if (pauseBuild()) yield null;
               const e = sampleY(t.x + Math.cos(q * Math.PI * 0.5 + t.yaw) * rr, t.z + Math.sin(q * Math.PI * 0.5 + t.yaw) * rr);
               if (e !== null && e < y) y = e;
             }
@@ -9423,12 +9806,17 @@ export class FringeLayer {
 
     // W27: the paddock tier. W28: shrub anchors (the scrub shrub's form) and the tussock form at 1.2 to 1.8 times its size, one instanced mesh per
     // kind and variant on a material of its own; nothing is built at switch 0.
+    if (pauseBuild()) yield null;
     let padTufts = (hinterland.paddockTufts ?? []).filter(clear);
+    if (pauseBuild()) yield null;
+    // COPY-DRAFT: countryside loading progress.
+    yield 'Planting the paddocks';
     if (padTufts.length) {
       // Nothing on a farm track (6.5 m bed, the fences' own list) or on a venue ground path: dropped by distance from the line, the item's radius included.
       const padPaths = venueGroundPaths(extent);
       const padTracks = (this._trackLines ?? []).map((t) => [t.x0, t.z0, t.x1, t.z1]);
       for (const farm of (surveyedPaddocks(this.city) ?? [])) {
+        if (pauseBuild()) yield null;
         for (let k = 1; k < farm.accessTrack.length; k += 1) padTracks.push([farm.accessTrack[k - 1][0], farm.accessTrack[k - 1][1], farm.accessTrack[k][0], farm.accessTrack[k][1]]);
       }
       const padSeg = (px, pz, x0, z0, x1, z1) => {
@@ -9442,6 +9830,7 @@ export class FringeLayer {
         return !padTracks.some((q) => padSeg(t.x, t.z, q[0], q[1], q[2], q[3]) < reach);
       });
     }
+    if (pauseBuild()) yield null;
     if (gatesOn && runOutSegs.length && padTufts.length) { // W83 (item 1): as the shrubs above; before the anchor rule below, so a group that loses every anchor loses its tussocks
       padTufts = padTufts.filter((t) => {
         if (!nearRunOut(t, t.kind)) return true;
@@ -9460,6 +9849,7 @@ export class FringeLayer {
       }
       return y;
     };
+    if (pauseBuild()) yield null;
     if (PADDOCK_SEAT > 0 && padTufts.length) {
       // W29: nothing seats on built ground under the floor (the placement tested the analytic ground; the built sheet differs a little), and a
       // group that has lost every anchor loses its tussocks, which read as loose pale dots without them.
@@ -9467,6 +9857,7 @@ export class FringeLayer {
       const anchored = new Set(padTufts.filter((t) => t.kind === 'shrub').map((t) => t.group));
       padTufts = padTufts.filter((t) => t.kind === 'shrub' || anchored.has(t.group));
     }
+    if (pauseBuild()) yield null;
     if (padTufts.length) {
       const mat = paddockTuftMaterial();
       const pm = new THREE.Matrix4();
@@ -9477,7 +9868,9 @@ export class FringeLayer {
       const pup = new THREE.Vector3(0, 1, 0);
       const pgeos = [];
       for (const kind of ['shrub', 'tussock']) {
+        if (pauseBuild()) yield null;
         for (let variant = 0; variant < 3; variant += 1) {
+          if (pauseBuild()) yield null;
           const list = padTufts.filter((t) => t.kind === kind && t.variant === variant);
           if (!list.length) continue;
           const geo = tuftForm({ kind, variant });
@@ -9485,6 +9878,7 @@ export class FringeLayer {
           const mesh = new THREE.InstancedMesh(geo, mat, list.length);
           mesh.name = kind === 'shrub' ? 'fringe:hinterland-paddock-shrubs' : 'fringe:hinterland-paddock-tufts';
           for (let i = 0; i < list.length; i += 1) {
+            if (pauseBuild()) yield null;
             const t = list[i];
             // Sunk a hand's breadth below the seat (`padSeatY`).
             const y = padSeatY(t);
@@ -9508,7 +9902,7 @@ export class FringeLayer {
       const anchorsLaid = padTufts.filter((t) => t.kind === 'shrub');
       if (anchorsLaid.length) {
         const sh = PADDOCK_TUFT_PARAMS.shade;
-        const shGeo = makeTreeShade(plan, anchorsLaid.map((t) => ({ x: t.x, z: t.z, yaw: t.yaw, scale: t.scale, patchRadius: t.scale * sh.k, patchDark: sh.dark })), sampleY);
+        const shGeo = (yield* makeTreeShadeSteps(plan, anchorsLaid.map((t) => ({ x: t.x, z: t.z, yaw: t.yaw, scale: t.scale, patchRadius: t.scale * sh.k, patchDark: sh.dark })), sampleY));
         const shMat = makeContactMaterial();
         const shMesh = new THREE.Mesh(shGeo, shMat);
         shMesh.name = 'fringe:hinterland-paddock-shade';
@@ -9522,6 +9916,7 @@ export class FringeLayer {
     }
 
 
+    if (pauseBuild()) yield null;
     if (sheds.length) {
       // W11-B: a 12 x 8 m portal-frame shed in three forms (gable hay shed, skillion machinery
       // shed with doors, gable with a lean-to). The model is true size; the instance scale
@@ -9534,10 +9929,12 @@ export class FringeLayer {
         { name: 'fringe:hinterland-sheds-leanto', form: 'leanto' },
       ].map((set) => ({ ...set, geo: makeShedGeometry(set.form), list: sheds.filter((sh) => shedForm(sh) === set.form) }));
       for (const set of shedSets) {
+        if (pauseBuild()) yield null;
         if (!set.list.length) { set.geo.dispose(); set.geo = null; continue; }
         const mesh = new THREE.InstancedMesh(set.geo, mat, set.list.length);
         mesh.name = set.name;
         for (let i = 0; i < set.list.length; i += 1) {
+          if (pauseBuild()) yield null;
           const sh = set.list[i];
           mesh.setMatrixAt(i, composeGrounded(
             set.geo, sh.x, sh.z, sh.y - 0.05,
@@ -9559,6 +9956,7 @@ export class FringeLayer {
       this._hinterlandStats.sheds = sheds.length;
     }
 
+    if (pauseBuild()) yield null;
     if (bales.length) {
       const geo = makeBaleGeometry();
       // W7-C: hay is grass.dry drawn toward sand, taken down by the fringe's lighting gain.
@@ -9569,6 +9967,7 @@ export class FringeLayer {
       const mesh = new THREE.InstancedMesh(geo, mat, bales.length);
       mesh.name = 'fringe:hinterland-bales';
       for (let i = 0; i < bales.length; i += 1) {
+        if (pauseBuild()) yield null;
         const b = bales[i];
         mesh.setMatrixAt(i, composeGrounded(
           geo, b.x, b.z, b.y + 0.70, b.yaw - Math.PI * 0.5, 1, 1, 1,
@@ -9595,11 +9994,13 @@ export class FringeLayer {
      * straw-green tone, so the family costs one draw call and no new geometry.
      */
     const dunes = [];
+    if (pauseBuild()) yield null;
     {
       const edge = fieldsGeo.userData.coastEdge ?? [];
       const cxE = extent.x * 0.5;
       const czE = extent.z * 0.5;
       for (let i = 0; i < edge.length && dunes.length < 520; i += 1) {
+        if (pauseBuild()) yield null;
         const e = edge[i];
         const kx = Math.round(e.x);
         const kz = Math.round(e.z);
@@ -9613,6 +10014,7 @@ export class FringeLayer {
         const tz = inx;
         const n = 3;
         for (let k = 0; k < n; k += 1) {
+          if (pauseBuild()) yield null;
           const u = idxUnit(270 + k, kx, kz, seed);
           const v = idxUnit(274 + k, kz, kx, seed);
           // Biased landward: 3/4 of the scatter sits on the grass side, which is
@@ -9638,6 +10040,7 @@ export class FringeLayer {
         }
       }
     }
+    if (pauseBuild()) yield null;
     if (dunes.length) {
       // W11-A: a marram clump of arching blades, geometry only.
       const geo = duneGrassForm({ variant: 0 });
@@ -9645,6 +10048,7 @@ export class FringeLayer {
       const mesh = new THREE.InstancedMesh(geo, mat, dunes.length);
       mesh.name = 'fringe:hinterland-dune-grass';
       for (let i = 0; i < dunes.length; i += 1) {
+        if (pauseBuild()) yield null;
         const d = dunes[i];
         mesh.setMatrixAt(i, composeGrounded(
           geo, d.x, d.z, d.y, d.yaw, d.scale, d.height, d.scale,
@@ -9662,6 +10066,7 @@ export class FringeLayer {
       this._hinterlandStats.dunes = dunes.length;
     }
 
+    if (pauseBuild()) yield null;
     if (stock.length) {
       // W11-B: cattle (standing, grazing, lying) and sheep (standing, grazing) at true size.
       // The planned `scale` was relative to a unit beast of 1.9 m (cattle at 1.17 to 1.29, sheep
@@ -9680,10 +10085,12 @@ export class FringeLayer {
           && (def.sheep || (stockCoatOf(b) === 'hereford') === def.hereford)),
       }));
       for (const set of stockSets) {
+        if (pauseBuild()) yield null;
         if (!set.list.length) { set.geo.dispose(); set.geo = null; continue; }
         const mesh = new THREE.InstancedMesh(set.geo, mat, set.list.length);
         mesh.name = set.name;
         for (let i = 0; i < set.list.length; i += 1) {
+          if (pauseBuild()) yield null;
           const b = set.list[i];
           const k = b.scale / (b.sheep ? 0.63 : 1.23);
           mesh.setMatrixAt(i, composeGrounded(
@@ -9709,6 +10116,7 @@ export class FringeLayer {
       this._hinterlandStats.stock = stock.length;
     }
 
+    if (pauseBuild()) yield null;
     if (dams.length) {
       const geo = makeHinterlandDams(plan, dams, sampleY);
       const mat = new THREE.MeshStandardMaterial({
@@ -9773,14 +10181,21 @@ export class FringeLayer {
         patchRadius: radius(item), patchDark: dark, contactFamily: family,
       });
     };
+    if (pauseBuild()) yield null;
     addPoints(stock, 'stock', (it) => 0.72 * it.scale, 0.94);
+    if (pauseBuild()) yield null;
     addPoints(bales, 'bales', () => 0.88, 0.95);
+    if (pauseBuild()) yield null;
     addPoints(reeds, 'reeds', (it) => Math.max(0.38, it.scale * 0.48), 0.97);
+    if (pauseBuild()) yield null;
     addPoints(dunes, 'dune-grass', (it) => Math.max(0.38, it.scale * 0.46), 0.97);
+    if (pauseBuild()) yield null;
     addPoints(this._tuftShrubs ?? [], 'tuft-shrub', (it) => Math.max(0.5, it.scale * 0.42), 0.95); // W22-A
+    if (pauseBuild()) yield null;
     addPoints(dams, 'dams', (it) => it.radius * 1.04, 0.96);
+    if (pauseBuild()) yield null;
     if (pointContacts.length) {
-      const geo = makeTreeShade(plan, pointContacts, sampleGround);
+      const geo = (yield* makeTreeShadeSteps(plan, pointContacts, sampleGround));
       const mat = makeContactMaterial();
       const mesh = new THREE.Mesh(geo, mat);
       mesh.name = 'fringe:hinterland-asset-contact-patches';
@@ -9797,18 +10212,25 @@ export class FringeLayer {
     const addRuns = (list, family, width) => {
       for (const item of list) runContacts.push([{ ...item, contactFamily: family, contactWidth: width(item) }]);
     };
+    if (pauseBuild()) yield null;
     addRuns(sheds, 'sheds', (it) => it.width * 1.04);
+    if (pauseBuild()) yield null;
     addRuns(fences, 'fences', (it) => Math.max(0.42, it.width * 1.8));
+    if (pauseBuild()) yield null;
     addRuns(walls, 'walls', (it) => Math.max(0.72, it.width * 1.35));
+    if (pauseBuild()) yield null;
     addRuns(scrub, 'scrub', (it) => it.width * 1.02);
+    if (pauseBuild()) yield null;
     addRuns(windrows, 'windrows', (it) => it.width * 1.02);
     for (const run of hinterland.rimBrow ?? []) {
+      if (pauseBuild()) yield null;
       runContacts.push(run.map((item) => ({ ...item, contactFamily: 'rim-brow', contactWidth: 6 })));
     }
+    if (pauseBuild()) yield null;
     if (runContacts.length) {
-      const geo = makeStripContact(runContacts, {
+      const geo = (yield* makeStripContactSteps(runContacts, {
         width: (run) => run[0].contactWidth, sampleY: sampleGround, dark: 0.93,
-      });
+      }));
       const mat = makeContactMaterial();
       const mesh = new THREE.Mesh(geo, mat);
       mesh.name = 'fringe:hinterland-asset-contact-runs';
@@ -9821,8 +10243,15 @@ export class FringeLayer {
       this._hinterlandStats.assetRunContacts = runContacts.length;
     }
 
-    this._plantTrees(trees, belts);
-    this._plantCrestTrees(thin('Crest', (plan.crestTrees ?? []).filter(clear)));
+    if (pauseBuild()) yield null;
+    // COPY-DRAFT: countryside loading progress.
+    yield 'Planting the country trees';
+    (yield* this._plantTreesSteps(trees, belts));
+    if (pauseBuild()) yield null;
+    (yield* this._plantCrestTreesSteps(thin('Crest', (plan.crestTrees ?? []).filter(clear))));
+    if (pauseBuild()) yield null;
+    // COPY-DRAFT: startup progress.
+    yield 'Building the farm gates';
     if (gatesOn && gateList.length) {
       // taste W82 (TRACK_GATES, part 2): a farm gateway at every split on the list (fringe/track-gate.js), one merged mesh, built last so every run, trunk, bale and shrub is there to keep off
       const gateObs = collectGateObstacles(this.root);
@@ -9887,7 +10316,10 @@ export class FringeLayer {
    * board); they do receive, like their neighbours, and stand on one mesh of soft multiply decals (the tree-shade patch: dark at
    * the bole, exactly 1 at the rim, so it has no edge) so the crowns are seated and not floating on the crust.
    */
-  _plantCrestTrees(list) {
+  _plantCrestTrees(...args) { return finishBuild(this._plantCrestTreesSteps(...args)); }
+
+  *_plantCrestTreesSteps(list) {
+    const pauseBuild = buildBudget();
     this._hinterlandStats.crestTrees = 0;
     if (!list.length) return;
     let leaf = this._treeMat;
@@ -9909,6 +10341,7 @@ export class FringeLayer {
     let draws = 0;
     let tris = 0;
     for (const species of TREE_SPECIES) for (let variant = 0; variant < 3; variant += 1) {
+      if (pauseBuild()) yield null;
       const kind = species.kind;
       const set = list.filter((t, index) => (t.kind === 4 ? 4 : 0) === kind && index % 3 === variant);
       if (!set.length) continue;
@@ -9925,6 +10358,7 @@ export class FringeLayer {
       const mesh = new THREE.InstancedMesh(geometry, leaf, set.length);
       mesh.name = (kind === 4 ? 'fringe:crest-e' : 'fringe:crest-a') + (variant ? `:variant-${variant}` : '');
       for (let i = 0; i < set.length; i += 1) {
+        if (pauseBuild()) yield null;
         const t = set[i];
         const tone = idxUnit(70, Math.round(t.x), Math.round(t.z), seed + i * 151 + variant * 37);
         const squash = idxUnit(71, Math.round(t.z), Math.round(t.x), seed + i * 157 + variant * 41);
@@ -9954,7 +10388,7 @@ export class FringeLayer {
     if (shade.length) {
       const { extent, crust } = this.plan;
       const seat = (x, z) => drawnCrustHeightAt(x, z, extent, crust, this.plan.quality) + CREST_TREES.shade.lift;
-      const geo = CREST_SHADE.on ? makeCrestFoot(shade, seat) : makeTreeShade(this.plan, shade, seat);
+      const geo = CREST_SHADE.on ? (yield* makeCrestFootSteps(shade, seat)) : (yield* makeTreeShadeSteps(this.plan, shade, seat));
       const mat = makeContactMaterial();
       const mesh = new THREE.Mesh(geo, mat);
       mesh.name = 'fringe:crest-shade';
@@ -9977,7 +10411,10 @@ export class FringeLayer {
    * (the same hashes, the same species, variant and index), so the footprint is the tree's own and not its species' largest (the test reads the same triangles back from the built meshes).
    * `stopAlong(p, q, clear)` is null where the segment keeps `clear` m off every one, else how far along it from p it does (0 where p itself is within `clear`).
    */
-  _gateTrunkTris(planted, crest) {
+  _gateTrunkTris(...args) { return finishBuild(this._gateTrunkTrisSteps(...args)); }
+
+  *_gateTrunkTrisSteps(planted, crest) {
+    const pauseBuild = buildBudget();
     const seed = this.plan.seed; const forms = new Map(); const tris = []; let crestTris = 0;
     const m = new THREE.Matrix4(); const q = new THREE.Quaternion(); const eul = new THREE.Euler(); const pv = new THREE.Vector3(); const sv = new THREE.Vector3(); const a = new THREE.Vector3(); const b = new THREE.Vector3(); const c = new THREE.Vector3(); const bbox = new THREE.Box3();
     const formOf = (species, variant, tier) => {
@@ -10015,11 +10452,21 @@ export class FringeLayer {
     };
     const speciesOf = (t) => (t.kind === 4 || t.role === 'windbreak' ? 4 : 0);
     for (const species of TREE_SPECIES) for (let variant = 0; variant < 3; variant += 1) {
-      planted.filter((t, index) => speciesOf(t) === species.kind && index % 3 === variant).forEach((t, i) => add(t, i, variant, species, 'near'));
-      crest.filter((t, index) => (t.kind === 4 ? 4 : 0) === species.kind && index % 3 === variant).forEach((t, i) => add(t, i, variant, species, 'far'));
+      if (pauseBuild()) yield null;
+      const nearTrees = planted.filter((t, index) => speciesOf(t) === species.kind && index % 3 === variant);
+      for (const [i, t] of nearTrees.entries()) {
+        if (pauseBuild()) yield null;
+        add(t, i, variant, species, 'near');
+      }
+      const farTrees = crest.filter((t, index) => (t.kind === 4 ? 4 : 0) === species.kind && index % 3 === variant);
+      for (const [i, t] of farTrees.entries()) {
+        if (pauseBuild()) yield null;
+        add(t, i, variant, species, 'far');
+      }
     }
     const CELL = 4; const grid = new Map(); const key = (gx, gz) => (gx + 16384) * 32768 + (gz + 16384);
-    for (const t of tris) for (let gx = Math.floor(t.bx0 / CELL); gx <= Math.floor(t.bx1 / CELL); gx += 1) for (let gz = Math.floor(t.bz0 / CELL); gz <= Math.floor(t.bz1 / CELL); gz += 1) { const kk = key(gx, gz); const l = grid.get(kk); if (l) l.push(t); else grid.set(kk, [t]); }
+    for (const t of tris) for (let gx = Math.floor(t.bx0 / CELL); gx <= Math.floor(t.bx1 / CELL); gx += 1) for (let gz = Math.floor(t.bz0 / CELL); gz <= Math.floor(t.bz1 / CELL); gz += 1) {
+      if (pauseBuild()) yield null; const kk = key(gx, gz); const l = grid.get(kk); if (l) l.push(t); else grid.set(kk, [t]); }
     const near = (x0, z0, x1, z1) => { const o = new Set(); for (let gx = Math.floor(x0 / CELL); gx <= Math.floor(x1 / CELL); gx += 1) for (let gz = Math.floor(z0 / CELL); gz <= Math.floor(z1 / CELL); gz += 1) for (const t of grid.get(key(gx, gz)) ?? []) o.add(t); return o; };
     const stopAlong = (p, qq, clear) => {
       const L = Math.hypot(qq[0] - p[0], qq[1] - p[1]); let stop = null;
@@ -10063,7 +10510,10 @@ export class FringeLayer {
    * decal under the bole, which is a different cue from the cast shadow the
    * canopy throws (T10) and is not made redundant by it.
    */
-  _plantTrees(trees, belts) {
+  _plantTrees(...args) { return finishBuild(this._plantTreesSteps(...args)); }
+
+  *_plantTreesSteps(trees, belts) {
+    const pauseBuild = buildBudget();
     const all = this._plantedTrees(trees, belts);
     if (!all.length) return;
     const plan = this.plan;
@@ -10115,6 +10565,7 @@ export class FringeLayer {
     const c = new THREE.Color();
     const bbox = new THREE.Box3();
     for (const species of SPECIES) for (let variant = 0; variant < 3; variant += 1) {
+      if (pauseBuild()) yield null;
       const kind = species.kind;
       const list = all.filter((t, index) => speciesOf(t) === kind && index % 3 === variant);
       if (!list.length) continue;
@@ -10142,10 +10593,12 @@ export class FringeLayer {
       for (let j = 0; j < vertices.count; j += 1) baseY = Math.min(baseY, vertices.getY(j));
       const roots = [];
       for (let j = 0; j < vertices.count; j += 1) {
+        if (pauseBuild()) yield null;
         if (vertices.getY(j) <= baseY + 1e-5) roots.push(new THREE.Vector3().fromBufferAttribute(vertices, j));
       }
       const foot = new THREE.Vector3();
       for (let i = 0; i < list.length; i += 1) {
+        if (pauseBuild()) yield null;
         const t = list[i];
         /**
          * ── FOUR PER-INSTANCE ROLLS, NOT ONE ──
@@ -10186,6 +10639,7 @@ export class FringeLayer {
         // up to 0.66 m. Lower the whole tree to its least supported root corner.
         let sink = 0;
         for (const root of roots) {
+          if (pauseBuild()) yield null;
           foot.copy(root).applyMatrix4(m);
           const ground = this._sampleHinterlandY?.(foot.x, foot.z);
           if (Number.isFinite(ground)) sink = Math.max(sink, foot.y - ground + 0.02);
@@ -10228,12 +10682,14 @@ export class FringeLayer {
       const patches = all.filter((t) => t.role !== 'copse');
       const members = all.filter((t) => t.role === 'copse');
       for (const cp of plan.hinterland?.copses ?? []) {
+        if (pauseBuild()) yield null;
         // A copse whose members were all culled — by the occupancy grid, the
         // creek gate or a batter — must not leave its shadow standing on empty
         // grass. The patch follows the SURVIVORS, and takes its radius from them.
         let live = 0;
         let far = 0;
         for (const t of members) {
+          if (pauseBuild()) yield null;
           const d = Math.hypot(t.x - cp.x, t.z - cp.z);
           if (d > cp.r + 1.5) continue;
           live += 1;
@@ -10250,7 +10706,7 @@ export class FringeLayer {
           role: 'copse-patch',
         });
       }
-      const geo = makeTreeShade(plan, patches, this._sampleHinterlandY);
+      const geo = (yield* makeTreeShadeSteps(plan, patches, this._sampleHinterlandY));
       const mat = makeContactMaterial();
       const mesh = new THREE.Mesh(geo, mat);
       mesh.name = 'fringe:hinterland-tree-shade';
@@ -10286,13 +10742,17 @@ export class FringeLayer {
     return true;
   }
 
-  update(dt, elapsed) {
-    const freeze = this.reducedMotion;
+  prepareWorld() {
     // The crust mounts after this layer, so its tint is not readable during
     // _build. Keep asking until it answers once, then stop.
     if (this._fieldsMat && !this._crustTintSynced) {
       this._crustTintSynced = this._syncCrustTint() === true;
     }
+  }
+
+  update(dt, elapsed) {
+    const freeze = this.reducedMotion;
+    this.prepareWorld();
     updatePort(this._port, dt, elapsed, freeze);
     updateApostles(this._apostles, dt, elapsed, freeze);
     updateAirport(this._airport, dt, elapsed, freeze);

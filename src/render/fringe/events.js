@@ -1,7 +1,6 @@
 // Hills-fringe events orchestrator: Rod Laver Arena, Albert Park Grand Prix, Falls Creek.
 // Per-venue geometry lives in ./events/. Presentation only. No Math.random.
 
-import { finishBuild } from '../startup.js';
 import * as THREE from 'three';
 import { noPick, edgeFrame, placeGroup } from './kit.js';
 import { alongLength } from '../shore.js';
@@ -150,9 +149,7 @@ function applyEntertainmentMaterialRegister(rod, kit) {
   return register;
 }
 
-export function addEvents(...args) { return finishBuild(addEventsSteps(...args)); }
-
-export function* addEventsSteps(parent, city, plan) {
+export function addEvents(parent, city, plan) {
   const roles = plan?.roles ?? {};
   const extent = plan?.extent ?? city?.extent ?? { x: 272, z: 272 };
   const edge = roles.hillsEdge;
@@ -177,14 +174,9 @@ export function* addEventsSteps(parent, city, plan) {
   // −2.92 m, floated the ring trees, and sent a float probe and a seam hunt after
   // objects that were never there.
   const opts = { groundAt: typeof plan?.groundAt === 'function' ? plan.groundAt : null, quality: plan?.quality };
-  // COPY-DRAFT: dispatch checkpoints keep each frozen venue in its own task.
-  yield 'Building Rod Laver Arena';
   const rodLaver = addRodLaver(root, m, y0, opts);
-  yield 'Building Albert Park';
   const grandPrix = addGrandPrix(root, m, y0, opts);
-  yield 'Building Falls Creek';
   addFallsCreek(root, m, y0, opts);
-  yield null;
   applyEntertainmentMaterialRegister(rodLaver, m);
   // Taste register: Rod Laver, its approach and the circuit only. Falls Creek keeps the
   // shared event palette it was authored against.

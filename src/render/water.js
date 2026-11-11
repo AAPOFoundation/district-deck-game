@@ -1,4 +1,3 @@
-import { finishBuild, buildBudget, runBuild } from './startup.js';
 import { mountWaterPatches } from './water-geometry-patches.js';
 import { isLodEnabled } from './lod.js';
 // District Deck V5.3 — one ocean (Lane M) + W2-NATURE beach shelf / piers.
@@ -216,24 +215,13 @@ export class WaterSurface {
    *   materials?: { get?: Function }|null,
    * }} [options]
    */
-  constructor(...args) { finishBuild(this._buildStages(...args)); }
-
-  static *build(...args) {
-    const view = Object.create(this.prototype);
-    yield* view._buildStages(...args);
-    return view;
-  }
-
-  static create(...args) { return runBuild(this.build(...args), args[2]?.startup); }
-
-  *_buildStages(parent, city, {
+  constructor(parent, city, {
     quality = 'high',
     reducedMotion = false,
     envMap = null,
     boardRoot = null,
     materials = null,
   } = {}) {
-    const pauseBuild = buildBudget();
     this.parent = parent;
     this.city = city;
     this.quality = quality;
@@ -245,15 +233,11 @@ export class WaterSurface {
     this._disposables = [];
     /** Library materials must not be disposed here. */
     this._ownedMaterials = [];
-    if (pauseBuild()) yield null;
     this._field = createCoastField();
     this._field.reducedMotion = reducedMotion;
-    if (pauseBuild()) yield null;
     this._interactUniforms = createInteractUniforms();
     this._spray = null;
     this._tmpWorld = new THREE.Vector3();
-    // COPY-DRAFT: startup progress.
-    yield 'Building the ocean';
     this._ocean = null;
     this._hidFringe = false;
     this._apostlesContact = null;
@@ -267,18 +251,15 @@ export class WaterSurface {
     this._reflector = new HarbourReflector({ planeY: WATER_Y });
     this._reflector.enabled = true;
 
-    if (pauseBuild()) yield null;
     this._hideBoardWater(boardRoot);
 
     const edge = city.waterEdge;
-    if (pauseBuild()) yield null;
     const frame = edge ? shoreFrame(edge, city.extent) : null;
     this._frame = frame;
     // taste-r1 (W74, COAST_SPINE, default off): with the switch on the water surface builds the coast spine's field and holds it here; nothing reads it yet.
     this.coastSpine = null;
     this._coastSpineDebug = null;
     this._landEdgeDebug = null;
-    if (pauseBuild()) yield null;
     if (COAST_SPINE.on) {
       try {
         this.coastSpine = getCoastSpine(city);
@@ -300,7 +281,7 @@ export class WaterSurface {
       } catch (err) { console.warn('coast spine not built:', err?.message ?? err); }
     }
 
-    this._ocean = yield* OuterOcean.build({
+    this._ocean = new OuterOcean({
       parent: this.root,
       city,
       quality,
@@ -318,19 +299,16 @@ export class WaterSurface {
     // nothing ever pushed the equirect afterwards and `uHasEnv` stayed false
     // for the life of the page. Push whatever we were handed, now that the
     // uniforms exist.
-    if (pauseBuild()) yield null;
     this.setEnvMap(envMap ?? this._envTexture ?? null);
 
-    if (pauseBuild()) yield null;
     if (edge && frame) {
-      (yield* this._buildSandShelfSteps(frame, edge, materials));
-      (yield* this._buildPiersSteps(frame, edge, materials));
-      (yield* this._buildBeachLifeSteps(frame, edge, materials));
+      this._buildSandShelf(frame, edge, materials);
+      this._buildPiers(frame, edge, materials);
+      this._buildBeachLife(frame, edge, materials);
       this._spray = new CoastSpray(this.root);
       this._spray.reducedMotion = reducedMotion;
     }
 
-    if (pauseBuild()) yield null;
     parent.add(this.root);
   }
 
@@ -355,10 +333,7 @@ export class WaterSurface {
    * The shelf runs from the wall toe to just past the waterline and carries its
    * own relief — berm, cusps, ripple — so it is no longer a flat tray.
    */
-  _buildSandShelf(...args) { return finishBuild(this._buildSandShelfSteps(...args)); }
-
-  *_buildSandShelfSteps(frame, edge) {
-    const pauseBuild = buildBudget();
+  _buildSandShelf(frame, edge) {
     // Shelf spans from just seaward of the wall to a little past the waterline.
     const inland = Math.max(0.5, SHORE.wallDeep * 0.25 - 3);
     const seaward = SHORE.waterFromWall + 14;
@@ -424,10 +399,7 @@ export class WaterSurface {
    * Thin cross-planks with kerfs, dark bearers/piles, timber edge rails —
    * reads as a timber jetty over the waves, not a concrete slab.
    */
-  _buildPiers(...args) { return finishBuild(this._buildPiersSteps(...args)); }
-
-  *_buildPiersSteps(frame, edge, materials) {
-    const pauseBuild = buildBudget();
+  _buildPiers(frame, edge, materials) {
     const alongX = frame.along === 'x';
     const count = Math.min(PIER_COUNT, 3);
     const margin = Math.max(28, frame.length * 0.12);
@@ -467,7 +439,6 @@ export class WaterSurface {
     // W12-G: the pier is modelled in coast-models.js in a local frame (x seaward from the first plank, y world metres)
     // and carried by one root per pier; the old unit-box instances are gone. Vertex colour carries board tone and occlusion.
     for (const mat of [timberDeck, timberStructure, timberRail, concrete, sandDrift]) {
-      if (pauseBuild()) yield null;
       mat.vertexColors = true;
       mat.needsUpdate = true;
     }
@@ -493,7 +464,6 @@ export class WaterSurface {
     const seaward0 = SHORE.wallDeep * 0.42;
     let pileTotal = 0;
     for (let i = 0; i < count; i += 1) {
-      if (pauseBuild()) yield null;
       // A lone civic jetty belongs on the bay axis. Reusing `margin + step * 0`
       // would strand it at the old flank-pier socket (12% along the edge).
       const along = count === 1 ? frame.length * 0.5 : margin + step * i;
@@ -580,10 +550,7 @@ export class WaterSurface {
    * Beach amenity kit: ice-cream truck, umbrellas, lifeguard tower, planters,
    * bus stop, outdoor shower. All on dry sand seaward of the wall (presentation only).
    */
-  _buildBeachLife(...args) { return finishBuild(this._buildBeachLifeSteps(...args)); }
-
-  *_buildBeachLifeSteps(frame, edge, materials) {
-    const pauseBuild = buildBudget();
+  _buildBeachLife(frame, edge, materials) {
     const alongX = frame.along === 'x';
     if (!this.beachUmbrellaRecords) this.beachUmbrellaRecords = [];
     const life = new THREE.Group();
@@ -732,9 +699,7 @@ export class WaterSurface {
     const contactSize = 32;
     const contactPixels = new Uint8Array(contactSize * contactSize * 4);
     for (let py = 0; py < contactSize; py += 1) {
-      if (pauseBuild()) yield null;
       for (let px = 0; px < contactSize; px += 1) {
-        if (pauseBuild()) yield null;
         const dx = (px + 0.5) / contactSize * 2 - 1;
         const dy = (py + 0.5) / contactSize * 2 - 1;
         const d = Math.min(1, Math.hypot(dx, dy));
@@ -864,13 +829,11 @@ export class WaterSurface {
       box(g, 0.30, 0.28, 1.85, -2.10, 0.42, 0, metal, 'ic-bumper');
       box(g, 0.1, 0.35, 0.9, -2.28, 0.72, 0, metal, 'ic-grille');
       for (const side of [-1, 1]) {
-        if (pauseBuild()) yield null;
         // Headlamp disc faces along X (forward of the van).
         cyl(g, 0.14, 0.14, 0.08, -2.3, 0.72, side * 0.62, yellow, 'ic-headlamp', 8, 'x');
       }
       // Wheel arches (value break over tyres)
       for (const [ax, az] of [[-1.15, 0.98], [1.0, 0.98], [-1.15, -0.98], [1.0, -0.98]]) {
-        if (pauseBuild()) yield null;
         box(g, 0.72, 0.38, 0.2, ax, 0.52, az, pinkDeep, 'ic-arch');
       }
       // Wheels: axle along local Z (width axis) so discs face out of the sides.
@@ -915,7 +878,6 @@ export class WaterSurface {
         this._disposables.push(pinGeom);
       };
       for (const [dx, dz] of [[-1.15, 0.98], [1.05, 0.98], [-1.15, -0.98], [1.05, -0.98]]) {
-        if (pauseBuild()) yield null;
         addWheel(dx, dz);
       }
       // Pink / mint candy stripe belt around the box
@@ -969,7 +931,6 @@ export class WaterSurface {
       const postH = deckY - 0.08;
       // Four main posts (open undercroft — sand visible underneath).
       for (const [lx, lz] of [[-0.85, -0.7], [0.85, -0.7], [-0.85, 0.85], [0.85, 0.85]]) {
-        if (pauseBuild()) yield null;
         box(g, 0.16, postH, 0.16, lx, 0.06, lz, timber, 'lg-post');
         // Foot plate on sand
         box(g, 0.32, 0.08, 0.32, lx, 0.02, lz, metal, 'lg-foot');
@@ -991,7 +952,6 @@ export class WaterSurface {
       // The joists span BETWEEN the post pairs, so each one lands on the two
       // posts under it; z 0.1 gets a wider section for the middle bearer.
       for (const jz of [-0.7, 0.85]) {
-        if (pauseBuild()) yield null;
         box(g, 2.0, 0.1, 0.16, 0, deckY - 0.2, jz, timber, 'lg-joist');
       }
       // The middle member runs the other way so it crosses both bearers
@@ -1035,11 +995,9 @@ export class WaterSurface {
       const stairZAt = (ty) => -1.85 + ((ty + 0.02) / 2.82) * 1.07;
       const treads = [0.35, 0.90, 1.45, 2.00, 2.55];
       for (let i = 0; i < treads.length; i += 1) {
-        if (pauseBuild()) yield null;
         box(g, 0.86, 0.1, 0.62, 0, treads[i], stairZAt(treads[i]), timber, `lg-stair-${i + 1}`);
       }
       for (const sx of [-0.42, 0.42]) {
-        if (pauseBuild()) yield null;
         boxRotX(g, 0.09, 3.02, 0.13, sx, 1.39, -1.315, stairRake, timber,
           sx < 0 ? 'lg-stair-stringer-L' : 'lg-stair-stringer-R');
       }
@@ -1318,7 +1276,6 @@ export class WaterSurface {
       let cursor = clusterMargin + 2.0;
       let gi = 0;
       while (cursor < clusterMargin + usable && gi < 64) {
-        if (pauseBuild()) yield null;
         const gap = 6 + h01(gi, 41) * 8;
         groups.push({
           along: cursor,
@@ -1335,9 +1292,7 @@ export class WaterSurface {
     const stationsA = [];
     const stationsB = [];
     for (const grp of groups) {
-      if (pauseBuild()) yield null;
       for (let s = 0; s < grp.n; s += 1) {
-        if (pauseBuild()) yield null;
         const k = h01(grp.gi * 11 + s, 45);
         const k2 = h01(grp.gi * 11 + s, 46);
         const k3 = h01(grp.gi * 11 + s, 47);
@@ -1512,7 +1467,6 @@ export class WaterSurface {
     };
     let chairIndex = 0;
     for (let clusterI = 0; clusterI < stationsA.length; clusterI += 1) {
-      if (pauseBuild()) yield null;
       const st = stationsA[clusterI];
       const alongM = st.along;
       const t = alongM / frame.length;
@@ -1559,7 +1513,6 @@ export class WaterSurface {
         let placed = 1;
         const turn0 = h01(clusterI, 62) * Math.PI * 2;
         for (let step = 0; step < 16 && placed < groupSize; step += 1) {
-          if (pauseBuild()) yield null;
           const ring = step < 8 ? 1.45 : 2.05;
           const ang = turn0 + (step % 8) * (Math.PI * 2 / 8) + (step < 8 ? 0 : Math.PI / 8);
           const fx = towelAx + Math.cos(ang) * ring;
@@ -1594,7 +1547,6 @@ export class WaterSurface {
       }
     }
     for (let clusterI = 0; clusterI < stationsB.length; clusterI += 1) {
-      if (pauseBuild()) yield null;
       const st = stationsB[clusterI];
       const alongM = st.along;
       const t = alongM / frame.length;
@@ -1649,7 +1601,6 @@ export class WaterSurface {
       // boards stand on the sand and lean on the rail rather than hovering.
       box(g, 0.98, 0.1, 0.14, 0, 0.7, 0, timber, 'board-rack-rail');
       for (const [boardI, ox] of [-0.25, 0, 0.25].entries()) {
-        if (pauseBuild()) yield null;
         box(g, 0.18, 1.55, 0.10, ox, GND - 0.03, 0.10, yellow, 'surfboard');
         registerBeachProp(g, {
           name: `surfboard:${edge}:${boardI}`, kind: 'board', x: ox, z: 0.10,
@@ -1666,7 +1617,6 @@ export class WaterSurface {
       box(g, 0.16, 1.35, 0.09, -0.15, GND - 0.03, 0.09, coral, 'surfboard-b');
       box(g, 0.16, 1.35, 0.09, 0.15, GND - 0.03, 0.09, blue, 'surfboard-c');
       for (const [boardI, ox] of [-0.15, 0.15].entries()) {
-        if (pauseBuild()) yield null;
         registerBeachProp(g, {
           name: `surfboard-stack:${edge}:${boardI}`, kind: 'board', x: ox, z: 0.09,
           width: 0.16, depth: 0.09, groundY: GND,
@@ -1674,7 +1624,6 @@ export class WaterSurface {
       }
     }
     for (const t of [0.22, 0.55, 0.78]) {
-      if (pauseBuild()) yield null;
       const g = placeGroup(t, 8.2);
       cyl(g, 0.28, 0.32, 0.85, 0, GND - 0.03, 0, metal, 'beach-bin', 8);
       box(g, 0.55, 0.08, 0.55, 0, GND + 0.82, 0, stripe, 'beach-bin-lid');
@@ -1758,7 +1707,6 @@ export class WaterSurface {
       const bp = plBladeGeo.attributes.position;
       const bc = new Float32Array(bp.count * 3);
       for (let i = 0; i < bp.count; i += 1) {
-        if (pauseBuild()) yield null;
         const k = 0.62 + 0.38 * Math.min(1, Math.max(0, bp.getY(i) + 0.5));
         bc[i * 3] = k; bc[i * 3 + 1] = k; bc[i * 3 + 2] = k;
       }
@@ -1778,14 +1726,12 @@ export class WaterSurface {
       const nrm = plDomeGeo.attributes.normal;
       const v = new THREE.Vector3();
       for (let i = 0; i < pos.count; i += 1) {
-        if (pauseBuild()) yield null;
         v.fromBufferAttribute(pos, i).normalize();
         nrm.setXYZ(i, v.x, v.y, v.z);
       }
       nrm.needsUpdate = true;
     }
     for (const geo of [plBoxGeo, plDomeGeo, plBladeGeo, plRivetGeo]) {
-      if (pauseBuild()) yield null;
       MaterialLibrary.ensureUv2(geo);
       this._disposables.push(geo);
     }
@@ -1893,12 +1839,10 @@ export class WaterSurface {
     const planterPairHalf = 1.14 / Math.max(1, frame.length);
     let planterIndex = 0;
     for (const t of [0.1, 0.18, 0.34, 0.42, 0.58, 0.66, 0.82, 0.9]) {
-      if (pauseBuild()) yield null;
       if (clearStairOrPier(t)) continue;
       // A real esplanade run is a repeated unit set out in pairs. Tub dimensions
       // never vary; timber tone, planting mix and mass heights do (V331 §2c).
       for (const pairSide of [-1, 1]) {
-        if (pauseBuild()) yield null;
         const idx = planterIndex;
         planterIndex += 1;
         const rng = makeRng(hashSeed(`v331:esplanade-planter:${edge}:${idx}`));
@@ -1964,7 +1908,6 @@ export class WaterSurface {
         // whole length of both long faces, and the r2a base crop showed daylight and the
         // boardwalk's own understructure straight through the gap under the boards.
         for (const bz of [-1, 1]) {
-          if (pauseBuild()) yield null;
           plPushBox(timberList, 0, PL_BEARER_H * 0.5, bz * (PL_D * 0.5 - 0.215),
             PL_W - 0.06, PL_BEARER_H, 0.395,
             scale3(PL_TINT.bearer, tone * 0.92));
@@ -1976,7 +1919,6 @@ export class WaterSurface {
         // where the deck holds water, and each course carries its own small value
         // scatter so four boards are not four identical fills.
         for (let course = 0; course < PL_COURSES; course += 1) {
-          if (pauseBuild()) yield null;
           const y = PL_BEARER_H + course * (PL_BOARD_H + PL_BOARD_GAP) + PL_BOARD_H * 0.5;
           const grain = tone * (0.90 + rng() * 0.21);
           const damp = course === 0 ? 1 : course === 1 ? 0.55 : 0;
@@ -1996,7 +1938,6 @@ export class WaterSurface {
           plPushBox(timberList, 0, y, -PL_D * 0.5 + PL_BOARD_T * 0.5,
             PL_W, PL_BOARD_H, PL_BOARD_T, blend(PL_TINT.board));
           for (const sx of [-1, 1]) {
-            if (pauseBuild()) yield null;
             plPushBox(timberList, sx * (PL_W * 0.5 - PL_BOARD_T * 0.5), y, 0,
               PL_BOARD_T, PL_BOARD_H, PL_D - PL_BOARD_T * 2, blend(PL_TINT.boardEnd));
           }
@@ -2015,7 +1956,6 @@ export class WaterSurface {
         ];
         if (midCleats) cleatSpots.push([0, cleatZ], [0, -cleatZ]);
         for (const [cx, cz] of cleatSpots) {
-          if (pauseBuild()) yield null;
           // Cleats run all the way to the deck, so the tub stands on its own corners and
           // the eye can follow timber from the capping to the boards it rests on.
           plPushBox(timberList, cx, PL_BODY_TOP * 0.5, cz,
@@ -2025,14 +1965,12 @@ export class WaterSurface {
           const boltZ = face * (PL_D * 0.5 + PL_CLEAT_PROUD + 0.002);
           const boltQ = plYaw(face > 0 ? 0 : Math.PI);
           for (const by of [PL_BEARER_H + 0.085, PL_BEARER_H + 0.315]) {
-            if (pauseBuild()) yield null;
             plPushBox(metalList, cx, by, boltZ, 0.021, 0.021, 1, PL_TINT.bolt, boltQ);
           }
         }
         // Deck fixing angles — the tub is bolted down, not resting loose. Galvanised, and
         // dark enough that they read as ironmongery rather than as the brightest mark.
         for (const bx of [-1, 1]) {
-          if (pauseBuild()) yield null;
           plPushBox(timberList, bx * (PL_W * 0.5 - 0.13), 0.030, PL_D * 0.5 - 0.045,
             0.115, 0.060, 0.075, PL_TINT.bracket);
         }
@@ -2043,14 +1981,12 @@ export class WaterSurface {
         const capTint = scale3(PL_TINT.cap, tone);
         const chamTint = scale3(PL_TINT.chamfer, tone);
         for (const zs of [1, -1]) {
-          if (pauseBuild()) yield null;
           plPushBox(timberList, 0, capY, zs * (PL_CAP_Z - PL_CAP_W * 0.5),
             PL_CAP_X * 2, PL_CAP_H, PL_CAP_W, capTint);
           plPushBox(timberList, 0, chamY, zs * (PL_CAP_Z - 0.026 - (PL_CAP_W - 0.052) * 0.5),
             PL_CAP_X * 2 - 0.052, 0.026, PL_CAP_W - 0.052, chamTint);
         }
         for (const xs of [-1, 1]) {
-          if (pauseBuild()) yield null;
           plPushBox(timberList, xs * (PL_CAP_X - PL_CAP_W * 0.5), capY, 0,
             PL_CAP_W, PL_CAP_H, PL_CAP_Z * 2 - PL_CAP_W * 2, capTint);
           plPushBox(timberList, xs * (PL_CAP_X - 0.026 - (PL_CAP_W - 0.052) * 0.5), chamY, 0,
@@ -2075,7 +2011,6 @@ export class WaterSurface {
         plPushBox(soilList, 0, PL_SOIL_TOP - 0.055, 0,
           PL_W - PL_BOARD_T * 2 - 0.02, 0.11, PL_D - PL_BOARD_T * 2 - 0.02, PL_TINT.soil);
         for (let m = 0; m < 3; m += 1) {
-          if (pauseBuild()) yield null;
           plPushBox(soilList,
             (rng() - 0.5) * 1.0, PL_SOIL_TOP - 0.002 + rng() * 0.006, (rng() - 0.5) * 0.36,
             0.20 + rng() * 0.16, 0.012, 0.13 + rng() * 0.08,
@@ -2087,7 +2022,6 @@ export class WaterSurface {
         // rather than as the flat brown card r1 laid on the deck.
         if (rng() < 0.55) {
           for (let s = 0; s < 3; s += 1) {
-            if (pauseBuild()) yield null;
             const side = s === 1 ? -1 : 1;
             plPushBox(soilList,
               side * (PL_W * 0.34 + rng() * 0.34), 0.008,
@@ -2123,7 +2057,6 @@ export class WaterSurface {
         const speciesPool = PL_SPECIES.map((_, i) => i);
         const speciesOrder = [];
         for (let s = 0; s < moundCount; s += 1) {
-          if (pauseBuild()) yield null;
           speciesOrder.push(
             speciesPool.length
               ? speciesPool.splice(Math.floor(rng() * speciesPool.length), 1)[0]
@@ -2140,7 +2073,6 @@ export class WaterSurface {
         const step = (span * 2) / moundCount;
         const mounds = [];
         for (let m = 0; m < moundCount; m += 1) {
-          if (pauseBuild()) yield null;
           const spec = m === floweringAt ? floweringSpec : PL_SPECIES[speciesOrder[m]];
           const cx = -span + step * (m + 0.5) + (rng() - 0.5) * step * 0.22;
           const cz = (rng() - 0.5) * (PL_BED_Z * 0.44);
@@ -2156,7 +2088,6 @@ export class WaterSurface {
           mounds.push({ spec, cx, cz, radius, rise });
           const phase = rng() * Math.PI * 2;
           for (let k = 0; k < lumpsPer; k += 1) {
-            if (pauseBuild()) yield null;
             const core = k === 0;
             const crown = k === 1;
             // Even angular spacing round the mound, phase-rotated per mound. Golden-angle
@@ -2199,7 +2130,6 @@ export class WaterSurface {
           const host = mounds[floweringAt];
           const bloomHue = floweringSpec.bloom ?? PL_BLOOM[Math.floor(rng() * PL_BLOOM.length)];
           for (let b = 0; b < 3; b += 1) {
-            if (pauseBuild()) yield null;
             const ang = rng() * Math.PI * 2;
             const off = host.radius * (0.10 + rng() * 0.44);
             const fall = 1 - Math.pow(Math.min(1, off / host.radius), 1.7);
@@ -2218,7 +2148,6 @@ export class WaterSurface {
         // Strap-leaf fans between the mounds — the tall ragged edge of the silhouette,
         // and what lets sky through above the planting.
         for (let fan = 0; fan < 2; fan += 1) {
-          if (pauseBuild()) yield null;
           const host = mounds[Math.min(mounds.length - 1, fan === 0 ? 0 : mounds.length - 2)];
           // In the gap between two mounds, so the fan comes out of the bed rather than
           // out of the middle of a shrub.
@@ -2228,7 +2157,6 @@ export class WaterSurface {
           const fanHue = [PL_BLADE[0] * (0.86 + rng() * 0.3),
             PL_BLADE[1] * (0.9 + rng() * 0.22), PL_BLADE[2] * (0.85 + rng() * 0.4)];
           for (let b = 0; b < blades; b += 1) {
-            if (pauseBuild()) yield null;
             const yaw = (b / blades) * Math.PI * 2 + rng() * 0.4;
             const lean = 0.14 + rng() * 0.30;
             const h = 0.30 + rng() * 0.20;
@@ -2352,7 +2280,6 @@ export class WaterSurface {
         [0.63, 15.6],
       ];
       for (let i = 0; i < spots.length; i += 1) {
-        if (pauseBuild()) yield null;
         const [t, sea] = spots[i];
         if (inP13Corner(t * frame.length, sea)) continue;
         const g = placeGroup(t, sea);
@@ -2389,7 +2316,6 @@ export class WaterSurface {
         this._ownedMaterials.push(this._queueFigureMat);
       }
       for (let i = 0; i < offsets.length; i += 1) {
-        if (pauseBuild()) yield null;
         const [lx, lz, yaw] = offsets[i];
         const name = `kiosk-queue:${i}`;
         const shirtColour = shirts[i].color;
@@ -2456,7 +2382,6 @@ export class WaterSurface {
     {
       const wetSea = SAND_SEAWARD + WET_DEPTH * 0.32;
       for (let i = 0; i < 3; i += 1) {
-        if (pauseBuild()) yield null;
         const alongT = 0.05 + i * 0.16;
         const alongM = alongT * frame.length;
         if (umbrellaBlocked(alongM, wetSea)) continue;
@@ -2496,7 +2421,6 @@ export class WaterSurface {
       const g = placeGroup(0.12, 22.5);
       g.name = `beach-cricket:${edge}`;
       for (const sx of [-0.12, 0, 0.12]) {
-        if (pauseBuild()) yield null;
         box(g, 0.04, 0.62, 0.04, sx, 0.04, 0, timber, 'cricket-stump');
       }
       box(g, 0.42, 0.04, 0.04, 0, 0.66, 0, timber, 'cricket-bails');
@@ -2522,10 +2446,8 @@ export class WaterSurface {
       fpGeom.rotateX(-Math.PI / 2);
       this._disposables.push(fpGeom);
       for (const stairT of [0.225, 0.5, 0.775]) {
-        if (pauseBuild()) yield null;
         const n = 9 + Math.floor(h01(stairT * 10, 40) * 4);
         for (let i = 0; i < n; i += 1) {
-          if (pauseBuild()) yield null;
           const sea = BOARDWALK_SEAWARD_EDGE + 0.8 + i * (1.55 + h01(i, 41 + stairT) * 0.45);
           const alongM = stairT * frame.length
             + (h01(i, 42) - 0.5) * 1.4
@@ -2556,7 +2478,6 @@ export class WaterSurface {
     const contactQuaternion = new THREE.Quaternion();
     const contactScale = new THREE.Vector3();
     for (let i = 0; i < pm11ContactPlacements.length; i += 1) {
-      if (pauseBuild()) yield null;
       const p = pm11ContactPlacements[i];
       contactPosition.set(p.x, p.sandY + 0.008, p.z);
       contactQuaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), p.yaw);
@@ -3289,27 +3210,6 @@ export class WaterSurface {
    * @param {number} dt
    * @param {number} elapsed capture-harness / clock elapsed seconds
    */
-  // These idempotent first-update mounts must precede static batching and shader
-  // compilation. No clocks, animation solvers or simulation ticks are advanced.
-  *prepareWorldSteps() {
-    // COPY-DRAFT: shoreline preparation behind the loading panel.
-    yield 'Preparing the shoreline contacts';
-    this._hideCoveredFringeWater();
-    yield null;
-    this._dressApostlesCoveContact();
-    yield null;
-    this._dressRockFoam();
-    yield null;
-    this._dressRockFoam();
-    yield 'Preparing the harbour reflections';
-    this._bakeReflectMass();
-    yield null;
-    this._syncPortHullContact();
-    if (!this._paintedRings && this._massBaked && this._ocean?.uniforms) {
-      this._paintedRings = new PaintedContactRings(this.parent, this._ocean);
-    }
-  }
-
   update(dt, elapsed) {
     for (const idle of this._h1bKioskIdles ?? []) {
       idle.root.rotation.y = idle.yaw + (this.reducedMotion ? 0 : 0.12 * Math.sin(elapsed * 0.45 + idle.phase));

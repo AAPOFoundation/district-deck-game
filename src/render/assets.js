@@ -1,3 +1,4 @@
+import { runBuild, buildBudget, yieldToBrowser } from './startup.js';
 // District Deck V3.00 — runtime asset registry.
 // Framework §5.1: every asset records its representation, and anything missing at
 // runtime falls back to procedural geometry so the game never fails to render.
@@ -192,11 +193,15 @@ function extractModernOpenings(root) {
   return openings;
 }
 
-function mergeByMaterial(root) {
+function* mergeByMaterialSteps(root) {
+  const pauseBuild = buildBudget();
   root.updateMatrixWorld(true);
   const buckets = new Map();
-  root.traverse((child) => {
-    if (!child.isMesh || !child.geometry) return;
+  const children = [];
+  root.traverse(child => children.push(child));
+  for (const child of children) {
+    if (pauseBuild()) yield null;
+    if (!child.isMesh || !child.geometry) continue;
     const materials = Array.isArray(child.material) ? child.material : [child.material];
     const material = materials[0];
     const key = material.uuid;
@@ -214,10 +219,11 @@ function mergeByMaterial(root) {
     }
     if (!buckets.has(key)) buckets.set(key, { material, geometries: [] });
     buckets.get(key).geometries.push(geometry);
-  });
+  }
 
   const parts = [];
   for (const { material, geometries } of buckets.values()) {
+    if (pauseBuild()) yield null;
     const merged = geometries.length === 1 ? geometries[0] : mergeGeometries(geometries, false);
     if (!merged) continue;
     merged.computeBoundingBox();
@@ -360,8 +366,9 @@ export class AssetRegistry {
   async loadOne(id, url, source) {
     try {
       const gltf = await this.loader.loadAsync(url);
+      await yieldToBrowser();
       const openings = extractModernOpenings(gltf.scene);
-      const parts = mergeByMaterial(gltf.scene);
+      const parts = await runBuild(mergeByMaterialSteps(gltf.scene));
       if (!parts.length) throw new Error('no geometry');
       const normalised = normaliseToGround(parts);
       if (Math.abs(normalised.offsetY) > 0.001) {
@@ -472,6 +479,7 @@ export class AssetRegistry {
     // Sequential-ish batching keeps the Draco worker pool sane on low-end devices.
     const BATCH = 4;
     for (let i = 0; i < jobs.length; i += BATCH) {
+      await yieldToBrowser();
       const slice = jobs.slice(i, i + BATCH);
       await Promise.all(slice.map(async (job) => {
         await this.loadOne(job.id, job.url, job.source);

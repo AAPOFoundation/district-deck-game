@@ -1,3 +1,4 @@
+import { finishBuild, buildBudget, runBuild } from './startup.js';
 // District Deck V4.8 P3 — coherent surround outside the city.
 // Two water edges (beach + port) and two land edges (hills + inland) as one
 // mass. Does not edit city geometry. Fringe / beach / port stay on top.
@@ -3397,7 +3398,10 @@ export const TRAY_RIBBON_JOIN = TRAY_JOIN_QUERY !== null && Number(TRAY_JOIN_QUE
 /** The venue weight ramps over 12 m, so a ribbon starting 12 m inside the region's gap needs twice that to read 1. */
 const TRAY_JOIN_REACH = 24;
 
-function buildEdgeKerbGeometry(city, plan, quality = 'high', albedo = null, sheetGeo = null) {
+function buildEdgeKerbGeometry(...args) { return finishBuild(buildEdgeKerbGeometrySteps(...args)); }
+
+function* buildEdgeKerbGeometrySteps(city, plan, quality = 'high', albedo = null, sheetGeo = null) {
+  const pauseBuild = buildBudget();
   const extent = city.extent ?? { x: 272, z: 272 };
   const azCount = quality === 'low' ? 96 : quality === 'medium' ? 128 : TRAY_BAND.azimuth;
   const hx = extent.x * 0.5;
@@ -3441,6 +3445,7 @@ function buildEdgeKerbGeometry(city, plan, quality = 'high', albedo = null, shee
     { out: TRAY_VERGE_END, dy: null, c: cVerge, ground: true },
   ];
   for (let i = 1; i <= TRAY_BAND.blendSteps; i += 1) {
+    if (pauseBuild()) yield null;
     pts.push({ out: TRAY_VERGE_END + (TRAY_BAND.blend * i) / TRAY_BAND.blendSteps, dy: null, c: cVerge, ground: true, blend: i / TRAY_BAND.blendSteps });
   }
   // Segment k joins pts[k] to pts[k + 1]; the segment that is a vertical drop (wall face) has no
@@ -3475,17 +3480,21 @@ function buildEdgeKerbGeometry(city, plan, quality = 'high', albedo = null, shee
     colors.push(col.r, col.g, col.b);
   };
   for (let ia = 0; ia <= azCount; ia += 1) {
+    if (pauseBuild()) yield null;
     const az = (ia / azCount) * Math.PI * 2 - Math.PI;
     wet.push(trayBandWetAt(az, hx, hz, extent, plan));
     for (let k = 0; k < segCount; k += 1) {
+      if (pauseBuild()) yield null;
       ringRow(az, segs[k][0]);
       ringRow(az, segs[k][1]);
     }
   }
   const groundIdx = [];
   for (let ia = 0; ia < azCount; ia += 1) {
+    if (pauseBuild()) yield null;
     if (wet[ia] || wet[ia + 1]) continue;
     for (let k = 0; k < segCount; k += 1) {
+      if (pauseBuild()) yield null;
       const a = (ia * segCount + k) * 2;
       const c = a + 1;
       const b = a + segCount * 2;
@@ -3862,11 +3871,14 @@ function ringGrainFor(seed) {
  * overlays. The bake is 1024²; a 256² creek/coast auxiliary is sampled
  * bilinearly so the expensive analytic fields are not evaluated per texel.
  */
-export function bakeRingAlbedo(extent, plan, {
+export function bakeRingAlbedo(...args) { return finishBuild(bakeRingAlbedoSteps(...args)); }
+
+export function* bakeRingAlbedoSteps(extent, plan, {
   seed = 0,
   modulate = null,
   postModulate = null,
 } = {}) {
+  const pauseBuild = buildBudget();
   const size = RING_ALBEDO.size;
   const o = ringAlbedoOrigin(extent);
   const data = new Uint8Array(size * size * 4);
@@ -3879,7 +3891,9 @@ export function bakeRingAlbedo(extent, plan, {
   const seats = plan?.seats;
   const seam = EDGE_SEAM;
   for (let j = 0; j < aux; j += 1) {
+    if (pauseBuild()) yield null;
     for (let i = 0; i < aux; i += 1) {
+      if (pauseBuild()) yield null;
       const x = o.originX + ((i + 0.5) / aux) * o.span;
       const z = o.originZ + ((j + 0.5) / aux) * o.span;
       const w = waternessAt(x, z, extent, plan, seam.shoreWidth);
@@ -3908,6 +3922,7 @@ export function bakeRingAlbedo(extent, plan, {
   let falls = null;
   if (seats) {
     for (let s = 0; s < seats.length; s += 1) {
+      if (pauseBuild()) yield null;
       if (seats[s].id === 'falls-creek') { falls = seats[s]; break; }
     }
   }
@@ -3917,7 +3932,9 @@ export function bakeRingAlbedo(extent, plan, {
   // W86 (GROUND_SURFACE `creekLine`): with the switch on the creek's line weight goes into the map's alpha (the sheet and the crust keep the map's colour by it over the parcel statement). Off, or the knob at 0: alpha stays 255, which nothing reads.
   const lineAlpha = GROUND_SURFACE.on > 0 && GROUND_SURFACE.creekLine > 0;
   for (let j = 0; j < size; j += 1) {
+    if (pauseBuild()) yield null;
     for (let i = 0; i < size; i += 1) {
+      if (pauseBuild()) yield null;
       const x = o.originX + ((i + 0.5) / size) * o.span;
       const z = o.originZ + ((j + 0.5) / size) * o.span;
       const nA = valueNoise(x * 0.0043 + 17.3, z * 0.0043 + 2.8);
@@ -4080,7 +4097,10 @@ export function stampRingAlbedoLine(tex, extent, x0, z0, x1, z1, rgb, widthM) {
  * `surroundHeightAt`; the overlay lane passes `hinterlandGroundAt` so the
  * shader's finite differences are of the surface that is actually drawn.
  */
-export function bakeRingHeight(extent, plan, { heightAt } = {}) {
+export function bakeRingHeight(...args) { return finishBuild(bakeRingHeightSteps(...args)); }
+
+export function* bakeRingHeightSteps(extent, plan, { heightAt } = {}) {
+  const pauseBuild = buildBudget();
   const size = RING_HEIGHT.size;
   const o = ringAlbedoOrigin(extent);
   const data = new Uint8Array(size * size * 4);
@@ -4094,7 +4114,9 @@ export function bakeRingHeight(extent, plan, { heightAt } = {}) {
   const coarseN = (size >> 2) + 2;
   const coarse = new Uint8Array(coarseN * coarseN);
   for (let cj = 0; cj < coarseN; cj += 1) {
+    if (pauseBuild()) yield null;
     for (let ci = 0; ci < coarseN; ci += 1) {
+      if (pauseBuild()) yield null;
       const cxw = o.originX + ((ci * 4 + 0.5) / size) * o.span;
       const czw = o.originZ + ((cj * 4 + 0.5) / size) * o.span;
       coarse[cj * coarseN + ci] = coastRimAt(cxw, czw, extent, plan).valid ? 1 : 0;
@@ -4105,7 +4127,9 @@ export function bakeRingHeight(extent, plan, { heightAt } = {}) {
   // W87 (GROUND_SURFACE `shoreRock`): the shore's rise, per texel (ground-surface.js `shoreWeight`: waterness and radius from the board's centre; zero inside r 600, so only the far ring's texels cost a waterness read).
   const shoreV = GROUND_SURFACE.on > 0 && GROUND_SURFACE.shoreRock > 0 ? new Float32Array(size * size) : null;
   for (let j = 0; j < size; j += 1) {
+    if (pauseBuild()) yield null;
     for (let i = 0; i < size; i += 1) {
+      if (pauseBuild()) yield null;
       const x = o.originX + ((i + 0.5) / size) * o.span;
       const z = o.originZ + ((j + 0.5) / size) * o.span;
       if (creekV) creekV[j * size + i] = creekCarveFieldAt(x, z, extent, plan);
@@ -4381,7 +4405,10 @@ export const CRUST_SHORE = Object.freeze({
 });
 
 /** Packed RG32F over the ring height's own texels: R the far coast coordinate in metres (-1000 where the point is not on the coast), G the ribbon's width factor. */
-export function bakeSheetShore(extent, plan) {
+export function bakeSheetShore(...args) { return finishBuild(bakeSheetShoreSteps(...args)); }
+
+export function* bakeSheetShoreSteps(extent, plan) {
+  const pauseBuild = buildBudget();
   const size = RING_HEIGHT.size;
   const o = ringAlbedoOrigin(extent);
   const cx = extent.x * 0.5;
@@ -4396,7 +4423,9 @@ export function bakeSheetShore(extent, plan) {
   const coarseN = (size >> 2) + 2;
   const coarse = new Uint8Array(coarseN * coarseN);
   for (let cj = 0; cj < coarseN; cj += 1) {
+    if (pauseBuild()) yield null;
     for (let ci = 0; ci < coarseN; ci += 1) {
+      if (pauseBuild()) yield null;
       // a cell is near the coast when its centre or one of its corners is on it (the annulus test above is cheap, the field is not)
       const x = o.originX + ((ci * 4 + 0.5) / size) * o.span;
       const z = o.originZ + ((cj * 4 + 0.5) / size) * o.span;
@@ -4404,7 +4433,9 @@ export function bakeSheetShore(extent, plan) {
     }
   }
   for (let j = 0; j < size; j += 1) {
+    if (pauseBuild()) yield null;
     for (let i = 0; i < size; i += 1) {
+      if (pauseBuild()) yield null;
       const p = (j * size + i) * 2;
       data[p] = -1000;
       const c0 = (j >> 2) * coarseN + (i >> 2);
@@ -4503,7 +4534,10 @@ function apronTessellation(quality) {
  * Closed ribbon around the square rim. Polar walk (same rayToSquare as the
  * crust) so corners are a continuous turn, not four strips with a notch.
  */
-function buildApronGeometry(city, plan, quality = 'high') {
+function buildApronGeometry(...args) { return finishBuild(buildApronGeometrySteps(...args)); }
+
+function* buildApronGeometrySteps(city, plan, quality = 'high') {
+  const pauseBuild = buildBudget();
   const extent = city.extent ?? { x: 272, z: 272 };
   const { az: azCount, rad: radCount } = apronTessellation(quality);
   const hx = extent.x * 0.5;
@@ -4516,11 +4550,13 @@ function buildApronGeometry(city, plan, quality = 'high') {
   const outerR = (boardR) => boardR + EDGE_APRON.width;
 
   for (let ia = 0; ia <= azCount; ia += 1) {
+    if (pauseBuild()) yield null;
     const az = (ia / azCount) * Math.PI * 2 - Math.PI;
     const boardR = rayToSquare(az, hx, hz);
     const r0 = innerR(boardR);
     const r1 = outerR(boardR);
     for (let ir = 0; ir <= radCount; ir += 1) {
+      if (pauseBuild()) yield null;
       const u = ir / radCount;
       const r = lerp(r0, r1, u);
       const x = hx + Math.sin(az) * r;
@@ -4539,12 +4575,15 @@ function buildApronGeometry(city, plan, quality = 'high') {
   // the same wet test says the ribbon stops.
   const wet = [];
   for (let ia = 0; ia <= azCount; ia += 1) {
+    if (pauseBuild()) yield null;
     const az = (ia / azCount) * Math.PI * 2 - Math.PI;
     wet.push(trayBandWetAt(az, hx, hz, extent, plan));
   }
   for (let ia = 0; ia < azCount; ia += 1) {
+    if (pauseBuild()) yield null;
     if (!wet[ia] && !wet[ia + 1]) continue;
     for (let ir = 0; ir < radCount; ir += 1) {
+      if (pauseBuild()) yield null;
       const a = ia * stride + ir;
       const b = a + stride;
       const c = a + 1;
@@ -5138,7 +5177,10 @@ const CRUST_GRAIN = Object.freeze({
 });
 
 /** The crust grid's own heights as a half-float raster over the crust's square (what the sheet shows, so what the shader differences). */
-function bakeCrustHeight(city, geo, quality) {
+function bakeCrustHeight(...args) { return finishBuild(bakeCrustHeightSteps(...args)); }
+
+function* bakeCrustHeightSteps(city, geo, quality) {
+  const pauseBuild = buildBudget();
   const extent = city.extent ?? { x: 272, z: 272 };
   const { az: azCount, rad: radCount } = tessellation(quality);
   const hx = extent.x * 0.5;
@@ -5151,7 +5193,9 @@ function bakeCrustHeight(city, geo, quality) {
   const data = new Uint16Array(n * n);
   const heightAt = (ia, ir) => pos[(ia * stride + ir) * 3 + 1];
   for (let j = 0; j < n; j += 1) {
+    if (pauseBuild()) yield null;
     for (let i = 0; i < n; i += 1) {
+      if (pauseBuild()) yield null;
       const dx = ((i + 0.5) / n - 0.5) * span;
       const dz = ((j + 0.5) / n - 0.5) * span;
       const az = Math.atan2(dx, dz);
@@ -5160,6 +5204,7 @@ function bakeCrustHeight(city, geo, quality) {
       let lo = 0;
       let hi = 1;
       for (let k = 0; k < 22; k += 1) {
+        if (pauseBuild()) yield null;
         const mid = 0.5 * (lo + hi);
         if (mapRadial(mid) < want) lo = mid; else hi = mid;
       }
@@ -5200,7 +5245,10 @@ export function farSandAmountAt(qm, r, valid = true) {
   return smoothstep(GS_CONST.farSand.ramp[0], GS_CONST.farSand.ramp[1], qm) * (1 - smoothstep(COAST_FAR.width[0], COAST_FAR.width[1], r));
 }
 
-export function bakeCrustFarAlbedo(extent, seed, plan = null) {
+export function bakeCrustFarAlbedo(...args) { return finishBuild(bakeCrustFarAlbedoSteps(...args)); }
+
+export function* bakeCrustFarAlbedoSteps(extent, seed, plan = null) {
+  const pauseBuild = buildBudget();
   const size = CRUST_FORM.farN;
   const cx = extent.x * 0.5;
   const cz = extent.z * 0.5;
@@ -5210,7 +5258,9 @@ export function bakeCrustFarAlbedo(extent, seed, plan = null) {
   const rgb = [0, 0, 0];
   const tmp = [0.34, 0.38, 0.28];
   for (let j = 0; j < size; j += 1) {
+    if (pauseBuild()) yield null;
     for (let i = 0; i < size; i += 1) {
+      if (pauseBuild()) yield null;
       const x = cx + ((i + 0.5) / size - 0.5) * span;
       const z = cz + ((j + 0.5) / size - 0.5) * span;
       const nA = valueNoise(x * 0.0043 + 17.3, z * 0.0043 + 2.8);
@@ -5378,7 +5428,10 @@ ${gsFar ? groundSurfaceFarGlsl() : ''}}`);
   return material;
 }
 
-function buildSurroundGeometry(city, plan, quality = 'high') {
+function buildSurroundGeometry(...args) { return finishBuild(buildSurroundGeometrySteps(...args)); }
+
+function* buildSurroundGeometrySteps(city, plan, quality = 'high') {
+  const pauseBuild = buildBudget();
   const extent = city.extent ?? { x: 272, z: 272 };
   const { az: azCount, rad: radCount } = tessellation(quality);
   const hx = extent.x * 0.5;
@@ -5392,10 +5445,12 @@ function buildSurroundGeometry(city, plan, quality = 'high') {
   const outer = EDGE_SEAM.outerRadius;
 
   for (let ia = 0; ia <= azCount; ia += 1) {
+    if (pauseBuild()) yield null;
     const az = (ia / azCount) * Math.PI * 2 - Math.PI;
     const boardR = rayToSquare(az, hx, hz);
     const inner = boardR + innerPad;
     for (let ir = 0; ir <= radCount; ir += 1) {
+      if (pauseBuild()) yield null;
       const u = ir / radCount;
       // Denser through the landmark ring so seats and bridges are not facets.
       const r = lerp(inner, outer, mapRadial(u));
@@ -5410,7 +5465,9 @@ function buildSurroundGeometry(city, plan, quality = 'high') {
 
   const stride = radCount + 1;
   for (let ia = 0; ia < azCount; ia += 1) {
+    if (pauseBuild()) yield null;
     for (let ir = 0; ir < radCount; ir += 1) {
+      if (pauseBuild()) yield null;
       const a = ia * stride + ir;
       const b = a + stride;
       const c = a + 1;
@@ -5499,7 +5556,23 @@ export function drawnCrustHeightAt(x, z, extent, plan, quality = 'high') {
  * table / bay / port plates. Value breaks come from the paint and from objects.
  */
 export class EdgeMassingLayer {
-  constructor(scene, city, { quality = 'high' } = {}) {
+  constructor(...args) {
+    finishBuild(this._buildStages(...args));
+  }
+
+  static *build(...args) {
+    const view = Object.create(this.prototype);
+    yield* view._buildStages(...args);
+    return view;
+  }
+
+  static create(...args) {
+    const options = args[2] ?? {};
+    return runBuild(this.build(...args), options.startup);
+  }
+
+  *_buildStages(scene, city, { quality = 'high' } = {}) {
+    const pauseBuild = buildBudget();
     this.scene = scene;
     this.city = city;
     // ── ONE PLAN, ONE OBJECT ──
@@ -5514,14 +5587,21 @@ export class EdgeMassingLayer {
     //
     // The fallback is the old path, for a scene mounted without the fringe
     // layer (tests, the ocean probes) where there is nothing to agree with.
+    if (pauseBuild()) yield null;
     const landscape = scene?.getObjectByName?.('fringe:landscape');
     const sharedPlan = landscape?.userData?.crustPlan;
+    if (pauseBuild()) yield null;
     this.plan = sharedPlan ?? planEdgeMassing(city, scene);
     this.planShared = !!sharedPlan;
+    if (pauseBuild()) yield null;
     this.root = new THREE.Group();
     this.root.name = 'world:edge-massing';
 
-    const geo = buildSurroundGeometry(city, this.plan, quality);
+    if (pauseBuild()) yield null;
+    // COPY-DRAFT: landscape loading progress.
+    yield 'Shaping the outer terrain';
+    const geo = (yield* buildSurroundGeometrySteps(city, this.plan, quality));
+    if (pauseBuild()) yield null;
     const mat = new THREE.MeshStandardMaterial({
       vertexColors: false,
       flatShading: false,
@@ -5539,28 +5619,39 @@ export class EdgeMassingLayer {
     const sharedAlbedo = landscape?.userData?.ringAlbedo;
     const extent = city.extent ?? { x: 272, z: 272 };
     const seed = city.seed ?? 0;
-    const albedo = sharedAlbedo || bakeRingAlbedo(extent, this.plan, { seed });
+    if (pauseBuild()) yield null;
+    const albedo = sharedAlbedo || (yield* bakeRingAlbedoSteps(extent, this.plan, { seed }));
     this._albedo = albedo;
     const sharedHeight = landscape?.userData?.ringHeight;
     this._heightOwned = !sharedHeight;
-    this._height = sharedHeight || bakeRingHeight(extent, this.plan);
+    if (pauseBuild()) yield null;
+    this._height = sharedHeight || (yield* bakeRingHeightSteps(extent, this.plan));
+    if (pauseBuild()) yield null;
     attachRingAlbedo(mat, albedo, extent, seed, this._height, OVERLAY_OUTER - 8);
     // W50 (CRUST_SHORE): the sheet's shore discard on the crust too (the fringe layer's one baked texture), before the band material clones this one.
+    if (pauseBuild()) yield null;
     if (CRUST_SHORE.on && landscape?.userData?.sheetShore) attachSheetShore(mat, landscape.userData.sheetShore);
+    if (pauseBuild()) yield null;
+    // COPY-DRAFT: landscape loading progress.
+    yield 'Baking the outer terrain';
     if (CRUST_FORM.amount > 0) {
-      this._crustHeight = bakeCrustHeight(city, geo, quality);
-      this._crustFar = bakeCrustFarAlbedo(extent, seed, this.plan);
+      this._crustHeight = (yield* bakeCrustHeightSteps(city, geo, quality));
+      this._crustFar = (yield* bakeCrustFarAlbedoSteps(extent, seed, this.plan));
       attachCrustForm(mat, extent, this._crustHeight, this._crustFar, seed);
     }
     // W55 (CRUST_BIAS): the waterline's depth pull in the vertex stage, before the band material clones this one.
+    if (pauseBuild()) yield null;
     attachCrustBias(mat);
     // W28: the hinterland's grain past the join; the pass is the fringe layer's own, reached by its hook (importing ground-detail.js here is a cycle).
     const grainHook = CRUST_GRAIN.amount > 0 ? landscape?.userData?.groundHooks?.attachGroundDetail : null;
+    if (pauseBuild()) yield null;
     if (grainHook) grainHook(mat, { extent, seed, near: quality !== 'low', grain: { from: CRUST_GRAIN.from, ramp: CRUST_GRAIN.ramp } });
+    if (pauseBuild()) yield null;
     applyWorldRestyle(mat, 'far-crust');
     // W42 (COAST_CRUST): the coast band's own factor on a second material (a clone with the same shader hooks), two groups on the one mesh.
     let bandMat = null;
     this.coastBand = null;
+    if (pauseBuild()) yield null;
     if (COAST_CRUST.on && RING_SEAM.on && CREEK_DASH.on && COAST_CRUST.factor !== RING_SEAM.offsetFactor) {
       this.coastBand = splitCoastBand(geo, extent.x * 0.5, extent.z * 0.5);
       if (this.coastBand) {
@@ -5571,21 +5662,26 @@ export class EdgeMassingLayer {
       }
     }
     this.bandMaterial = bandMat;
+    if (pauseBuild()) yield null;
     const mesh = new THREE.Mesh(geo, bandMat ? [mat, bandMat] : mat);
     mesh.name = 'world:edge-massing:crust';
     mesh.receiveShadow = true;
     mesh.castShadow = false;
     mesh.renderOrder = -18;
     mesh.raycast = () => {};
+    if (pauseBuild()) yield null;
     this.root.add(mesh);
     this.mesh = mesh;
     this.material = mat;
     this.geometry = geo;
 
     // R5C: close the real terrain boundary with the board's plinth colour.
+    if (pauseBuild()) yield null;
     const terrainSheet = landscape?.getObjectByName('fringe:hinterland-fields');
     if (terrainSheet?.material?.userData) terrainSheet.material.userData.albedoGroup = 'grass';
+    if (pauseBuild()) yield null;
     if (RING_SEAM.on && terrainSheet?.geometry) this.seatedSheetVertices = seatSheetRim(terrainSheet.geometry, extent, this.plan, quality); // W28
+    if (pauseBuild()) yield null;
     if (terrainSheet?.geometry?.index) {
       const skirtGeo = buildTerrainSkirt(terrainSheet.geometry,
         // taste-r1 W14-C: the coast ribbon closes the shore where it exists, so no vertical wall there.
@@ -5600,7 +5696,11 @@ export class EdgeMassingLayer {
       this.root.add(this.terrainSkirt);
     }
 
-    const apronGeo = buildApronGeometry(city, this.plan, quality);
+    if (pauseBuild()) yield null;
+    // COPY-DRAFT: landscape loading progress.
+    yield 'Building the city apron';
+    const apronGeo = (yield* buildApronGeometrySteps(city, this.plan, quality));
+    if (pauseBuild()) yield null;
     const apronMat = new THREE.MeshStandardMaterial({
       vertexColors: true,
       roughness: 0.9,
@@ -5613,12 +5713,14 @@ export class EdgeMassingLayer {
       polygonOffsetUnits: -1,
     });
     apronMat.userData.envIntensityBase = 0.26;
+    if (pauseBuild()) yield null;
     const apron = new THREE.Mesh(apronGeo, apronMat);
     apron.name = 'world:edge-massing:apron';
     apron.receiveShadow = true;
     apron.castShadow = false;
     apron.renderOrder = -17;
     apron.raycast = () => {};
+    if (pauseBuild()) yield null;
     this.root.add(apron);
     this.apron = apron;
     this.apronMaterial = apronMat;
@@ -5627,7 +5729,11 @@ export class EdgeMassingLayer {
     // The retained transition. `castShadow` is the point of it: a built line
     // that throws no shadow reads as paint. Rendered after the apron and the
     // sheets so its polygon offset settles the near-coincident verge quads.
-    const kerbGeo = buildEdgeKerbGeometry(city, this.plan, quality, albedo, terrainSheet?.geometry ?? null);
+    if (pauseBuild()) yield null;
+    // COPY-DRAFT: landscape loading progress.
+    yield 'Building the city rim';
+    const kerbGeo = (yield* buildEdgeKerbGeometrySteps(city, this.plan, quality, albedo, terrainSheet?.geometry ?? null));
+    if (pauseBuild()) yield null;
     const kerbMat = new THREE.MeshStandardMaterial({
       vertexColors: true,
       roughness: 0.94,
@@ -5640,12 +5746,14 @@ export class EdgeMassingLayer {
       polygonOffsetUnits: -3,
     });
     kerbMat.userData.envIntensityBase = 0.26;
+    if (pauseBuild()) yield null;
     const kerb = new THREE.Mesh(kerbGeo, kerbMat);
     kerb.name = 'world:edge-massing:edge-kerb';
     kerb.receiveShadow = true;
     kerb.castShadow = true;
     kerb.renderOrder = -15;
     kerb.raycast = () => {};
+    if (pauseBuild()) yield null;
     if (TRAY_RIBBON_SURFACE) {
       // The ground rows wear the hinterland sheet's own surface (albedo map and paddock hooks), so the
       // ribbon is the paddock beside it and not a stepped olive strip.
@@ -5684,13 +5792,16 @@ export class EdgeMassingLayer {
       kerb.material = [kerbMat, groundMat];
       this.edgeKerbGroundMaterial = groundMat;
     }
+    if (pauseBuild()) yield null;
     this.root.add(kerb);
     this.edgeKerb = kerb;
     this.edgeKerbMaterial = kerbMat;
     this.edgeKerbGeometry = kerbGeo;
 
     this._hidden = [];
+    if (pauseBuild()) yield null;
     this._hideCoveredFringeTerrain();
+    if (pauseBuild()) yield null;
     scene.add(this.root);
   }
 

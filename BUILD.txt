@@ -1,1 +1,1 @@
-District Deck, a miniature Melbourne city game. Built from 9ffa85e0 on 2026-11-10T22:05Z. Play: play.html
+District Deck, a miniature Melbourne city game. Built from e616c9be on 2026-11-11T08:25Z. Play: play.html

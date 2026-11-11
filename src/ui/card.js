@@ -2273,7 +2273,7 @@ export function landUseCardHtml(city, selection, state = null, lotSelections = n
             ${identity.status ? `<div class="tag card__nontradeable">${escapeHtml(identity.status)}</div>` : ''}
           </div>
           ${noPortrait ? '' : `<figure class="deed-polaroid civic-portrait" data-deed-polaroid>
-            <img class="deed-polaroid__img is-loading" src="/assets/img/ui-plates/civics/${encodeURIComponent(useId)}.png"
+            <img class="deed-polaroid__img is-loading" src="assets/img/ui-plates/civics/${encodeURIComponent(useId)}.png"
                  onerror="this.onerror=null;this.src='${archetypeThumbSrc(useId)}'"
                  alt="${escapeHtml(identity.title)}" width="512" height="384"
                  loading="eager" decoding="async" data-archetype-thumb="${escapeHtml(useId)}">

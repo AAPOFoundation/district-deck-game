@@ -9,7 +9,7 @@
 
 import * as THREE from 'three';
 
-const BASE = '/src/render/assets/coast/';
+const BASE = new URL('./assets/coast/', import.meta.url).href;
 const V3 = (r, g, b) => Object.freeze([r, g, b]);
 
 function entry(file, size, repeatM, names, kind) {

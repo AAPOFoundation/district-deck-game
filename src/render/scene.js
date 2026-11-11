@@ -1,3 +1,4 @@
+import { finishBuild, runBuild, yieldToBrowser, warmStart, bootTrace, installEmbeddedImageDecoder } from './startup.js';
 // District Deck V3.00 — scene bootstrap.
 // Owns the renderer, lights, camera rig, board and effect layers. Every resource created
 // here is disposed in dispose(); nothing renders while the tab is hidden.
@@ -65,6 +66,7 @@ import { MilitaryShipyardLayer } from './military/shipyard.js';
 import {
   LIFE_TICK_HZ,
   batchStaticWorld,
+  batchStaticWorldSteps,
   capInternalSize,
   disposeBatching,
 } from './batching.js';
@@ -220,12 +222,30 @@ const DRY_LIGHT = Object.freeze({
 });
 
 export class SceneView {
-  constructor(canvas, city, registry, {
+  constructor(...args) {
+    finishBuild(this._buildStages(...args));
+  }
+
+  static *build(...args) {
+    const view = Object.create(this.prototype);
+    view._stagedStartup = true;
+    yield* view._buildStages(...args);
+    return view;
+  }
+
+  static create(...args) {
+    const options = args[3] ?? {};
+    return runBuild(this.build(...args), options.startup);
+  }
+
+  *_buildStages(canvas, city, registry, {
     reducedMotion = false, quality = 'high', post = true,
     // Hero-world default: mid-afternoon raking light so water edge, roofs and cars read
     // on the wide plate (late 0.865 was drowning the diorama in brown vignette).
     timeOfDay = 0.42,
   } = {}) {
+    // COPY-DRAFT: startup progress.
+    yield 'Preparing the renderer';
     this.shadowProxyEnabled = !(typeof location !== 'undefined'
       && new URLSearchParams(location.search).get('p09') === 'off');
     const frameOptions = readFrameOptions(typeof location !== 'undefined' ? location.search : '');
@@ -288,6 +308,7 @@ export class SceneView {
     // Phone round P1 (L1): the phone layer's camera fit (src/ui/phone-fit.js), set by main.js; null here, and inert off the phone classes.
     this.phoneFit = null;
 
+    yield 'Preparing the lighting';
     this.lighting = new LightingRig(this.scene, city.extent, {
       quality,
       timeOfDay,
@@ -299,7 +320,7 @@ export class SceneView {
     // Presentation-only table cloth + contact disc under the city root (board owns plinth).
     this._mountTableGround(city.extent, quality);
 
-    this.board = new Board(city, registry, { quality });
+    this.board = yield* Board.build(city, registry, { quality });
     this.board.setReducedMotion(reducedMotion);
     this.scene.add(this.board.root);
     // Materials from the library need the PMREM envMap; apply after board construction.
@@ -316,6 +337,7 @@ export class SceneView {
 
     // V3.10 §8 W2-NATURE — water / sky / foliage. Mount after the board so we can hide
     // its flat water plane and GLB tree groups without rewriting board.js (W2-ARCH).
+    yield 'Building the sky';
     this.sky = new SkyDome(this.scene, city.extent, {
       quality,
       reducedMotion,
@@ -326,7 +348,8 @@ export class SceneView {
     this.sky.mesh.visible = false;
     this.scene.background = this.lighting.environment;
     this.scene.backgroundIntensity = this.lighting.profile.envIntensity;
-    this.water = new WaterSurface(this.scene, city, {
+    yield 'Building the water';
+    this.water = yield* WaterSurface.build(this.scene, city, {
       quality,
       reducedMotion,
       envMap: this.lighting.equirect,
@@ -334,20 +357,22 @@ export class SceneView {
       materials: this.board.materials,
     });
     this.water.setSolar(this.lighting.profile, sunDirection(this.lighting.profile));
+    yield 'Planting the city trees';
     this.foliage = new FoliageLayer(this.scene, city, {
       quality,
       reducedMotion,
       boardRoot: this.board.root,
       publicTreePits: this.board.publicTreePits,
     });
-    this.fringe = new FringeLayer(this.scene, city, { quality, reducedMotion, key: this.lighting.key }); // taste W79 (GROUND_SURFACE, G2b): the CPU-baked shade sides read the rig's key
+    this.fringe = yield* FringeLayer.build(this.scene, city, { quality, reducedMotion, key: this.lighting.key }); // taste W79 (GROUND_SURFACE, G2b): the CPU-baked shade sides read the rig's key
     this.fringe.setProfile(this.lighting.profile, this.lighting.key);
     this.fringePickTargets = this.fringe.pickTargets;
     this.fringePickTargets = addPortWarehousePickTarget(this.fringe);
     this.fringePickTargets = addPortStructurePickTargets(this.fringe);
     // Diegetic surround (2 water / 2 land). Replaces the studio table as the
     // thing you see outside the city; fringe / beach / port sit on top.
-    this.edgeMassing = new EdgeMassingLayer(this.scene, city, { quality });
+    yield 'Building the outer landscape';
+    this.edgeMassing = yield* EdgeMassingLayer.build(this.scene, city, { quality });
     this.edgeMassing.setProfile(this.lighting.profile);
     this.lighting.applyEnvironmentToScene(this.edgeMassing.root);
     placeKitBoard(this.scene, registry, this.fringe.plan, { groundSampler: hinterlandGroundSampler, surfaceY: this.fringe._sampleHinterlandY }); // K1: only with ?landmarks=kit-board
@@ -357,10 +382,15 @@ export class SceneView {
     this.board.registerFoliageMischiefTargets(this.foliage);
     this.board.registerBeachUmbrellaMischief(this.water);
 
+    yield 'Adding the city life';
     this.people = new PeopleLayer(city, { camera: this.camera });
+    yield 'Adding the auction crowd';
     this.auctionCrowd = new AuctionCrowdLayer(city);
+    yield 'Adding traffic';
     this.traffic = new TrafficLayer(city, { quality, reducedMotion });
+    yield 'Adding world deliveries';
     this.worldDeliveries = new WorldDeliveriesLayer(city, { quality, reducedMotion });
+    yield 'Adding the military units';
     this.militaryUnits = new MilitaryUnitsLayer(city, { reducedMotion });
     this.militaryAttacks = new MilitaryAttacksLayer(city, { reducedMotion });
     this.militaryShipyard = new MilitaryShipyardLayer(city, { reducedMotion });
@@ -368,11 +398,13 @@ export class SceneView {
     this.board.registerTrafficMischief(this.traffic);
     const cityLife = !(typeof location !== 'undefined'
       && new URLSearchParams(location.search).get('cityLife') === '0');
+    yield 'Adding street life';
     this.ambientLife = new AmbientLifeLayer(city, { quality, reducedMotion, cityLife });
     this.meshyPeople = new MeshyPeoplePool();
+    if (this._stagedStartup) installEmbeddedImageDecoder(this.meshyPeople.loader);
     this.people.attachMeshy(this.meshyPeople);
     this.ambientLife.attachMeshy(this.meshyPeople);
-    this.meshyPeople.load().catch(() => {});
+
     this.cityServices = new CityServicesLayer(city, { quality, reducedMotion });
     this._syncServicesNight();
     this.eventOverlays = new EventOverlayLayer(city);
@@ -393,6 +425,7 @@ export class SceneView {
     // Hero framing: bias default orbit so the water edge + sky are in the wide plate.
     this._frameHeroWorld(city);
 
+    yield 'Preparing the effects';
     this.vfx = new Vfx(this.scene);
     // VFX-L3: the city gives the bushfire plume its parcel centres and the board the yaw each
     // building is drawn at (`?weatherLit=0` keeps the old ember ball and reads neither).
@@ -411,6 +444,7 @@ export class SceneView {
     // Frame city must NOT restore mischief — that was coupling camera reset to
     // world mutation and left players thinking picks broke after Frame (F).
 
+    yield 'Preparing the picture';
     this.post = this.postEnabled
       ? new PostChain(this.renderer, {
         quality,
@@ -435,6 +469,7 @@ export class SceneView {
     // Page.captureScreenshot flaky at 1600x1000.
     this.taaConvergeFrames = 2;
 
+    yield 'Preparing the controls';
     this.raycaster = new THREE.Raycaster();
     this.pointer = new THREE.Vector2();
     // Window capture, not canvas bubble: IsoCameraRig binds pointerdown on the
@@ -463,6 +498,32 @@ export class SceneView {
     this.resize();
     bindHeroCameraConsole(this);
     bindMilitaryDemoConsole(this);
+    this.meshyPeople.load().catch(() => {});
+  }
+
+  /** Called after saved state and opening camera are applied, before start(). */
+  async prepareStart(startup = {}) {
+    const progress = startup.onProgress ?? (() => {});
+    const yieldTask = startup.yieldTask ?? yieldToBrowser;
+    // COPY-DRAFT: final loading stages.
+    this.board.prepareWorld();
+    await runBuild(this.water.prepareWorldSteps(), startup);
+    this.fringe.prepareWorld();
+    progress('Batching the city');
+    await yieldTask();
+    if (!this._worldBatched) {
+      this.batching = await runBuild(batchStaticWorldSteps(this.scene, { quality: this.quality }), startup);
+      this.lighting?.applyEnvironmentToScene(this.batching.root);
+      this._worldBatched = true;
+    }
+    progress('Preparing the first picture');
+    await yieldTask();
+    // Install the same camera-dependent material hooks as the first draw, before
+    // compilation, without advancing any simulation or drawing a hidden frame.
+    this.lighting?.update(this.camera, this.rig.smoothTarget ?? this.rig.target,
+      this.rig.smoothDistance ?? this.rig.distance, Boolean(this.photoCSM));
+    this._applyPhotoShadow();
+    await warmStart(this, startup);
   }
 
   hero(name) {
@@ -1128,141 +1189,147 @@ export class SceneView {
 
   /** One simulation + render tick. Separated so QA can drive frames deterministically. */
   step(dt, elapsed, onFrame = () => {}, render = true) {
-    const cpu0 = performance.now();
-    this.rig.update(dt);
-    // Last-frame peds: trams must see walkers on the reservation before they step,
-    // the same way cars consume `_lastCrossingPeds` below.
-    setReservationPedestrians(this._lastCrossingPeds ?? []);
-    this.board.update(dt, elapsed);
-    tickConstructionSites(this.board, dt, elapsed);
-    this.sky?.update(dt, elapsed);
-    this.water?.update(dt, elapsed);
-    this.fringe?.update?.(dt, elapsed);
-    this.foliage?.update(dt, elapsed);
-    // P19 X1B: traffic / people / ambient / auction on a 20 Hz tick. The
-    // accumulated dt is the interpolation step — pose systems integrate it
-    // once rather than allocating between frames.
-    this._lifeAcc += dt;
-    const lifeStep = 1 / LIFE_TICK_HZ;
-    let lifeDt = 0;
-    if (this._lifeAcc >= lifeStep) {
-      lifeDt = this._lifeAcc;
-      this._lifeAcc = 0;
-    }
-    // Cars, then the published road-user list, then people — a pedestrian cannot
-    // yield to a tram that has not stepped this frame. Last-frame peds occupy
-    // the box so a green car does not drive through a legal crossing.
-    this.traffic?.setPedestrians?.(this._lastCrossingPeds ?? []);
-    if (lifeDt > 0) this.traffic?.update(lifeDt, elapsed);
-    this.worldDeliveries?.update(dt, elapsed, this.city, this.state);
-    this.militaryUnits?.update(dt, elapsed, this.city, this.state);
-    this.militaryAttacks?.update(dt, elapsed, this.city, this.state, this.militaryUnits);
-    this.militaryShipyard?.update(dt, elapsed, this.city);
-    bindMilitaryDemoConsole(this);
-    const roadUsers = collectRoadUsers(this.board, this.traffic);
-    this.people.setRoadUsers(roadUsers);
-    this.people.setSignalClock?.(elapsed, this.city?.seed);
-    if (lifeDt > 0) this.people.update(lifeDt);
-    // V3.32: the auction ring is posed by the same idle solver the cast is, so it needs the same
-    // clock. Without this tick forty bidders hold one frame of a breath while the consultants
-    // beside them keep moving, which is §2.7's statue fault arrived at from the other direction.
-    if (lifeDt > 0) this.auctionCrowd.update(lifeDt);
-    this.ambientLife?.setRoadUsers(roadUsers);
-    if (lifeDt > 0) this.ambientLife?.update(lifeDt, elapsed);
-    const peds = [
-      ...(this.people.queryCrossingPeds?.() ?? []),
-      ...(this.ambientLife?.queryCrossingPeds?.() ?? []),
-    ];
-    this._lastCrossingPeds = peds;
-    const crossings = this.people.world?.crossings
-      ?? this.ambientLife?.world?.crossings
-      ?? [];
-    const hits = detectPedestrianHits(roadUsers, peds, crossings, elapsed);
-    if (
-      hits.length
-      && typeof this.onCrossingHit === 'function'
-      && quarterAllowsCrossingAccident(this.city?.seed, this.state?.quarter ?? 1)
-    ) {
-      this.onCrossingHit(hits[0]);
-    }
-    this.cityServices?.update(dt, elapsed);
-    this.eventOverlays.update(elapsed);
-    this.mischief.update(dt);
-    this.vfx.update(dt);
-    updateWeatherFx(this.state, dt, {
-      city: this.city, arc: this.lighting?.profile?.arc, reducedMotion: this.reducedMotion,
-    });
-    if (!this._worldBatched) {
-      this.scene.updateMatrixWorld(true);
-      this.batching = batchStaticWorld(this.scene, { quality: this.quality });
-      // Colour-instancing clones materials after the initial environment walk.
-      // Register only the newly created batch root, once, before the first colour draw.
-      this.lighting?.applyEnvironmentToScene(this.batching.root);
-      this._worldBatched = true;
-    }
-    this.lastUpdateMs = performance.now() - cpu0;
-    onFrame(dt, elapsed);
-    if (!render) {
-      this._skippedSinceRender += 1;
-      return;
-    }
-    if (this._autoDpr) this._updatePixelRatio(performance.now());
-    const focusDistance = this.rig.smoothDistance ?? this.rig.distance;
-    // Elevation gate for the miniature DOF: full at board pitch (>=26 deg),
-    // gone near street pitch (<=11.5 deg), so hero low-angle shots stay sharp.
-    const pitchRad = this.rig.smoothPolar ?? this.rig.polar ?? 0.56;
-    const dofScale = Math.min(1, Math.max(0, (pitchRad - 0.20) / 0.25));
-    // Fog range rides the camera distance, not the board extent: an authored
-    // extent-based band greys the whole board out at the default orbit
-    // distance. Depth separation starts past the focus plane and releases
-    // over roughly two board spans behind it.
-    if (this.scene.fog) {
-      const span = Math.max(this.city?.extent?.x ?? 272, this.city?.extent?.z ?? 272);
-      this.scene.fog.near = focusDistance * 0.9 + span * 0.25;
-      this.scene.fog.far = focusDistance + span * 2.2;
-    }
-    const worldCurvature = updateWorldCurveFromRig(this.rig, this.city?.extent);
-    this.fringe?.updateViewDetail?.(worldCurvature === 0 ? this.camera : null,
-      this.canvas.width, this.canvas.height);
-    this.lighting?.update(
-      this.camera,
-      this.rig.smoothTarget ?? this.rig.target,
-      focusDistance,
-      // Once CSM exists, the immediately following receiver test owns caster flags.
-      Boolean(this.photoCSM),
-    );
-    this._applyPhotoShadow();
-    // P16-W6: register the planar reflection camera for this frame. The
-    // mirrored render of the port's large forms has to exist before the water
-    // that samples it is drawn, and it must not be inside the post chain's
-    // render-target bookkeeping, so it happens here and nowhere else.
-    this.water?.renderReflection?.(this.renderer, this.camera, this.scene);
-    this.renderer.shadowMap.needsUpdate = this.renderer.shadowMap.enabled;
-    this.renderer.info.reset();
-    if (this.post) {
-      this.post.render(this.scene, this.camera, {
-        elapsed,
-        focusDistance,
-        dofScale,
-        // Beyond a full board diagonal behind focus: no haze over city/port detail.
-        horizonHaze: {
-          near: focusDistance + Math.hypot(this.city.extent.x, this.city.extent.z),
-          far: focusDistance + Math.hypot(this.city.extent.x, this.city.extent.z) * 2.5,
-          color: this.lighting.profile.horizonColor,
-          intensity: this.lighting.profile.envIntensity,
-        },
-        sunDirection: this.lighting?.postState().sunDirection,
-        // P16-W6 prototype B: the SSR pass's water mask. The ocean's own depth
-        // bake says which world XZ is water and how deep, which is an exact
-        // mask for nothing but a texture tap; reconstructing one from the
-        // depth buffer alone would take the beach and the apron with it.
-        water: this.water?.ssrMaskState?.() ?? null,
-        accumulate: this._skippedSinceRender >= 2 ? this.taaConvergeFrames : 1,
+    const trace = render && !this._bootFrameTraced ? bootTrace(this, 'first-frame') : null;
+    try {
+      const cpu0 = performance.now();
+      this.rig.update(dt);
+      // Last-frame peds: trams must see walkers on the reservation before they step,
+      // the same way cars consume `_lastCrossingPeds` below.
+      setReservationPedestrians(this._lastCrossingPeds ?? []);
+      this.board.update(dt, elapsed);
+      tickConstructionSites(this.board, dt, elapsed);
+      this.sky?.update(dt, elapsed);
+      this.water?.update(dt, elapsed);
+      this.fringe?.update?.(dt, elapsed);
+      this.foliage?.update(dt, elapsed);
+      // P19 X1B: traffic / people / ambient / auction on a 20 Hz tick. The
+      // accumulated dt is the interpolation step — pose systems integrate it
+      // once rather than allocating between frames.
+      this._lifeAcc += dt;
+      const lifeStep = 1 / LIFE_TICK_HZ;
+      let lifeDt = 0;
+      if (this._lifeAcc >= lifeStep) {
+        lifeDt = this._lifeAcc;
+        this._lifeAcc = 0;
+      }
+      // Cars, then the published road-user list, then people — a pedestrian cannot
+      // yield to a tram that has not stepped this frame. Last-frame peds occupy
+      // the box so a green car does not drive through a legal crossing.
+      this.traffic?.setPedestrians?.(this._lastCrossingPeds ?? []);
+      if (lifeDt > 0) this.traffic?.update(lifeDt, elapsed);
+      this.worldDeliveries?.update(dt, elapsed, this.city, this.state);
+      this.militaryUnits?.update(dt, elapsed, this.city, this.state);
+      this.militaryAttacks?.update(dt, elapsed, this.city, this.state, this.militaryUnits);
+      this.militaryShipyard?.update(dt, elapsed, this.city);
+      bindMilitaryDemoConsole(this);
+      const roadUsers = collectRoadUsers(this.board, this.traffic);
+      this.people.setRoadUsers(roadUsers);
+      this.people.setSignalClock?.(elapsed, this.city?.seed);
+      if (lifeDt > 0) this.people.update(lifeDt);
+      // V3.32: the auction ring is posed by the same idle solver the cast is, so it needs the same
+      // clock. Without this tick forty bidders hold one frame of a breath while the consultants
+      // beside them keep moving, which is §2.7's statue fault arrived at from the other direction.
+      if (lifeDt > 0) this.auctionCrowd.update(lifeDt);
+      this.ambientLife?.setRoadUsers(roadUsers);
+      if (lifeDt > 0) this.ambientLife?.update(lifeDt, elapsed);
+      const peds = [
+        ...(this.people.queryCrossingPeds?.() ?? []),
+        ...(this.ambientLife?.queryCrossingPeds?.() ?? []),
+      ];
+      this._lastCrossingPeds = peds;
+      const crossings = this.people.world?.crossings
+        ?? this.ambientLife?.world?.crossings
+        ?? [];
+      const hits = detectPedestrianHits(roadUsers, peds, crossings, elapsed);
+      if (
+        hits.length
+        && typeof this.onCrossingHit === 'function'
+        && quarterAllowsCrossingAccident(this.city?.seed, this.state?.quarter ?? 1)
+      ) {
+        this.onCrossingHit(hits[0]);
+      }
+      this.cityServices?.update(dt, elapsed);
+      this.eventOverlays.update(elapsed);
+      this.mischief.update(dt);
+      this.vfx.update(dt);
+      updateWeatherFx(this.state, dt, {
+        city: this.city, arc: this.lighting?.profile?.arc, reducedMotion: this.reducedMotion,
       });
-    } else {
-      this.renderer.render(this.scene, this.camera);
+      if (!this._worldBatched) {
+        this.scene.updateMatrixWorld(true);
+        this.batching = batchStaticWorld(this.scene, { quality: this.quality });
+        // Colour-instancing clones materials after the initial environment walk.
+        // Register only the newly created batch root, once, before the first colour draw.
+        this.lighting?.applyEnvironmentToScene(this.batching.root);
+        this._worldBatched = true;
+      }
+      this.lastUpdateMs = performance.now() - cpu0;
+      onFrame(dt, elapsed);
+      if (!render) {
+        this._skippedSinceRender += 1;
+        return;
+      }
+      if (this._autoDpr) this._updatePixelRatio(performance.now());
+      const focusDistance = this.rig.smoothDistance ?? this.rig.distance;
+      // Elevation gate for the miniature DOF: full at board pitch (>=26 deg),
+      // gone near street pitch (<=11.5 deg), so hero low-angle shots stay sharp.
+      const pitchRad = this.rig.smoothPolar ?? this.rig.polar ?? 0.56;
+      const dofScale = Math.min(1, Math.max(0, (pitchRad - 0.20) / 0.25));
+      // Fog range rides the camera distance, not the board extent: an authored
+      // extent-based band greys the whole board out at the default orbit
+      // distance. Depth separation starts past the focus plane and releases
+      // over roughly two board spans behind it.
+      if (this.scene.fog) {
+        const span = Math.max(this.city?.extent?.x ?? 272, this.city?.extent?.z ?? 272);
+        this.scene.fog.near = focusDistance * 0.9 + span * 0.25;
+        this.scene.fog.far = focusDistance + span * 2.2;
+      }
+      const worldCurvature = updateWorldCurveFromRig(this.rig, this.city?.extent);
+      this.fringe?.updateViewDetail?.(worldCurvature === 0 ? this.camera : null,
+        this.canvas.width, this.canvas.height);
+      this.lighting?.update(
+        this.camera,
+        this.rig.smoothTarget ?? this.rig.target,
+        focusDistance,
+        // Once CSM exists, the immediately following receiver test owns caster flags.
+        Boolean(this.photoCSM),
+      );
+      this._applyPhotoShadow();
+      // P16-W6: register the planar reflection camera for this frame. The
+      // mirrored render of the port's large forms has to exist before the water
+      // that samples it is drawn, and it must not be inside the post chain's
+      // render-target bookkeeping, so it happens here and nowhere else.
+      this.water?.renderReflection?.(this.renderer, this.camera, this.scene);
+      this.renderer.shadowMap.needsUpdate = this.renderer.shadowMap.enabled;
+      this.renderer.info.reset();
+      if (this.post) {
+        this.post.render(this.scene, this.camera, {
+          elapsed,
+          focusDistance,
+          dofScale,
+          // Beyond a full board diagonal behind focus: no haze over city/port detail.
+          horizonHaze: {
+            near: focusDistance + Math.hypot(this.city.extent.x, this.city.extent.z),
+            far: focusDistance + Math.hypot(this.city.extent.x, this.city.extent.z) * 2.5,
+            color: this.lighting.profile.horizonColor,
+            intensity: this.lighting.profile.envIntensity,
+          },
+          sunDirection: this.lighting?.postState().sunDirection,
+          // P16-W6 prototype B: the SSR pass's water mask. The ocean's own depth
+          // bake says which world XZ is water and how deep, which is an exact
+          // mask for nothing but a texture tap; reconstructing one from the
+          // depth buffer alone would take the beach and the apron with it.
+          water: this.water?.ssrMaskState?.() ?? null,
+          accumulate: this._skippedSinceRender >= 2 ? this.taaConvergeFrames : 1,
+        });
+      } else {
+        this.renderer.render(this.scene, this.camera);
+      }
+      this._skippedSinceRender = 0;
+    } finally {
+      trace?.finish();
+      if (render) this._bootFrameTraced = true;
     }
-    this._skippedSinceRender = 0;
   }
 
   start(onFrame = () => {}) {

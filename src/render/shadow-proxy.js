@@ -117,16 +117,75 @@ function refreshBounds(proxy) {
   }
 }
 
-// Depth-only positions can share vertices across normal/UV seams. Sort source
-// indices to find exact duplicates once at build time, without float-keyed maps.
-function positionRepresentatives(geometry) {
-  const p = geometry.attributes.position;
-  const order = Uint32Array.from({ length: p.count }, (_, i) => i), indices = new Uint32Array(p.count);
-  order.sort((a, b) => p.getX(a) - p.getX(b) || p.getY(a) - p.getY(b) || p.getZ(a) - p.getZ(b));
+// Depth-only positions can share vertices across normal/UV seams. Each vertex's representative is the
+// smallest source index with exactly the same x, y and z, found once at build time. Each coordinate is
+// read once through getX/getY/getZ (so normalised and interleaved attributes keep their exact values)
+// into a Float64Array, which holds any number exactly. Under the sort comparator (a - b === 0) +0 and -0 are
+// equal, and any two distinct finite doubles differ, so equal means the same Float64 bits once -0 is made +0.
+// Finite positions are grouped by a hash table that lives for this one call (open addressing in a typed array,
+// no float-keyed Map; the rule against float-keyed maps is about persistent and per-frame tables). Indices are
+// visited in ascending order, so the first vertex seen in a group is its smallest index, which is also what a
+// stable sort puts first in each group (%TypedArray%.prototype.sort has been required to be stable since ES2019).
+// Any NaN or infinite coordinate takes the sort path, unchanged. Exported for tests (shadow-proxy-fingerprint.test.mjs,
+// shadow-proxy-dedupe.test.mjs).
+export function positionRepresentatives(geometry) {
+  const p = geometry.attributes.position, n = p.count;
+  const xs = new Float64Array(n), ys = new Float64Array(n), zs = new Float64Array(n);
+  let finite = true;
+  for (let i = 0; i < n; i++) {
+    const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+    // x - x is 0 for every finite number and NaN for NaN and the infinities.
+    if (x - x !== 0 || y - y !== 0 || z - z !== 0) finite = false;
+    xs[i] = x === 0 ? 0 : x; ys[i] = y === 0 ? 0 : y; zs[i] = z === 0 ? 0 : z; // -0 becomes +0
+  }
+  return finite ? groupRepresentatives(xs, ys, zs, n) : sortRepresentatives(xs, ys, zs, n);
+}
+
+// The sort path: sort the source indices by (x, y, z) and give each run of equal triples its first index.
+// Reads the attribute itself, for tests.
+export function positionRepresentativesBySort(geometry) {
+  const p = geometry.attributes.position, n = p.count;
+  const xs = new Float64Array(n), ys = new Float64Array(n), zs = new Float64Array(n);
+  for (let i = 0; i < n; i++) { xs[i] = p.getX(i); ys[i] = p.getY(i); zs[i] = p.getZ(i); }
+  return sortRepresentatives(xs, ys, zs, n);
+}
+
+function sortRepresentatives(xs, ys, zs, n) {
+  const order = new Uint32Array(n), indices = new Uint32Array(n);
+  for (let i = 0; i < n; i++) order[i] = i;
+  order.sort((a, b) => xs[a] - xs[b] || ys[a] - ys[b] || zs[a] - zs[b]);
   let first = order[0];
   for (const i of order) {
-    if (p.getX(i) !== p.getX(first) || p.getY(i) !== p.getY(first) || p.getZ(i) !== p.getZ(first)) first = i;
+    if (xs[i] !== xs[first] || ys[i] !== ys[first] || zs[i] !== zs[first]) first = i;
     indices[i] = first;
+  }
+  return indices;
+}
+
+// xs, ys and zs hold finite values with no -0, so === on them is equality of the Float64 bits.
+// The table slots hold index + 1 (0 is empty) and are at most half full; the hash reads the same bits as six words.
+function groupRepresentatives(xs, ys, zs, n) {
+  const indices = new Uint32Array(n);
+  if (!n) return indices;
+  let size = 16; while (size < n * 2) size <<= 1;
+  const mask = size - 1, table = new Uint32Array(size);
+  const bits = new Uint32Array(6), view = new Float64Array(bits.buffer);
+  for (let i = 0; i < n; i++) {
+    view[0] = xs[i]; view[1] = ys[i]; view[2] = zs[i];
+    let h = 0x9E3779B9;
+    for (let w = 0; w < 6; w++) {
+      let m = Math.imul(bits[w], 0xcc9e2d51); m = (m << 15) | (m >>> 17); m = Math.imul(m, 0x1b873593);
+      h ^= m; h = (h << 13) | (h >>> 19); h = (Math.imul(h, 5) + 0xe6546b64) | 0;
+    }
+    h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b); h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35); h ^= h >>> 16;
+    let at = h & mask, found = i;
+    for (let held = table[at]; held; held = table[at]) {
+      const j = held - 1;
+      if (xs[j] === xs[i] && ys[j] === ys[i] && zs[j] === zs[i]) { found = j; break; }
+      at = (at + 1) & mask;
+    }
+    if (found === i) table[at] = i + 1; // first vertex seen at this position, the smallest index of its group
+    indices[i] = found;
   }
   return indices;
 }
@@ -145,6 +204,9 @@ export function buildStaticShadowProxy(scene, batch, {
   const prism = new THREE.Box3(new THREE.Vector3(-w - 40, lo - 40, -n - 40),
     new THREE.Vector3(extent.x + e + 40, hi + 40, extent.z + s + 40));
   const classified = new WeakSet(), positions = new WeakMap();
+  // Build-only integer map from representative id to chunk vertex index: an id is held when its
+  // stamp equals the current generation, so starting an empty map or clearing one is generation++.
+  let stamp = new Uint32Array(0), slot = new Uint32Array(0), generation = 0;
   const box = new THREE.Box3(), centre = new THREE.Vector3(), buckets = new Map(), materials = new Map();
   const limit = Math.max(3, Math.floor(Math.min(65535, maxVerts) / 3) * 3);
   for (const mesh of batch.casters) {
@@ -173,25 +235,32 @@ export function buildStaticShadowProxy(scene, batch, {
     if (!positions.has(g)) positions.set(g, positionRepresentatives(g));
     const representatives = positions.get(g);
     const capacity = mesh.isInstancedMesh ? mesh.instanceMatrix.count : 1;
+    if (representatives.length > stamp.length) { stamp = new Uint32Array(representatives.length); slot = new Uint32Array(representatives.length); }
     for (let instance = 0; instance < capacity; instance++) {
       let chunk = buckets.get(key), slice = null;
-      const mapped = new Map(); // build-only integer vertex indices, never float keys
+      generation++; // a fresh, empty map of representative id -> chunk vertex index, per instance
       for (let from = start; from < start + count; from += 3) {
-        const ids = [0, 1, 2].map(k => representatives[g.index ? g.index.getX(from + k) : from + k]);
-        const added = new Set(ids.filter(id => !mapped.has(id))).size;
+        const a = representatives[g.index ? g.index.getX(from) : from];
+        const b = representatives[g.index ? g.index.getX(from + 1) : from + 1];
+        const c = representatives[g.index ? g.index.getX(from + 2) : from + 2];
+        // Distinct ids of the three that the map does not hold yet.
+        const added = (stamp[a] !== generation) + (b !== a && stamp[b] !== generation)
+          + (c !== a && c !== b && stamp[c] !== generation);
         if (!chunk || chunk.used + added > limit) {
           chunk = { key, sideKey, side, shadowSide, tiny, used: 0, slices: [], indices: [] };
-          buckets.set(key, chunk); proxy.chunks.push(chunk); slice = null; mapped.clear();
+          buckets.set(key, chunk); proxy.chunks.push(chunk); slice = null; generation++; // mapped.clear()
         }
         if (!slice) {
           slice = { chunk, vertices: [], instance, offset: chunk.used,
             indexStart: chunk.indices.length, indexCount: 0, flipped: false };
           rec.slices.push(slice); chunk.slices.push(slice);
         }
-        for (const id of ids) {
-          if (!mapped.has(id)) { mapped.set(id, chunk.used++); slice.vertices.push(id); }
-          chunk.indices.push(mapped.get(id));
-        }
+        if (stamp[a] !== generation) { stamp[a] = generation; slot[a] = chunk.used++; slice.vertices.push(a); }
+        chunk.indices.push(slot[a]);
+        if (stamp[b] !== generation) { stamp[b] = generation; slot[b] = chunk.used++; slice.vertices.push(b); }
+        chunk.indices.push(slot[b]);
+        if (stamp[c] !== generation) { stamp[c] = generation; slot[c] = chunk.used++; slice.vertices.push(c); }
+        chunk.indices.push(slot[c]);
         slice.indexCount += 3;
       }
     }

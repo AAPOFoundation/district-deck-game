@@ -9,7 +9,7 @@ import { mats, applyTasteRegister } from './events/shared.js';
 import { addRodLaver } from './events/rod-laver.js';
 import { placeAlbertParkLandmark } from '../landmark-albert-park.js';
 import { addGrandPrix } from './events/grand-prix.js';
-import { addFallsCreek } from './events/falls-creek.js';
+import { addFallsCreekSteps } from './events/falls-creek.js';
 
 const FC6_ROOF_OR_CONCRETE = /(roof|fascia|bowl|concourse|podium|plaza|terrace|plinth|cornice|pilaster|vomitor|pav|stone|column-base)/;
 const FC6_GLASS = /(glass$|glazing$|fanlights$|camera-face$|car-cabins$)/;
@@ -183,7 +183,7 @@ export function* addEventsSteps(parent, city, plan) {
   yield 'Building Albert Park';
   const grandPrix = addGrandPrix(root, m, y0, opts);
   yield 'Building Falls Creek';
-  addFallsCreek(root, m, y0, opts);
+  yield* addFallsCreekSteps(root, m, y0, opts);
   yield null;
   applyEntertainmentMaterialRegister(rodLaver, m);
   // Taste register: Rod Laver, its approach and the circuit only. Falls Creek keeps the

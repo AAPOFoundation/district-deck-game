@@ -1270,7 +1270,7 @@ export class Board {
     yield 'Props';
     this._buildProps();
     yield 'Transit';
-    this._buildTransit();
+    yield* this._buildMethodSteps('_buildTransit');
     yield 'Interchange Buses';
     this._buildInterchangeBuses();
     yield 'Ownership Overlay';
@@ -7265,9 +7265,18 @@ export class Board {
     return { parts, size: new THREE.Vector3(0.36, 0.9, 0.36), fallback: true, source: 'procedural-prop' };
   }
 
-  _buildTransit() {
+  _buildTransit() { return finishBuild(this._buildTransitSteps()); }
+
+  /**
+   * The Transit stage as checkpoints (`null` yields continue the stage). The measured-hull door rig
+   * is the cost: it cuts every part of a tram, so it runs one part at a time with a checkpoint
+   * between parts. Nothing the stage adds or draws changes, and the order of every operation is kept.
+   */
+  *_buildTransitSteps() {
+    const pauseBuild = buildBudget();
     const stops = [];
     for (const [transitIndex, item] of this.city.transit.entries()) {
+      if (pauseBuild()) yield null;
       if (item.kind === 'stop') {
         stops.push({
           item,
@@ -7354,7 +7363,15 @@ export class Board {
       group.userData.tramModel = modelId;
       group.userData.fullDetailThroughM = 240;
       group.add(inner);
-      const doorRig = rigTramDoors(inner, model, modelId);
+      // rigTramDoors reads only `inner.children` and edits each part on its own, so calling it once
+      // per part and joining the results is the one-call result; the checkpoint falls between parts.
+      let doorRig = null;
+      for (const mesh of inner.children) {
+        if (pauseBuild()) yield null;
+        const rig = rigTramDoors({ children: [mesh] }, model, modelId);
+        if (doorRig) { doorRig.leaves.push(...rig.leaves); doorRig.originals.push(...rig.originals); } else doorRig = rig;
+      }
+      doorRig ??= rigTramDoors(inner, model, modelId);
       group.position.y = 0.16;
       attachContactBlob(group, tramHalfLength * 2, 2.7, {
         localY: P1_GROUNDING.contactY - 0.16,

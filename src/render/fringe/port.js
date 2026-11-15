@@ -12488,7 +12488,8 @@ function addShipyardRig(parent, mats, splitX) {
   };
 }
 
-function addTerminal(parent, mats, L, seed, edge, extent, sign, containerX) {
+// A generator: it yields `null` between its parts (see addPortSteps), and builds what it built as one call.
+function* addTerminal(parent, mats, L, seed, edge, extent, sign, containerX) {
   const g = new THREE.Group();
   g.name = 'fringe:port-terminal';
   noPick(g);
@@ -12642,6 +12643,7 @@ function addTerminal(parent, mats, L, seed, edge, extent, sign, containerX) {
         name: `fringe:port-cope:fender:${i}`,
       });
   }
+  yield null;
   const copeFace = g.getObjectByName('fringe:port-cope-face');
   if (copeFace) copeFace.userData.copeContract = {
     wetBand: true, physicalFenders: 24, wallWash: true, reboundFoam: true,
@@ -12728,6 +12730,7 @@ function addTerminal(parent, mats, L, seed, edge, extent, sign, containerX) {
   addStackBlock(yard, seed, 'e', CX + 94, -19.0, 15.1, 6.3, 5, 3);
   flushYard(containerZone, mats, yard, 'fringe:port-yard');
   const liveStack = addLiveStack(containerZone, mats, seed, liveX, liveZ);
+  yield null;
 
   const heroGood = stampGoodForIndex(seed, 'hero', 0);
   const hero = wearContainerTree(makeStampedContainer(heroGood, {
@@ -12748,14 +12751,17 @@ function addTerminal(parent, mats, L, seed, edge, extent, sign, containerX) {
   contactPatch(containerZone, mats, heroCell.x, heroCell.z, 4.6, 3.0, DECK_Y + 0.072);
 
   const holdGantry = addGantry(containerZone, mats, CX, 0.8, 9.2, 'hold', mats.containers[0]);
+  yield null;
   const apronGantry = addGantry(containerZone, mats, CX - 13.5, 0.2, 11.4, 'apron');
   const transferLane = addTransferLane(containerZone, mats, CX);
 
   const shed = addWarehouse(containerZone, mats, shedX, shedZ, shedLen, shedDep, 9.4, seed);
+  yield null;
   addBeachFigure(containerZone, mats, shed.westDoorX + 1.15, APRON_TOP, shed.doorZ + 2.35,
     'fringe:port-shed:worker:0', {
       pose: 'stand', heading: 0.4, accessory: 'hard-hat', role: 'workers-shed',
     });
+  yield null;
   addBeachFigure(containerZone, mats, shed.westDoorX - 0.85, APRON_TOP, shed.doorZ + 2.55,
     'fringe:port-shed:worker:1', {
       pose: 'sit', heading: -1.1, accessory: 'hi-vis', role: 'workers-shed', onProp: true,
@@ -12880,6 +12886,7 @@ function addTerminal(parent, mats, L, seed, edge, extent, sign, containerX) {
     containerZone, mats, 2, CX + 56.0, -12.2, Math.PI, 1.06,
     stampGoodForIndex(seed, 'midlift', 0),
   );
+  yield null;
   // P16-PM4 item 3: one straddle carrier, parked over the yard lane between
   // block 'c' and the live stack. Its portal is three tiers plus a clearance, so
   // it is the machine that MEASURES the stack it is standing over.
@@ -12923,6 +12930,7 @@ function addTerminal(parent, mats, L, seed, edge, extent, sign, containerX) {
   const tankB = addOilTank(oilZone, mats, tankX + 4.2, -11.4, 3.4, 7.0);
   addPostRailFence(oilZone, mats, tankX - 14.2, tankX + 14.2, -3.8,
     { h: 1.1, name: 'fringe:port-oil:bund-fence:north' });
+  yield null;
   addPostRailFence(oilZone, mats, tankX - 14.2, tankX + 14.2, -20.2,
     { h: 1.1, name: 'fringe:port-oil:bund-fence:south' });
   addPostRailFenceZ(oilZone, mats, tankX - 14.2, -20.2, -3.8,
@@ -13360,6 +13368,7 @@ function addTerminal(parent, mats, L, seed, edge, extent, sign, containerX) {
   corner.name = 'fringe:port-corner';
   noPick(corner);
   addBeachCorner(corner, mats, X0, seed);
+  yield null;
 
   const shipyard = addShipyardRig(containerZone, mats, splitX);
 
@@ -13394,7 +13403,30 @@ function addTerminal(parent, mats, L, seed, edge, extent, sign, containerX) {
   return g;
 }
 
-export function addPort(parent, city, plan, { reducedMotion = false } = {}) {
+let PORT_BUILDING = false;
+
+// The build is a sequence of steps that yield `null` between them, the boot's checkpoint value
+// (startup.js runBuild: strings open a stage, null continues it), so the browser can paint and take
+// input between steps and no single task runs the whole port. The order of the work, and so every
+// seeded value and the module-level HARBOUR_SHEET, is the order of the one-call build.
+// The build can now be paused, so two must never overlap: addPortSteps throws if one starts
+// while another is in progress, and clears the flag when its build ends or throws.
+export function* addPortSteps(parent, city, plan, { reducedMotion = false } = {}) {
+  if (PORT_BUILDING) throw new Error('Port build re-entered: another build is in progress');
+  PORT_BUILDING = true;
+  try { return yield* buildPortSteps(parent, city, plan, { reducedMotion }); }
+  finally { PORT_BUILDING = false; }
+}
+
+// Synchronous build: drains the steps and returns the port group, as before.
+export function addPort(parent, city, plan, opts = {}) {
+  const steps = addPortSteps(parent, city, plan, opts);
+  let result;
+  do { result = steps.next(); } while (!result.done);
+  return result.value;
+}
+
+function* buildPortSteps(parent, city, plan, { reducedMotion = false } = {}) {
   const extent = plan?.extent ?? city?.extent ?? { x: 272, z: 272 };
   const seed = (plan?.seed ?? city?.seed ?? 0) >>> 0;
   const roles = plan?.roles ?? {};
@@ -13498,6 +13530,7 @@ diffuseColor.a *= smoothstep(.12, .30, chip);
   const sun = sunInFrame(quayFrame.yaw);
   mats.sun = sun;
   root.userData.sun = sun;
+  yield null;
 
   // Cold lees baked into the basin: under the berthed hulls, and inshore of the
   // breakwater where the chop dies. The critic asked for a colder tone in the
@@ -13532,7 +13565,9 @@ diffuseColor.a *= smoothstep(.12, .30, chip);
   ];
   const harbour = addHarbourBasin(root, mats, edge, extent, L,
     sign * L * QUAY_ALONG_K, sun, lees, shores);
-  addTerminal(root, mats, L, seed, edge, extent, sign, CX);
+  yield null;
+  yield* addTerminal(root, mats, L, seed, edge, extent, sign, CX);
+  yield null;
 
   // Harbour furniture shares the terminal's frame, so it lines up with the quay.
   //
@@ -13566,13 +13601,17 @@ diffuseColor.a *= smoothstep(.12, .30, chip);
       { fp: hullFootprint(gx, 20.0, 3.4, 4.2, 0, 0.05), h: GANTRY_BOOM_Y - 8.0 },
     ], { soft: 1.5, tint: WATER_SHADE_SOFT });
   }
+  yield null;
   addFarWharf(harbour, mats, seed, CX - 100, CX - 38, 118);
+  yield null;
   addBreakwater(harbour, mats, seed, CX + 8, 78, CX - 64, 108);
+  yield null;
   // P16-PM2 item 2: 5.02 m of dredger was inside the Spirit's hull. Swinging it
   // parallel to the quay and 10 m further out clears the Spirit's slot, the
   // breakwater and the fairway; the move is 19 m and reads as up-frame, not
   // sideways, so the hero framing keeps it.
   addDredger(harbour, mats, CX - 25, 72, 0, 'fringe:port-dredger');
+  yield null;
   // ── THE LAST AMPUTATION, CLOSED WITHOUT THE TRANSLATION THAT WAS REJECTED. ──
   // r5 left the barge cut at the left edge and framed the choice as "leave it"
   // or "shift 10 m into a buoy". The critic's read was right: the discipline was
@@ -13597,6 +13636,7 @@ diffuseColor.a *= smoothstep(.12, .30, chip);
   // out through the old berth of the barge; this is the nearest spot that clears the lane, the Spirit and
   // the breakwater by at least 3 m (route-lab3.mjs).
   addBarge(harbour, mats, seed, CX + 12, 50, -Math.PI * 0.5, 'fringe:port-barge');
+  yield null;
   // ── THE AMPUTATED HULLS. MEASURED, NOT EYEBALLED. ──
   // A frame-containment probe projects each vessel's world bounding box through
   // the hero camera. At r4's positions it read:
@@ -13621,6 +13661,7 @@ diffuseColor.a *= smoothstep(.12, .30, chip);
   addTug(harbour, mats, CX + 46.5, 34, tug0Yaw, 'fringe:port-tug:0',
     { variant: 'towing', hull: mats.plateRed });
   addWake(harbour, mats, CX + 46.5, 34, tug0Yaw, 38, 9);
+  yield null;
   // P16-PM2 item 2: the push tug was 1.76 m inside the hero ship's hull at the
   // shipped pose — the "gold tug's bow inside the container ship's bow" the
   // user's crane-close frame shows. It moves 16.4 m down-quay and 7.4 m seaward
@@ -13632,15 +13673,18 @@ diffuseColor.a *= smoothstep(.12, .30, chip);
   addTug(harbour, mats, pushX, pushZ, pushYaw, 'fringe:port-tug:1',
     { variant: 'push', hull: mats.yellowDark ?? mats.yellow });
   addWake(harbour, mats, pushX, pushZ, pushYaw, 12, 4);
+  yield null;
   const pilotYaw = Math.PI * 0.62 - 0.35;
   // P16-PM2 item 2: the rest pose sits ON the new ambient lap (local 30/55,
   // 6 × 4), so the frozen frame and the moving frame agree.
   addPilotBoat(harbour, mats, CX + 65, 70, pilotYaw, 'fringe:port-pilot',
     { hull: mats.white, band: mats.orange, speed: 1.35 });
+  yield null;
   const launchYaw = -Math.PI * 0.24 + 0.4;
   addPilotBoat(harbour, mats, CX + 45, 25.5, launchYaw, 'fringe:port-launch',
     { band: mats.workerBlue, hull: mats.plateBlue ?? mats.blueHull, scale: 0.78, house: 'canopy',
       speed: 0.72 });
+  yield null;
   // R5 fault 2 — the second, off-axis working cluster. Placed by measurement,
   // not by eye: the audit's dead box (quay-hero x 0–950, y 470–900) raycasts to
   // a ground footprint of world x 90–160, z −108…−28, and the terminal frame
@@ -13648,6 +13692,7 @@ diffuseColor.a *= smoothstep(.12, .30, chip);
   // x 54–124 / z −4…76. `WORK_CLUSTER` sits at its seaward centre.
   const WORK_CLUSTER = { x: CX + 56, z: 55 };
   addWorkingCluster(harbour, mats, seed, WORK_CLUSTER.x, WORK_CLUSTER.z);
+  yield null;
 
   // ── P13-A10 item 4 — THE CLOSE VESSEL, AND WHY IT IS THIS CLOSE AND NOT 60 m. ──
   //
@@ -13685,6 +13730,7 @@ diffuseColor.a *= smoothstep(.12, .30, chip);
       hull: mats.plateBlue ?? mats.blueHull, house: mats.cladWhite,
       scale: 1.35, underWay: 1.25,
     });
+  yield null;
   // 34 m at 16 px/m is 550 px of wake behind an 18 m boat, and A10 measured the
   // result as a pale field. 15 m and a 6.2 m spread is a working boat's own
   // wash, and `dense` 1.8 packs 20 strips into it instead of 11 over twice the
@@ -13692,6 +13738,7 @@ diffuseColor.a *= smoothstep(.12, .30, chip);
   // transom and breaks up on the taper rather than on the spacing.
   addWake(harbour, mats, CLOSE_X, CLOSE_Z, CLOSE_YAW, 15, 6.2,
     { beam: closeCraft.B, dense: 1.8 });
+  yield null;
   // A job on her aft deck, so the near vessel is a working boat and not a hull
   // parked where the composition wanted one: two mooring blocks, a chain coil
   // and a hand at the rail.
@@ -13715,6 +13762,7 @@ diffuseColor.a *= smoothstep(.12, .30, chip);
       'fringe:port-runner:hand',
       { job: 'lookout', carry: null, headingOffset: 0.6, h: 2.4, r: 0.4 });
   }
+  yield null;
   // ── MC3-3 — HARBOUR CONTEXT INSIDE THE SEA-FIGHT FRAMING. ──
   //
   // `seafight-t6` x 0–1268 / y 63–788: "repetitive water overwhelms three
@@ -13737,6 +13785,7 @@ diffuseColor.a *= smoothstep(.12, .30, chip);
   // P16-PM2 item 2: 4 m shoreward — the lighter's quarter was 0.9 m inside the
   // cruise ship's hull.
   addSeaWorkingMoment(harbour, mats, seed, CX - 95, 59);
+  yield null;
   // Wind streaks across the visible wedge, kept off the hulls and the rubble.
   // The sheet they ride is the board-water lane's sheltered envelope, resolved
   // in this venue's own frame — see `harbourSheet`.
@@ -13755,6 +13804,7 @@ diffuseColor.a *= smoothstep(.12, .30, chip);
       { x: WORK_CLUSTER.x + 2, z: WORK_CLUSTER.z - 5.5, rx: 10, rz: 7 },
       { x: WORK_CLUSTER.x + 23, z: WORK_CLUSTER.z + 15, rx: 13, rz: 9 },
     ], sheet);
+  yield null;
   // Marked channel: red to port, green to starboard, running from the near
   // corner out past the breakwater. Placements are projected pixel targets, not
   // guesses — r3 authored this line outside the 32-degree frame and lost it.
@@ -13781,6 +13831,7 @@ diffuseColor.a *= smoothstep(.12, .30, chip);
     addBuoy(harbour, mats, markers[i][0] + (k - 0.5) * 0.8, markers[i][1] + (k2 - 0.5) * 0.8,
       markers[i][2] === 0 ? mats.cladRed : mats.workerGreen);
   }
+  yield null;
 
   const ships = [];
   const byId = Object.fromEntries(PORT_BERTHS.map((b) => [b.id, b]));
@@ -13910,6 +13961,7 @@ diffuseColor.a *= smoothstep(.12, .30, chip);
       omega: 0.085 + seedUnit(seed, `${id}:w`) * 0.045,
       phase: seedUnit(seed, `${id}:p`) * Math.PI * 2,
     });
+    yield null;
   }
   root.userData.occupancy = { apronHiVis: 19, shipDeckCrew: 4 };
   root.userData.ships = ships;
@@ -14056,7 +14108,8 @@ diffuseColor.a *= smoothstep(.12, .30, chip);
       };
     })(),
   };
-  budgetWaterDarkening(root);
+  yield* budgetWaterDarkening(root);
+  yield null;
   // R4: these port-road overlays and corner sweep props previously occupied
   // the city pavement/carriageway/rail bands. Delete whole offending objects
   // (individual instances where batched), including their contact decals.
@@ -14115,7 +14168,9 @@ diffuseColor.a *= smoothstep(.12, .30, chip);
       node.userData.pm11Contact.casterNames = corner.userData.pm11BeachProps.map((p) => p.casterName);
     }
   }
+  yield null;
   refinePortContainers(root);
+  yield null;
   // Limit broad hazard-painted slabs along their shorter plan axis. Keep every
   // object and its centre; structural members narrower than a metre stay put.
   root.traverse(mesh => {
@@ -14135,6 +14190,7 @@ diffuseColor.a *= smoothstep(.12, .30, chip);
       name: o.name, parent: o.parent?.name, ...o.userData.portMatHazard,
     });
   });
+  yield null;
   // Shared materials reach a second build already capped. The wear pass sorts by luma, so hand it the authored
   // colours every time; `capPortPaint` then caps from the same source, and two builds in one process agree.
   root.traverse((o) => {
@@ -14144,11 +14200,13 @@ diffuseColor.a *= smoothstep(.12, .30, chip);
     }
   });
   wearPortTree(root);
+  yield null;
   // After the wear pass: it clones materials per mesh, and the caps have to land on what is drawn.
   // The kit-built parts carry the port's materials with the baked occlusion on, so the accents are exempt in both forms.
   const accents = [mats.hiVis, mats.hardhat, mats.hatWhite, mats.hatRed, mats.vestOrange, mats.vestLime, mats.vestMagenta,
     mats.workerGreen, mats.workerOrange, mats.workerLime, mats.workerBlue, mats.amberLamp, mats.beacon, mats.letterWhite];
   capPortPaint(root, [...accents, ...accents.filter(Boolean).map(occludedMaterial)]);
+  yield null;
   root.userData.pm12Wear = portWearReceipt(root);
   registerSubtreeLod(root, 'port');
   placePortLandmark(root); // LM-PORT: after material passes; complete loaded rigs only.
@@ -14287,7 +14345,8 @@ function capPortPaint(root, accents = []) {
  * reach. Nothing is re-authored: the shadows keep their shapes, their feathers
  * and their layering, and they stop compounding into a hole.
  */
-function budgetWaterDarkening(root) {
+// A generator, like addTerminal: the plate sweep yields `null` between column groups.
+function* budgetWaterDarkening(root) {
   const FLOOR = 0.35;
   const STEP = 2.0;
   const inv = new THREE.Matrix4();
@@ -14362,6 +14421,8 @@ function budgetWaterDarkening(root) {
   // looks at while missing the ones it does. Both start on a multiple of STEP.
   const snap = (v) => Math.ceil(v / STEP) * STEP;
   const hit = [];
+  // This sweep is the port's longest stretch of work, so it yields every 24 columns: the loop runs as it did.
+  let columns = 0;
   // Three sweeps. One is not enough: a plate lifted for one cell changes the
   // product at every other cell it covers, and `(FLOOR/P)^(1/n)` is the share
   // that closes a cell only if all n plates take it — a plate already at 0.995
@@ -14369,6 +14430,7 @@ function budgetWaterDarkening(root) {
   for (let pass = 0; pass < 3; pass += 1) {
     let moved = false;
     for (let x = snap(x0); x <= x1; x += STEP) {
+      if ((columns += 1) % 24 === 0) yield null;
       for (let z = snap(z0); z <= z1; z += STEP) {
         hit.length = 0;
         let prod = 1;

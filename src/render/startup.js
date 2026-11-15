@@ -26,22 +26,26 @@ export function buildBudget(ms = 25, now = () => performance.now()) {
 
 // Strings begin stages; null checkpoints continue the current stage. Timing is
 // CPU work between next() calls, excluding browser yields and progress callbacks.
+// onStep (optional, used by ?bootTrace=1 only) gets { stage, step, ms } for every
+// stretch between two yields: stage is the last string yielded, step counts from 0 within it.
 export async function runBuild(steps, {
-  onProgress = () => {}, onTiming = () => {}, yieldTask = yieldToBrowser,
+  onProgress = () => {}, onTiming = () => {}, onStep = null, yieldTask = yieldToBrowser,
+  now = () => performance.now(),
 } = {}) {
-  let stage = 'setup', elapsed = 0, longest = 0, yields = 0;
+  let stage = 'setup', elapsed = 0, longest = 0, yields = 0, step = 0;
   try {
     for (;;) {
-      const start = performance.now();
+      const start = now();
       const result = steps.next();
-      const ms = performance.now() - start;
+      const ms = now() - start;
       elapsed += ms;
       longest = Math.max(longest, ms);
+      if (onStep) onStep({ stage, step: step++, ms });
       if (result.done || typeof result.value === 'string') {
         onTiming({ stage, ms: elapsed, longestMs: longest, yields });
         if (result.done) return result.value;
         stage = result.value;
-        elapsed = 0; longest = 0; yields = 0;
+        elapsed = 0; longest = 0; yields = 0; step = 0;
         onProgress(stage);
       }
       yields += 1;
@@ -50,6 +54,20 @@ export async function runBuild(steps, {
   } finally {
     steps.return?.();
   }
+}
+
+// ?bootTrace=1 only: publish every build step and per-stage totals as window.__ddBuildTrace
+// (an array of { stage, step, ms } rows with a `stages` summary array). Without the flag the
+// startup options come back untouched, so nothing is recorded and no callback is added.
+export function traceBuild(startup, { host = globalThis.window } = {}) {
+  if (!host || new URLSearchParams(host.location?.search ?? '').get('bootTrace') !== '1') return startup;
+  const rows = host.__ddBuildTrace ??= [];
+  const stages = rows.stages ??= [];
+  return {
+    ...startup,
+    onStep: row => rows.push(row),
+    onTiming: timing => { startup?.onTiming?.(timing); stages.push({ ...timing }); },
+  };
 }
 
 export function showStartupError(loader, error) {

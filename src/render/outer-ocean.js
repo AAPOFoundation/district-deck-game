@@ -3048,6 +3048,14 @@ export function* bakeOceanDepthDataSteps(city, plan, size = OCEAN.depthTexSize) 
   return { data, bedDepth, coastClass, originX, originZ, span, size, f2Changed };
 }
 
+/**
+ * Low quality's 1 x 1 coast field (no bake). r is the shore distance (S = 224 r^2 m) and a the board weight, and the aqua fragment's RIM_TINT
+ * (water/aqua.js) paints the pale sand shelf wherever (1 - a) * (1 - smoothstep(26, 56, S)) is above 0. With r = 0 that was 1 over the whole sea,
+ * so low drew the sand bed (flat grey-tan) in place of water. r = 255 reads as open sea (S = 224 m): no shelf, a stays 0 so the swell keeps its
+ * old front path. Only the low branch binds this; high and medium bind the baked field.
+ */
+export const LOW_COAST_STUB = new Uint8Array([255, 0, 128, 0]);
+
 // taste-r1 (W15 fix): wet-edge quads whose midpoint has a hinterland coast coordinate under this many metres are dropped.
 const WET_EDGE_RIM_DROP_QM = 32;
 
@@ -6804,7 +6812,7 @@ export class OuterOcean {
     if (pauseBuild()) yield null;
     const coastTex = this._coastBake
       ? makeDataTex(this._coastBake.data, depthBake.size, THREE.ClampToEdgeWrapping)
-      : new THREE.DataTexture(new Uint8Array([0, 0, 128, 0]), 1, 1, THREE.RGBAFormat);
+      : new THREE.DataTexture(LOW_COAST_STUB, 1, 1, THREE.RGBAFormat);
     coastTex.needsUpdate = true;
     coastTex.minFilter = coastTex.magFilter = THREE.LinearFilter;
     coastTex.generateMipmaps = false;

@@ -52,6 +52,7 @@ import { AudioBus } from './render/audio.js';
 import { cybercabContext } from './render/vehicles/cybercab.js';
 import { CYBERCAB_PRESENTATION_ACTIONS, reduceCybercabPresentation } from './core/cybercab.js';
 import { mountAudioSettings } from './ui/audio-settings.js';
+import { mountGraphicsSettings, readStoredGraphics, resolveGraphics } from './render/graphics-setting.js';
 import { onlineHelpHtml } from './ui/online-help.js';
 import { resumeOnlineSession, mountOnlineSession } from './ui/online-session.js';
 import { disposeCybercabPanel } from './ui/cybercab-panel.js';
@@ -300,11 +301,16 @@ class Game {
       this.loaderFill.style.width = `${Math.min(90, 45 + ++buildStage)}%`;
     } });
     const syncBoot = params.get('boot') === 'sync';
+    const graphics = resolveGraphics({
+      stored: readStoredGraphics(), search: location.search, hardwareQuality: chooseQuality(),
+    });
     const viewOptions = {
       reducedMotion: prefersReducedMotion,
-      quality: chooseQuality(),
+      quality: graphics.quality,
       startup,
     };
+    // A stored Graphics choice other than Auto is the only case that hands the scene frame options.
+    if (graphics.mode !== 'auto') viewOptions.frameOptions = { msaa: graphics.msaa, autoDpr: graphics.dprAuto };
     // Release rollback: retain synchronous construction and first-frame setup.
     if (syncBoot) {
       this.view = new SceneView(this.canvas, this.city, this.registry, viewOptions);
@@ -3334,6 +3340,7 @@ class Game {
 
         <h3 class="help-h3">Sound</h3>
         <div data-help-audio></div>
+        <div data-help-graphics></div>
         <h3 class="help-h3">Money verbs</h3>
         <div class="row"><span class="label">Acquire</span><span class="value">The parcel is yours at once, on ${pctText(RULES.lvrBp)} debt. — ${pctText(RULES.dutyBp)} duty · 1 action</span></div>
         <div class="row"><span class="label">Survey</span><span class="value">Survey names condition and hazard bands. — ${fmt(RULES.surveyCost)} · 1 action</span></div>
@@ -3415,6 +3422,7 @@ class Game {
       onMusic: value => store.set(`${UI_PREFS_KEY}:music-volume`, String(value)),
       onEffects: value => store.set(`${UI_PREFS_KEY}:effects-volume`, String(value)),
     });
+    const disposeGraphicsSettings = mountGraphicsSettings(sheet.querySelector('[data-help-graphics]'));
     enhanceHelpIntro(sheet, { quarters, ...(this.online ? {
       opponentLabel: this.online.snapshot?.opponent === 'policy' ? 'Roman Petridis' : 'your opponent',
     } : {}) });
@@ -3437,6 +3445,7 @@ class Game {
       cleaned = true;
       watcher.disconnect();
       disposeAudioSettings();
+      disposeGraphicsSettings();
       for (const controller of controllers) controller.dispose();
       if (this._disposeHelpDioramas === cleanup) this._disposeHelpDioramas = null;
     };

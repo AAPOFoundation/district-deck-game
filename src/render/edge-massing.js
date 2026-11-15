@@ -1698,14 +1698,37 @@ const RING_BRIDGE_EXTRAS = Object.freeze([
   Object.freeze(['inland-gate', 'corner-hills-inland']),
 ]);
 
-function bridgeLiftAt(x, z, seats) {
-  let lift = 0;
+const BRIDGE_PAIRS = [...RING_PAIRS, ...RING_BRIDGE_EXTRAS];
+// The seats each bridge pair resolves to (and the port and beach seats), kept per seats array. The ground sampler asks
+// bridgeLiftAt and waterCorridorAt for every point, and a Map of the seats plus a fresh pair list per ask was most of its cost. A cached entry is used only
+// while the array still holds the same seat objects in the same places; seat fields are read live on every ask.
+const bridgeSeatCache = new WeakMap();
+function bridgeSeatsFor(seats) {
+  const hit = bridgeSeatCache.get(seats);
+  if (hit !== undefined && hit.seats.length === seats.length) {
+    let same = true;
+    for (let i = 0; i < seats.length; i += 1) if (hit.seats[i] !== seats[i]) { same = false; break; }
+    if (same) return hit;
+  }
   const byId = new Map(seats.map((s) => [s.id, s]));
-  const pairs = [...RING_PAIRS, ...RING_BRIDGE_EXTRAS];
-  for (const [aId, bId] of pairs) {
+  const pairs = [];
+  for (const [aId, bId] of BRIDGE_PAIRS) {
     const a = byId.get(aId);
     const b = byId.get(bId);
     if (!a || !b) continue;
+    pairs.push(a, b);
+  }
+  const entry = { seats: seats.slice(), pairs, port: byId.get('port'), beach: byId.get('beach') };
+  bridgeSeatCache.set(seats, entry);
+  return entry;
+}
+
+function bridgeLiftAt(x, z, seats) {
+  let lift = 0;
+  const { pairs } = bridgeSeatsFor(seats);
+  for (let i = 0; i < pairs.length; i += 2) {
+    const a = pairs[i];
+    const b = pairs[i + 1];
     const { t, d } = distToSegment(x, z, a.x, a.z, b.x, b.z);
     const half = lerp(a.radius, b.radius, t) * 0.72 + RING_LAYOUT.corridorHalf;
     const u = clamp01(1 - d / half);
@@ -1726,9 +1749,7 @@ function bridgeLiftAt(x, z, seats) {
 }
 
 function waterCorridorAt(x, z, extent, seats) {
-  const byId = new Map(seats.map((s) => [s.id, s]));
-  const port = byId.get('port');
-  const beach = byId.get('beach');
+  const { port, beach } = bridgeSeatsFor(seats);
   if (!port || !beach) return 0;
   const out = Math.max(-z, z - extent.z, -x, x - extent.x);
   if (out < 6) return 0;

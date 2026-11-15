@@ -53,7 +53,7 @@ import {
   bakeRingHeightSteps, EDGE_APRON, ringAlbedoUv, LANDFORM_TRIAL, COAST_FAR, RING_SEAM,
   SHEET_SHORE, bakeSheetShoreSteps, attachSheetShore,
 } from './edge-massing.js';
-import { addPort, updatePort } from './fringe/port.js';
+import { addPortSteps, updatePort } from './fringe/port.js';
 import { updateContainerFittings } from './fringe/ships.js';
 import { attachFarmFields } from './fringe/farm.js';
 import { surveyedPaddocks } from '../core/city.js';
@@ -1101,6 +1101,28 @@ export function hinterlandGroundSampler(plan) {
   const seed = plan?.seed ?? 0;
   if (!crust) return (x, z) => heightWorld(x, z, plan);
   return (x, z) => hinterlandGroundAt(x, z, extent, crust, seed);
+}
+
+/**
+ * Remembers a ground sampler's answers while one venue builds. The rail link asks the crust for the same
+ * (x, z) again and again (the formation's drape reads five points per station and the road, swale and
+ * batters walk the same stations): 175,565 asks for 33,448 distinct points, about 4.5 us each, which was
+ * 800 ms of the 800 ms build. The sampler is a pure function of (x, z), so the answers are the same numbers.
+ * `release()` drops the table and passes later asks straight through, so a closure the venue keeps
+ * (`formFootprint`) does not hold it.
+ */
+export function memoGround(sample) {
+  let rows = new Map();
+  const memo = (x, z) => {
+    if (rows === null) return sample(x, z);
+    let row = rows.get(x);
+    if (row === undefined) { row = new Map(); rows.set(x, row); }
+    let y = row.get(z);
+    if (y === undefined) { y = sample(x, z); row.set(z, y); }
+    return y;
+  };
+  memo.release = () => { rows = null; };
+  return memo;
 }
 
 /**
@@ -8185,7 +8207,7 @@ export class FringeLayer {
       groundAt: hinterlandGroundSampler(plan),
     };
     yield 'Building the port';
-    this._port = addPort(this.root, this.city, livePlan, { reducedMotion: this.reducedMotion });
+    this._port = yield* addPortSteps(this.root, this.city, livePlan, { reducedMotion: this.reducedMotion });
     yield 'Building the Apostles';
     this._apostles = addApostles(this.root, this.city, livePlan);
     yield 'Building the airport';
@@ -8201,7 +8223,9 @@ export class FringeLayer {
     yield 'Building the station';
     this._station = addStation(this.root, this.city, livePlan, { reducedMotion: this.reducedMotion });
     yield 'Building the rail link';
-    this._rail = addRailLink(this.root, this.city, livePlan);
+    const railGround = memoGround(livePlan.groundAt);
+    this._rail = addRailLink(this.root, this.city, { ...livePlan, groundAt: railGround });
+    railGround.release();
     yield 'Building the event venues';
     this._events = yield* addEventsSteps(this.root, this.city, livePlan);
     // taste-r1 W79 fix 2 (L2): the venues now stand, so the land edge takes each pad's drawn-lawn outline (Rod Laver's table, the lawn meshes of the Grand Prix, Tullamarine and

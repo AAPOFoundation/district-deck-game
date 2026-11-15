@@ -10,7 +10,7 @@
 //   3. Settle the quarter when ready: rent − opex − interest, Petridis moves, next Q.
 // Hotseat / multiplayer still stage seat-action envelopes and commit packets.
 
-import { showStartupError, yieldToBrowser } from './render/startup.js';
+import { showStartupError, traceBuild, yieldToBrowser } from './render/startup.js';
 import { lobbyRungLabel } from './ui/copy-labels.js';
 import * as THREE from 'three';
 import { openWorldOverlay } from './core/session-bridge.js';
@@ -294,10 +294,11 @@ class Game {
     console.info('[district-deck] asset provenance', provenance.counts);
 
     let buildStage = 0;
-    const startup = { onProgress: (stage) => {
+    // traceBuild returns this object untouched unless ?bootTrace=1 (then it records window.__ddBuildTrace).
+    const startup = traceBuild({ onProgress: (stage) => {
       this.loaderText.textContent = stage;
       this.loaderFill.style.width = `${Math.min(90, 45 + ++buildStage)}%`;
-    } };
+    } });
     const syncBoot = params.get('boot') === 'sync';
     const viewOptions = {
       reducedMotion: prefersReducedMotion,

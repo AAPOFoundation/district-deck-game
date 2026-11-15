@@ -4202,7 +4202,13 @@ export function* bakeRingHeightSteps(extent, plan, { heightAt } = {}) {
  * `computeVertexNormals` on the coarse sheet. Identifiers avoid GLSL reserved
  * words (`sample`, `half`, `filter`, `buffer`, `input`, `output`).
  */
-export function attachRingAlbedo(material, albedoTex, extent, seed = 1, heightTex = null, clipR = 0) {
+/**
+ * The crust discards every fragment inside the hinterland sheet's radius because the sheet draws there. The low tier never builds the sheet
+ * (FringeLayer returns early for quality 'low'), so a discard there leaves a hole down to the ocean's seabed colour: keep the crust drawn.
+ */
+export function crustKeepsInside(quality) { return quality === 'low'; }
+
+export function attachRingAlbedo(material, albedoTex, extent, seed = 1, heightTex = null, clipR = 0, clipDiscard = true) {
   if (!material || !albedoTex) return material;
   // taste W79 (GROUND_SURFACE, G2b): on the crust (clipR) the far ring's statement writes the colour whole, so this block's three writers (the grain tile,
   // the slope tint, the venue soil) are not compiled; the sheet (clipR 0) keeps them. Needs the crust form's chunk (CRUST_FORM.amount).
@@ -4375,8 +4381,16 @@ ${crustGs ? '' : `  float slopeAmt = 1.0 - clamp(nWorld.y, 0.0, 1.0);
 }`,
       );
   };
+  // The discard is stripped after the block above compiles, so this function's own text (read into program keys) is the base's at every tier.
+  if (!clipDiscard && clipR > 1) {
+    const withDiscard = material.onBeforeCompile;
+    material.onBeforeCompile = (shader, renderer) => {
+      withDiscard(shader, renderer);
+      shader.fragmentShader = shader.fragmentShader.replace('if (length(vRingWorld.xz - ringCentre) < uRingClipR) discard;', '');
+    };
+  }
   const prevKey = material.customProgramCacheKey?.bind(material);
-  material.customProgramCacheKey = () => `${prevKey ? prevKey() : ''}|dd-ring-albedo-v5${heightTex ? '-h' : ''}|c${clipR}|t15-${extent.x}-${extent.z}${crustGs ? '|gs-far-w79' : ''}`;
+  material.customProgramCacheKey = () => `${prevKey ? prevKey() : ''}|dd-ring-albedo-v5${heightTex ? '-h' : ''}|c${clipR}${clipDiscard ? '' : 'k'}|t15-${extent.x}-${extent.z}${crustGs ? '|gs-far-w79' : ''}`;
   material.needsUpdate = true;
   return material;
 }
@@ -5648,7 +5662,7 @@ export class EdgeMassingLayer {
     if (pauseBuild()) yield null;
     this._height = sharedHeight || (yield* bakeRingHeightSteps(extent, this.plan));
     if (pauseBuild()) yield null;
-    attachRingAlbedo(mat, albedo, extent, seed, this._height, OVERLAY_OUTER - 8);
+    attachRingAlbedo(mat, albedo, extent, seed, this._height, OVERLAY_OUTER - 8, !crustKeepsInside(quality));
     // W50 (CRUST_SHORE): the sheet's shore discard on the crust too (the fringe layer's one baked texture), before the band material clones this one.
     if (pauseBuild()) yield null;
     if (CRUST_SHORE.on && landscape?.userData?.sheetShore) attachSheetShore(mat, landscape.userData.sheetShore);

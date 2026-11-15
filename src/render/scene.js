@@ -243,12 +243,15 @@ export class SceneView {
     // Hero-world default: mid-afternoon raking light so water edge, roofs and cars read
     // on the wide plate (late 0.865 was drowning the diorama in brown vignette).
     timeOfDay = 0.42,
+    frameOptions: frameOptionsOverride = null,
   } = {}) {
     // COPY-DRAFT: startup progress.
     yield 'Preparing the renderer';
+    this._frameOptionsOverride = frameOptionsOverride;
     this.shadowProxyEnabled = !(typeof location !== 'undefined'
       && new URLSearchParams(location.search).get('p09') === 'off');
-    const frameOptions = readFrameOptions(typeof location !== 'undefined' ? location.search : '');
+    const frameOptions = this._frameOptionsOverride
+      ?? readFrameOptions(typeof location !== 'undefined' ? location.search : '');
     this.canvas = canvas;
     this.city = city;
     this.state = null;

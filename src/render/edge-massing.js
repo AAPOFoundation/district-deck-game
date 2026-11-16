@@ -4206,7 +4206,7 @@ export function* bakeRingHeightSteps(extent, plan, { heightAt } = {}) {
  * The crust discards every fragment inside the hinterland sheet's radius because the sheet draws there. The low tier never builds the sheet
  * (FringeLayer returns early for quality 'low'), so a discard there leaves a hole down to the ocean's seabed colour: keep the crust drawn.
  */
-export function crustKeepsInside(quality) { return quality === 'low'; }
+export function crustKeepsInside(quality, sheet = null) { return quality === 'low' && !sheet; }
 
 export function attachRingAlbedo(material, albedoTex, extent, seed = 1, heightTex = null, clipR = 0, clipDiscard = true) {
   if (!material || !albedoTex) return material;
@@ -5662,7 +5662,7 @@ export class EdgeMassingLayer {
     if (pauseBuild()) yield null;
     this._height = sharedHeight || (yield* bakeRingHeightSteps(extent, this.plan));
     if (pauseBuild()) yield null;
-    attachRingAlbedo(mat, albedo, extent, seed, this._height, OVERLAY_OUTER - 8, !crustKeepsInside(quality));
+    attachRingAlbedo(mat, albedo, extent, seed, this._height, OVERLAY_OUTER - 8, !crustKeepsInside(quality, landscape?.getObjectByName?.('fringe:hinterland-fields')));
     // W50 (CRUST_SHORE): the sheet's shore discard on the crust too (the fringe layer's one baked texture), before the band material clones this one.
     if (pauseBuild()) yield null;
     if (CRUST_SHORE.on && landscape?.userData?.sheetShore) attachSheetShore(mat, landscape.userData.sheetShore);

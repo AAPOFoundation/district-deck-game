@@ -8274,7 +8274,7 @@ export class FringeLayer {
       assetPointContacts: 0, assetRunContacts: 0,
     };
     if (pauseBuild()) yield null;
-    if (plan.quality === 'low' || !crust) {
+    if (!crust) {
       (yield* this._plantTreesSteps(plan.trees, []));
       return;
     }
@@ -8443,7 +8443,7 @@ export class FringeLayer {
     attachRingAlbedo(fieldsMat, albedo, extent, seed, heightTex);
     // taste W45 (SHEET_SHORE): the sheet's seaward edge on a smooth contour of the far coast field, the ribbon drawing the beach (`?sheetShore=0` leaves the shader as it was).
     if (pauseBuild()) yield null;
-    if (SHEET_SHORE.on) {
+    if (SHEET_SHORE.on && plan.quality !== 'low') { // low: no 2 MB float shore bake; the sheet keeps the ring map's own coast discard
       yield 'Tracing the shoreline';
     this._sheetShore = (yield* bakeSheetShoreSteps(extent, crust));
       attachSheetShore(fieldsMat, this._sheetShore);
@@ -8471,6 +8471,12 @@ export class FringeLayer {
     this.root.add(fields);
     this._fieldsMat = fieldsMat;
     this._fieldsGeo = fieldsGeo;
+    // Low tier: the fields sheet alone (one draw) carries the paddocks, the venue ground and, through the published hooks, the tray ribbon's
+    // surface; without it the crust's far-ring statement painted r < 616 olive. The coast rim, trees, hedges and tufts stay out.
+    if (plan.quality === 'low') {
+      (yield* this._plantTreesSteps(plan.trees, []));
+      return;
+    }
     // taste-r1 W14-C: the coast ribbon carries the bluff, platform and coves the sheet ends short of.
     yield 'Building the coast';
     if (pauseBuild()) yield null;

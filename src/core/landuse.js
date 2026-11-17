@@ -1180,7 +1180,7 @@ export const DISTRICT_DEFINITIONS = Object.freeze([
     { measure: 'rent', receiver: 'retail', bp: 900 },
   ]),
   districtDefinition('construction-precinct', 'Construction Precinct', [
-    requirement('hammerbarn', 'Hammerbarn', { useIds: ['hammerbarn'] }),
+    requirement('hammerbarn', 'Boltbarn', { useIds: ['hammerbarn'] }),
     requirement('factory', 'Factory', { useIds: ['factory-light'] }),
   ], [
     { measure: 'value', receiver: 'industrial', bp: 300 },

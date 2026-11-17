@@ -291,7 +291,7 @@ const BOOK_NAME = Object.freeze({
   'chips-taipei-melbourne': 'chips',
   'robots-starbase-melbourne': 'robots',
   'compute-starbase-melbourne': 'Boca compute',
-  'starlink-starbase-melbourne': 'Starlink',
+  'starlink-starbase-melbourne': 'Arclink',
   'tourists-singapore-melbourne': 'tourists',
   'credit-sydney-melbourne': 'line of credit',
   'machinery-shanghai-melbourne': 'plant machinery',
@@ -475,7 +475,7 @@ const CHIP_NAME = Object.freeze({
   warships: 'Ships',
 
   compute: 'Compute',
-  starlink: 'Starlink',
+  starlink: 'Arclink',
   alien: 'Alien',
   'milk-powder': 'Milk powder',
   beef: 'Beef',
@@ -3300,7 +3300,7 @@ function rebuildCargo() {
   if (label) {
     const shipping = active.filter(order => order.status === 'shipping').length;
     label.textContent = `CABS ×${active.length}`;
-    label.title = shipping ? `${shipping} cybercabs shipping to Melbourne` : `${active.length} cybercabs arrived at Melbourne port yard`;
+    label.title = shipping ? `${shipping} wattlecabs shipping to Melbourne` : `${active.length} wattlecabs arrived at Melbourne port yard`;
   }
 }
 

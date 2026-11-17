@@ -41,7 +41,7 @@ export function cybercabBookModel(state, city) {
   const book = cybercabSupplierBook(viewed);
   const reason = business
     ? cybercabActionCheck(viewed, { type: 'IMPORT_CAB' })
-    : 'Open the globe from your city to order cybercabs.';
+    : 'Open the globe from your city to order wattlecabs.';
   return {
     ...book, capacity: business?.depot.capacity ?? 0, fleet: business?.fleet.length ?? 0,
     arrivalQuarter: (viewed?.quarter ?? 1) + book.shippingQuarters,
@@ -96,8 +96,8 @@ const money = value => '$' + value.toLocaleString('en-AU');
 export function cybercabBookHtml(book) {
   return `<section data-cybercab-book>
     <span class="province-status" data-status="open">Supplier book</span>
-    <h2>Shanghai Cybercab Works</h2>
-    <p class="province-lead">Cybercabs to Melbourne</p>
+    <h2>Shanghai Wattlecab Works</h2>
+    <p class="province-lead">Wattlecabs to Melbourne</p>
     <dl class="province-book-brief">
       <dt>Unit price · shipping included</dt><dd>${money(book.unitPrice)}</dd>
       <dt>Shipping</dt><dd>${book.shippingQuarters} quarter · arrives Q${book.arrivalQuarter}</dd>

@@ -146,7 +146,7 @@ export const CHARACTER_PROFILES = deepFreeze({
     personality:
       'Twenty-six years of Saturday auctions have given Terry a laminated smile and a genuine, almost tender belief that every parcel is worth whatever someone can be made to pay for it. He quotes ranges the way weather forecasters quote sunshine — aspirationally, with plausible deniability. Underneath the shine there is an operator who knows every title in the inner north and exactly which vendors are lying about why they are selling.',
     greeting:
-      'Terry Mangoulias. Don\'t google me — that was a different Terry, largely. Now: are you here to buy, or are you one of those people who comes to the opens for the free biscuits? Because I count the biscuits.',
+      'Terry Mangoulias. Don\'t look me up — that was a different Terry, largely. Now: are you here to buy, or are you one of those people who comes to the opens for the free biscuits? Because I count the biscuits.',
     idle: [
       'Underquoted? I prefer "aspirationally anchored."',
       'I\'ve sold that terrace three times. Twice to the same bloke. He waves now.',
@@ -204,7 +204,7 @@ export const CHARACTER_PROFILES = deepFreeze({
     greeting:
       'Saskia Holt. Before we begin: I don\'t do "Hamptons." If the word Hamptons enters this conversation, the conversation has ended and you are paying for the hour.',
     idle: [
-      'Your brief says "timeless." I\'ve seen your Pinterest board. Everything on it is from 2019. Let me work.',
+      'Your brief says "timeless." I\'ve seen your mood board. Everything on it is from 2019. Let me work.',
       'I could save that facade. The open question is whether it deserves saving. It knows what it did.',
       'Concrete is honest. It tells you exactly what it is. I have clients who could learn from concrete.',
     ],
@@ -608,7 +608,7 @@ export const MARKET_COMMENTARY = deepFreeze({
   bull: [
     'Everything\'s green — chips, fruit companies, the coin, even coffee, which means the traders are celebrating with the thing they\'re long. Tidy.',
     'The board\'s running hot and the barbecue talk has turned to "getting some exposure." When your uncle says exposure, the top is somewhere in the room.',
-    'NVDA up, gold up, oil up. When everything\'s up at once, someone is wrong, and the market has generously agreed to reveal who later.',
+    'NVCH up, gold up, oil up. When everything\'s up at once, someone is wrong, and the market has generously agreed to reveal who later.',
   ],
   bear: [
     'Sea of red on the board. The long-term investors have logged off to focus on their long term, which is a walk.',

@@ -52,7 +52,7 @@ const GOOD_COPY = Object.freeze({
   machinery: 'Machinery',
   turbines: 'Turbines',
   compute: 'Compute',
-  starlink: 'Starlink',
+  starlink: 'Arclink',
   alien: 'Alien',
   'milk-powder': 'Milk powder',
   beef: 'Beef',

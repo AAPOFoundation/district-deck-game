@@ -13,6 +13,7 @@ import {
   freeCashOf,
   marketLotSize,
   quarterDailyBars,
+  displaySymbol,
 } from './markets.js';
 
 export function nextOrderId(markets) {
@@ -119,7 +120,7 @@ export function canPlaceOrder(city, state, action) {
     const held = state.markets?.portfolios?.player?.[asset.id] ?? 0;
     const reservedSell = workingSellUnits(state.markets, 'player', asset.id);
     if (held - reservedSell < units) {
-      return { ok: false, reason: `You hold ${held} ${asset.id} (${reservedSell} resting sells).` };
+      return { ok: false, reason: `You hold ${held} ${displaySymbol(asset.id)} (${reservedSell} resting sells).` };
     }
   }
 

@@ -130,7 +130,7 @@ export const ITEM_LABEL = Object.freeze({
   beer: 'Beer',
   warships: 'Ships',
   compute: 'Compute',
-  starlink: 'Starlink',
+  starlink: 'Arclink',
   alien: 'Alien',
   'milk-powder': 'Milk powder',
   beef: 'Beef',

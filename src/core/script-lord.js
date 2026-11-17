@@ -25,14 +25,14 @@ export const POLICE_RAID_AUDIT = 0.06;
 export const POLICE_WASH_RAID_BP = 500;
 
 export const PRODUCTS = Object.freeze([
-  { id: 'prozac', name: 'Prozac', lo: 8, hi: 45 },
-  { id: 'ambien', name: 'Ambien', lo: 40, hi: 180 },
-  { id: 'viagra', name: 'Viagra', lo: 80, hi: 340 },
-  { id: 'ritalin', name: 'Ritalin', lo: 140, hi: 520 },
-  { id: 'xanax', name: 'Xanax', lo: 220, hi: 980 },
-  { id: 'adderall', name: 'Adderall', lo: 480, hi: 2_100 },
-  { id: 'vicodin', name: 'Vicodin', lo: 900, hi: 3_800 },
-  { id: 'oxycontin', name: 'OxyContin', lo: 2_200, hi: 14_500 },
+  { id: 'prozac', name: 'Brightol', lo: 8, hi: 45 },
+  { id: 'ambien', name: 'Dozeon', lo: 40, hi: 180 },
+  { id: 'viagra', name: 'Vigorin', lo: 80, hi: 340 },
+  { id: 'ritalin', name: 'Focusyl', lo: 140, hi: 520 },
+  { id: 'xanax', name: 'Stillax', lo: 220, hi: 980 },
+  { id: 'adderall', name: 'Attendra', lo: 480, hi: 2_100 },
+  { id: 'vicodin', name: 'Easedyne', lo: 900, hi: 3_800 },
+  { id: 'oxycontin', name: 'Durapax', lo: 2_200, hi: 14_500 },
 ]);
 
 export const PRODUCT_IDS = Object.freeze(PRODUCTS.map((row) => row.id));

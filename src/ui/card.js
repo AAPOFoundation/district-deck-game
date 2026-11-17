@@ -96,6 +96,7 @@ import { petrolForecourtForParcel } from '../core/petrol-yield.js';
 import {
   canTrade, marketBookValue, tradeLotsForCard, marketMacroLabel, MARKET_VENUE_USE_ID,
   marketLotSize, formatTickerPrice,
+  displaySymbol,
 } from '../core/markets.js';
 import { openModal } from './modal.js';
 import { runHistoryHtml } from './settlement-presenter.js';
@@ -345,7 +346,7 @@ export function shortVerbReason(verb, reason) {
   if (/auction/i.test(r)) return named('wait for the auction.');
   if (r.length <= 48 && !/[—:]/.test(r) && /^[A-Z][a-z]/.test(r) && !REDUCER_REASON_HOLD.some((term) => term.test(r))) {
     const sentence = r.replace(/\.*$/, '.');
-    return named(/^(?:Petridis|Roman|Wozza|Vinh|Terry|Aido|Possum|Melbourne|Hammerbarn|Cybercab)\b/.test(r)
+    return named(/^(?:Petridis|Roman|Wozza|Vinh|Terry|Aido|Possum|Melbourne|Boltbarn|Wattlecab)\b/.test(r)
       ? sentence
       : sentence[0].toLowerCase() + sentence.slice(1));
   }
@@ -2056,7 +2057,7 @@ function stockExchangeTradeHtml(city, state, venueId, lotSelections = {}) {
             label: `Buy ${buyUnits} · ${money(buyTotal)}`,
             personId: venueId,
             check: buyCheck,
-            available: `Buy ${buyUnits} ${lot.id} · ${moneyExact(buyTotal)} · no action`,
+            available: `Buy ${buyUnits} ${displaySymbol(lot.id)} · ${moneyExact(buyTotal)} · no action`,
             hint: `${selectedLots} batch${selectedLots === 1 ? '' : 'es'} · cash only`,
             className: 'verb--primary',
           })}
@@ -2066,7 +2067,7 @@ function stockExchangeTradeHtml(city, state, venueId, lotSelections = {}) {
             label: canSell || maxSellLots >= 1 ? `Sell ${sellUnits} · ${money(sellTotal)}` : 'Sell',
             personId: venueId,
             check: sellCheck,
-            available: `Sell ${sellUnits} ${lot.id} · ${moneyExact(sellTotal)} · no action`,
+            available: `Sell ${sellUnits} ${displaySymbol(lot.id)} · ${moneyExact(sellTotal)} · no action`,
             hint: lot.held
               ? (pnl ? `${pnl.text} · hold ${lot.held}` : `hold ${lot.held}`)
               : 'none held',
@@ -2690,7 +2691,7 @@ export function archetypeThumbSrc(archetypeId) {
 
 function redevelopDestLabel(quote) {
   if (quote?.fromArchetype === 'hammerbarn' && quote?.toArchetype === 'hammerbarn') {
-    return 'Two-storey Hammerbarn';
+    return 'Two-storey Boltbarn';
   }
   return ARCHETYPES[quote?.toArchetype]?.label ?? quote?.toArchetype ?? '—';
 }
@@ -2749,7 +2750,7 @@ export function redevelopLadder(city, state, parcelId) {
       current: false,
       locked: nextLevel > ceiling || !quote,
       sameForm,
-      label: currentId === 'hammerbarn' && nextLevel === 1 ? 'Two-storey Hammerbarn' : undefined,
+      label: currentId === 'hammerbarn' && nextLevel === 1 ? 'Two-storey Boltbarn' : undefined,
       quote,
     });
   }
@@ -5513,7 +5514,7 @@ export class PropertyCard {
       button.disabled = !check.ok;
       button.classList.toggle('verb--blocked', !check.ok);
       const reason = check.ok
-        ? `${isBuy ? 'Buy' : 'Sell'} ${units} ${assetId} · ${moneyExact(total)} · no action`
+        ? `${isBuy ? 'Buy' : 'Sell'} ${units} ${displaySymbol(assetId)} · ${moneyExact(total)} · no action`
         : shortVerbReason(verb, check.reason);
       button.title = reason;
       button.dataset.reason = reason;

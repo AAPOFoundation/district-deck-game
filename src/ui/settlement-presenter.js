@@ -57,7 +57,7 @@ const DELTA_LABELS = Object.freeze({
   interest: 'Interest',
   overdraft: 'Overdraft',
   forecourt: 'Forecourt',
-  cybercab: 'Cybercab cash',
+  cybercab: 'Wattlecab cash',
   net: 'Net',
   cash: 'Cash',
   nav: 'NAV',
@@ -325,9 +325,9 @@ export function runHistoryHtml(state) {
     ${rows.length ? rows.map((row, index) => `<section class="run-ledger-quarter">
       <h3>Quarter ${row.quarter}</h3>
       ${settlementDeltaHtml(settlementDeltaProjection(rows, index))}
-      <p>Confirmed cash before resolution ${moneyExact(row.cashBefore)} → ${moneyExact(row.cashAfter)}; change ${exactSignedMoney(row.cashAfter - row.cashBefore)}. Cash change includes planned spending. Net shows income after costs paid at Settle, including Cybercab earnings.</p>
-      ${row.cybercab ? `<h4>Your Cybercab totals</h4><p>Fares ${moneyExact(row.cybercab.fares)} · running costs ${moneyExact(row.cybercab.costs)} · service paid ${moneyExact(row.cybercab.servicePaid)} · capital paid ${moneyExact(row.cybercab.capitalPaid)}.</p>
-        <p>Operating profit ${exactSignedMoney(row.cybercab.net)} · business cash movement ${exactSignedMoney(row.cybercab.cashMovement)}. Capital purchases affect cash, not operating profit.</p>` : '<p>Cybercab totals were not recorded for this quarter.</p>'}
+      <p>Confirmed cash before resolution ${moneyExact(row.cashBefore)} → ${moneyExact(row.cashAfter)}; change ${exactSignedMoney(row.cashAfter - row.cashBefore)}. Cash change includes planned spending. Net shows income after costs paid at Settle, including Wattlecab earnings.</p>
+      ${row.cybercab ? `<h4>Your Wattlecab totals</h4><p>Fares ${moneyExact(row.cybercab.fares)} · running costs ${moneyExact(row.cybercab.costs)} · service paid ${moneyExact(row.cybercab.servicePaid)} · capital paid ${moneyExact(row.cybercab.capitalPaid)}.</p>
+        <p>Operating profit ${exactSignedMoney(row.cybercab.net)} · business cash movement ${exactSignedMoney(row.cybercab.cashMovement)}. Capital purchases affect cash, not operating profit.</p>` : '<p>Wattlecab totals were not recorded for this quarter.</p>'}
     </section>`).join('') : `<p>${earlier ? 'No completed-quarter receipts are available.' : 'No settled quarter yet.'}</p>`}
   </div>`;
 }
@@ -472,7 +472,7 @@ export function settlementPresentationLines(event, ledgerRow = {}) {
       stamp: overdraft ? 'overdue' : '',
     },
     forecourt: cashLine('Forecourt', recordedCash(event.lines, 'forecourt')),
-    cybercab: cashLine('Cybercab cash', recordedCash(event.lines, 'cybercabNet')),
+    cybercab: cashLine('Wattlecab cash', recordedCash(event.lines, 'cybercabNet')),
     works: {
       label: 'Works completed',
       value: worksCount ? String(worksCount) : 'None',

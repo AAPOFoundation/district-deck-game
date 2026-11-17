@@ -598,7 +598,7 @@ export const WORLD_CITIES = Object.freeze([
   city({
     id: 'starbase-texas',
     name: 'Starbase Texas',
-    register: 'Starbase sells yard robots, Boca compute, and Starlink. Pay to fly each book from Boca.',
+    register: 'Starbase sells yard robots, Boca compute, and Arclink. Pay to fly each book from Boca.',
     trait: 'robots',
     accent: '#5a3a2a',
     mapName: 'Starbase',
@@ -1212,7 +1212,7 @@ const WORLD_TRADE_ROUTE_ROWS = [
     openFee: 280_000,
     playerOpenable: true,
     direction: 'inbound',
-    register: 'Starlink from Boca. Travels by air freight.',
+    register: 'Arclink from Boca. Travels by air freight.',
   }),
   Object.freeze({
     id: 'tourists-singapore-melbourne',

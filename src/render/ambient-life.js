@@ -1760,7 +1760,7 @@ export class AmbientLifeLayer {
         } else actor.agendaNow = next;
         const distance = Math.hypot((actor._lastX ?? actor.x) - next.destination.x,
           (actor._lastZ ?? actor.z) - next.destination.z);
-        actor.activityLine = actor.cabRide ? `${actor.cabRide.phase === 'carry' ? 'Riding' : 'Hailing'} a cybercab · ${next.destination.label}`
+        actor.activityLine = actor.cabRide ? `${actor.cabRide.phase === 'carry' ? 'Riding' : 'Hailing'} a wattlecab · ${next.destination.label}`
           : distance > 18 ? `On my way · ${next.line}` : next.line;
         // The existing dispatcher respects cooldown; only a commute requesting a cab is eligible.
         if (!actor.cabRide && !(next.activity === 'commute' && next.mode === 'cybercab')) {

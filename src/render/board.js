@@ -4221,7 +4221,7 @@ export class Board {
     placeKit(benchModel, byKind.bench, 'streetscape:avenue-benches', 'park-blackwood-bench', 'Bench');
     placeKit(binModel, byKind.bin, 'streetscape:avenue-bins', 'hoddle-grid-bin', 'Street bin');
     placeKit(lampModel, byKind.lamp, 'streetscape:avenue-lamps', 'reserve-path-lamp', 'Street lamp');
-    placeKit(postboxModel, byKind.postbox, 'streetscape:avenue-postboxes', 'australia-post-box', 'Australia Post box');
+    placeKit(postboxModel, byKind.postbox, 'streetscape:avenue-postboxes', 'australia-post-box', 'Street post box');
   }
 
   /**

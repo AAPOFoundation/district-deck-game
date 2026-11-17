@@ -245,7 +245,7 @@ function requireRunStart(parsed) {
   }
   if (parsed.roomEconomyVersion !== first.roomEconomyVersion) throw new Error('Run-start room economy mismatch.');
   if (parsed.sellerFeeVersion !== first.sellerFeeVersion) throw new Error('Run-start seller fee mismatch.');
-  if (parsed.cybercabFundingVersion !== first.cybercabFundingVersion) throw new Error('Run-start cybercab funding mismatch.');
+  if (parsed.cybercabFundingVersion !== first.cybercabFundingVersion) throw new Error('Run-start wattlecab funding mismatch.');
   if (parsed.seed !== first.seed) throw new Error('The run seed and run-start seed differ.');
   if (parsed.operatorId !== first.operatorId) {
     throw new Error('The run operator and run-start operator differ.');

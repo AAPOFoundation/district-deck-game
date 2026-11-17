@@ -1,6 +1,6 @@
 // City-owned import orders; globe reads this book from the live city snapshot.
 export const CYBERCAB_SUPPLIER = Object.freeze({
-  id: 'cybercabs-shanghai-melbourne', name: 'Shanghai Cybercab Works',
+  id: 'cybercabs-shanghai-melbourne', name: 'Shanghai Wattlecab Works',
   from: 'shanghai', to: 'melbourne-inner', good: 'cybercabs', kind: 'sea',
   unitPrice: 36000, shippingQuarters: 1, arrivalLocation: 'port-yard',
 });

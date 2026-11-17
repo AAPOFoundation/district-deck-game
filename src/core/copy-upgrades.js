@@ -162,7 +162,7 @@ export const QUARTER_BEAT_BODIES = Object.freeze({
     hawk: 'The Governor hikes and the mortgage belt flinches. Serviceability calculators update overnight, high-beta crypto gets sold, and the only thing holding a bid is gold. The desk that was long growth is now long regret.',
   },
   'ai-capex': {
-    beat: 'Cloud spend guides come in hot and the AI trade wakes up from its nap. NVDA leads, the ASX tech names draft behind it, and even oil catches a whisper bid on the power-demand story. REA prints in sympathy -- if the tech money is flowing, the inner-east listings follow.',
+    beat: 'Cloud spend guides come in hot and the AI trade wakes up from its nap. NVCH leads, the ASX tech names draft behind it, and even oil catches a whisper bid on the power-demand story. The listings portals print in sympathy -- if the tech money is flowing, the inner-east listings follow.',
     digest: 'Spend holds but Collins Street is watching margins now, not revenue. The AI complex pauses to digest the run. Nobody is selling, nobody is adding. Purgatory with a positive bias.',
     pause: 'One hyperscaler puts a cluster on hold and the whole complex trades like it is 2022 again. Multiple compression across every name with "AI" in the deck. The analyst notes from Martin Place will be brutal.',
   },
@@ -181,7 +181,7 @@ export const QUARTER_BEAT_BODIES = Object.freeze({
 export const YEAR_BEAT_BODIES = Object.freeze({
   regime: {
     boom: 'Growth holds, inflation cools, and the clearance rate pushes ninety. Risk-on for the year overlay. The recession callers go quiet. The bears do not go extinct, they just stop returning Terry\'s calls.',
-    stag: 'Sticky goods prices meet slowing growth and nobody has a playbook for this. Gold and BHP lead the year. Duration and crypto lag. The clearance rate drifts into the sixties and the agents start calling it a "buyers\' market," which is what agents say when it is not their market.',
+    stag: 'Sticky goods prices meet slowing growth and nobody has a playbook for this. Gold and the miners lead the year. Duration and crypto lag. The clearance rate drifts into the sixties and the agents start calling it a "buyers\' market," which is what agents say when it is not their market.',
     recession: 'Labour market cracks and the haven trade lights up. Gold, cash, quality duration. Cyclicals and crypto get sold like there is no tomorrow, which is, in fairness, the concern. The clearance rate drops below fifty and the auction rooms serve better biscuits, which Terry considers a leading indicator.',
   },
 });
@@ -682,54 +682,54 @@ export const EVENT_EMPTY_BODY = 'Nothing hitting this quarter.';
 
 export const DAILY_TICKER_COPY = Object.freeze({
   NVDA: Object.freeze([
-    { headline: 'NVDA -- data-centre GPUs sold out through the quarter. The ASX tech basket lifts in sympathy and REA\'s cloud bill goes up, which the agents pass on to you.', kind: 'company' },
-    { headline: 'NVDA -- China licence rumour circulating. The book is mixed and the Collins Street desk is nervous.', kind: 'company' },
-    { headline: 'NVDA -- foundry costs guiding higher. Margins are the new story, not revenue. The AI infrastructure trade reprices from Melbourne to Mountain View.', kind: 'financials' },
+    { headline: 'NVCH -- data-centre GPUs sold out through the quarter. The ASX tech basket lifts in sympathy and the listings portals\' cloud bill goes up, which the agents pass on to you.', kind: 'company' },
+    { headline: 'NVCH -- China licence rumour circulating. The book is mixed and the Collins Street desk is nervous.', kind: 'company' },
+    { headline: 'NVCH -- foundry costs guiding higher. Margins are the new story, not revenue. The AI infrastructure trade reprices from Melbourne to Mountain View.', kind: 'financials' },
   ]),
   AAPL: Object.freeze([
-    { headline: 'AAPL -- services revenue run-rate beats. The installed base keeps paying, which is a sentence Vinh has used about mortgages.', kind: 'financials' },
-    { headline: 'AAPL -- iPhone channel checks in line. No surprise, no trade. The JB Hi-Fi floor staff saw this in December.', kind: 'company' },
-    { headline: 'AAPL -- EU App Store fine chatter. Brussels is expensive this quarter. The regulatory-risk trade has a new postcode.', kind: 'company' },
+    { headline: 'ORCH -- services revenue run-rate beats. The installed base keeps paying, which is a sentence Vinh has used about mortgages.', kind: 'financials' },
+    { headline: 'ORCH -- handset channel checks in line. No surprise, no trade. The JB Hi-Fi floor staff saw this in December.', kind: 'company' },
+    { headline: 'ORCH -- EU app marketplace fine chatter. Brussels is expensive this quarter. The regulatory-risk trade has a new postcode.', kind: 'company' },
   ]),
   MSFT: Object.freeze([
-    { headline: 'MSFT -- Azure AI attach rate printed hot. Every enterprise wants a copilot. The ASX tech names draft behind it.', kind: 'financials' },
-    { headline: 'MSFT -- OpenAI commercial terms reaffirmed. The partnership holds, for now.', kind: 'company' },
-    { headline: 'MSFT -- capex digestion weighing on the multiple. Spend now, earn later, hope always. Collins Street updates the models and goes for a long lunch.', kind: 'financials' },
+    { headline: 'MRDN -- Meridian Cloud AI attach rate printed hot. Every enterprise wants a copilot. The ASX tech names draft behind it.', kind: 'financials' },
+    { headline: 'MRDN -- lead AI partner terms reaffirmed. The partnership holds, for now.', kind: 'company' },
+    { headline: 'MRDN -- capex digestion weighing on the multiple. Spend now, earn later, hope always. Collins Street updates the models and goes for a long lunch.', kind: 'financials' },
   ]),
   AMZN: Object.freeze([
-    { headline: 'AMZN -- AWS reacceleration prints. Cloud is back and Collins Street is relieved.', kind: 'financials' },
-    { headline: 'AMZN -- Prime fee hike sticks. The consumer complains and pays.', kind: 'company' },
-    { headline: 'AMZN -- labour action at two fulfilment hubs. Last-mile costs are someone else\'s problem, which in property means your tenant\'s.', kind: 'company' },
+    { headline: 'MRRY -- cloud unit reacceleration prints. Cloud is back and Collins Street is relieved.', kind: 'financials' },
+    { headline: 'MRRY -- membership fee hike sticks. The consumer complains and pays.', kind: 'company' },
+    { headline: 'MRRY -- labour action at two fulfilment hubs. Last-mile costs are someone else\'s problem, which in property means your tenant\'s.', kind: 'company' },
   ]),
   GOOGL: Object.freeze([
-    { headline: 'GOOGL -- search and YouTube ads both beat. The advertising machine does not stop, and neither does the REA spend.', kind: 'financials' },
-    { headline: 'GOOGL -- antitrust remedy narrower than feared. The lawyers earned their retainer, and the REA ad budget stays where it is.', kind: 'company' },
-    { headline: 'GOOGL -- cloud mix lags Azure for a session. Second place is still enormously profitable.', kind: 'financials' },
+    { headline: 'SBNK -- search and video ads both beat. The advertising machine does not stop, and neither does the listings spend.', kind: 'financials' },
+    { headline: 'SBNK -- antitrust remedy narrower than feared. The lawyers earned their retainer, and the listings ad budget stays where it is.', kind: 'company' },
+    { headline: 'SBNK -- cloud mix lags Meridian Cloud for a session. Second place is still enormously profitable.', kind: 'financials' },
   ]),
   META: Object.freeze([
-    { headline: 'META -- Reels ads filling above plan. Short-form video is printing money. The attention economy has a new landlord.', kind: 'financials' },
-    { headline: 'META -- Reality Labs spend held flat. The metaverse costs what it costs, which is more than a Docklands penthouse with a worse view.', kind: 'company' },
-    { headline: 'META -- engagement dips in two geos. The attention economy has competition. So does your rental listing.', kind: 'company' },
+    { headline: 'MSAC -- Reels ads filling above plan. Short-form video is printing money. The attention economy has a new landlord.', kind: 'financials' },
+    { headline: 'MSAC -- Reality Labs spend held flat. The metaverse costs what it costs, which is more than a Docklands penthouse with a worse view.', kind: 'company' },
+    { headline: 'MSAC -- engagement dips in two geos. The attention economy has competition. So does your rental listing.', kind: 'company' },
   ]),
   TSLA: Object.freeze([
-    { headline: 'TSLA -- deliveries surprise to the upside. The factory floor outperformed the stock.', kind: 'financials' },
-    { headline: 'TSLA -- autonomy update staged across two markets. The thesis is either imminent or eternal. Collins Street updates the model and goes for a long lunch.', kind: 'company' },
-    { headline: 'TSLA -- overnight price cut in China. Margin for market share, the oldest trade in the book.', kind: 'company' },
+    { headline: 'WTLM -- deliveries surprise to the upside. The factory floor outperformed the stock.', kind: 'financials' },
+    { headline: 'WTLM -- autonomy update staged across two markets. The thesis is either imminent or eternal. Collins Street updates the model and goes for a long lunch.', kind: 'company' },
+    { headline: 'WTLM -- overnight price cut in China. Margin for market share, the oldest trade in the book.', kind: 'company' },
   ]),
   BTC: Object.freeze([
-    { headline: 'BTC -- spot ETF prints a second straight inflow day. Institutional money arriving, like a Collingwood gentrifier with a deposit.', kind: 'flow' },
-    { headline: 'BTC -- miner hash-price steady. The machines keep running, and the Docklands co-working space that accepts BTC for rent keeps not mentioning it.', kind: 'company' },
-    { headline: 'BTC -- leverage flush on perps. The degens got liquidated and the spot bid held. Melbourne OTC volume spiked at the session low.', kind: 'flow' },
+    { headline: 'DIG -- spot ETF prints a second straight inflow day. Institutional money arriving, like a Collingwood gentrifier with a deposit.', kind: 'flow' },
+    { headline: 'DIG -- miner hash-price steady. The machines keep running, and the Docklands co-working space that accepts DIG for rent keeps not mentioning it.', kind: 'company' },
+    { headline: 'DIG -- leverage flush on perps. The degens got liquidated and the spot bid held. Melbourne OTC volume spiked at the session low.', kind: 'flow' },
   ]),
   ETH: Object.freeze([
-    { headline: 'ETH -- staking queue shortens. Yield compression is the quiet story, and Vinh knows yield compression when he sees it.', kind: 'flow' },
-    { headline: 'ETH -- L2 fee share in line. The rollup economy ticks over. The Collins Street crypto desk yawns and checks the staking dashboard.', kind: 'company' },
-    { headline: 'ETH -- unlock calendar weighing on the tape. Supply is not a rumour, it is a schedule, and the Melbourne OTC desks are already pricing it.', kind: 'flow' },
+    { headline: 'LDG -- staking queue shortens. Yield compression is the quiet story, and Vinh knows yield compression when he sees it.', kind: 'flow' },
+    { headline: 'LDG -- L2 fee share in line. The rollup economy ticks over. The Collins Street crypto desk yawns and checks the staking dashboard.', kind: 'company' },
+    { headline: 'LDG -- unlock calendar weighing on the tape. Supply is not a rumour, it is a schedule, and the Melbourne OTC desks are already pricing it.', kind: 'flow' },
   ]),
   SOL: Object.freeze([
-    { headline: 'SOL -- DEX volumes hit a new local high. On-chain activity is real, not just noise — the Collingwood crypto crowd is minting again.', kind: 'flow' },
-    { headline: 'SOL -- post-mortem on a nineteen-minute outage. Nineteen minutes is an eternity in DeFi and an unremarkable delay on the Sandringham line.', kind: 'company' },
-    { headline: 'SOL -- ETF filing chatter only. The paperwork exists, the product does not. Melbourne planning permits take longer.', kind: 'flow' },
+    { headline: 'SNNY -- DEX volumes hit a new local high. On-chain activity is real, not just noise — the Collingwood crypto crowd is minting again.', kind: 'flow' },
+    { headline: 'SNNY -- post-mortem on a nineteen-minute outage. Nineteen minutes is an eternity in DeFi and an unremarkable delay on the Sandringham line.', kind: 'company' },
+    { headline: 'SNNY -- ETF filing chatter only. The paperwork exists, the product does not. Melbourne planning permits take longer.', kind: 'flow' },
   ]),
   XAU: Object.freeze([
     { headline: 'XAU -- real yields slip four basis points. Bullion catches a bid in the quiet.', kind: 'macro' },
@@ -747,19 +747,19 @@ export const DAILY_TICKER_COPY = Object.freeze({
     { headline: 'KC -- Vietnam robusta hedge selling. The other coffee market has its own problems. Melbourne\'s seven dollars is structural.', kind: 'macro' },
   ]),
   BHP: Object.freeze([
-    { headline: 'BHP -- iron ore demand holds and the mining money stays in Melbourne. Every cent on the ore price is a suburb\'s mood.', kind: 'macro' },
-    { headline: 'BHP -- guidance revision. The resource trade reprices and Perth watches, but the dividends are spent in Toorak.', kind: 'financials' },
-    { headline: 'BHP -- China stimulus chatter lifts the commodity basket. When BHP moves, the Melbourne wealth effect follows six months later.', kind: 'macro' },
+    { headline: 'IRBK -- iron ore demand holds and the mining money stays in Melbourne. Every cent on the ore price is a suburb\'s mood.', kind: 'macro' },
+    { headline: 'IRBK -- guidance revision. The resource trade reprices and Perth watches, but the dividends are spent in Toorak.', kind: 'financials' },
+    { headline: 'IRBK -- China stimulus chatter lifts the commodity basket. When IRBK moves, the Melbourne wealth effect follows six months later.', kind: 'macro' },
   ]),
   CBA: Object.freeze([
-    { headline: 'CBA -- net interest margin in line. The mortgage book is performing, which means your tenants are still paying their own loans, which means they are still renting yours.', kind: 'financials' },
-    { headline: 'CBA -- bad debts ticking up in the property book. The serviceability cliff has names on it now.', kind: 'financials' },
-    { headline: 'CBA -- home loan approvals data shows the market where it already knew it was. The clearance rate confirmed it last Saturday.', kind: 'macro' },
+    { headline: 'SXBK -- net interest margin in line. The mortgage book is performing, which means your tenants are still paying their own loans, which means they are still renting yours.', kind: 'financials' },
+    { headline: 'SXBK -- bad debts ticking up in the property book. The serviceability cliff has names on it now.', kind: 'financials' },
+    { headline: 'SXBK -- home loan approvals data shows the market where it already knew it was. The clearance rate confirmed it last Saturday.', kind: 'macro' },
   ]),
   REA: Object.freeze([
-    { headline: 'REA -- listing volumes beat the forecast. Every agent in the eastern suburbs just checked their commission calculator.', kind: 'financials' },
-    { headline: 'REA -- premium listings driving ARPU higher. The vendors are paying for the photos, which means they are serious, which means they are scared.', kind: 'financials' },
-    { headline: 'REA -- search traffic spiking in the inner north. Where the browsers go, the bidders follow two Saturdays later.', kind: 'flow' },
+    { headline: 'LSTG -- listing volumes beat the forecast. Every agent in the eastern suburbs just checked their commission calculator.', kind: 'financials' },
+    { headline: 'LSTG -- premium listings driving ARPU higher. The vendors are paying for the photos, which means they are serious, which means they are scared.', kind: 'financials' },
+    { headline: 'LSTG -- search traffic spiking in the inner north. Where the browsers go, the bidders follow two Saturdays later.', kind: 'flow' },
   ]),
 });
 

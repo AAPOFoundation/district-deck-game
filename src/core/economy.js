@@ -1702,7 +1702,7 @@ export function canRedevelop(city, state, id, tenantExit = null, targetArchetype
     && (String(quote.toArchetype).startsWith('apartment')
       || String(quote.toArchetype).startsWith('townhouse'))
   ) {
-    return { ok: false, reason: 'Hammerbarn cannot be permitted for townhouses or apartments.' };
+    return { ok: false, reason: 'Boltbarn cannot be permitted for townhouses or apartments.' };
   }
   const occupied = state.parcelStatus?.[id]?.occupancy === 'tenant';
   const servedNotice = state.holdings[id].redevelopmentNotice;

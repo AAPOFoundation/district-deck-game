@@ -619,7 +619,7 @@ function earnLines(city, state, extras, seen = new Set()) {
     lines.push(next);
   };
   if (state.onlineView && state.cybercab?.economyVersion === 2) {
-    push('Plan your Cybercab routes and service. Fleet earnings post when both players commit the quarter.');
+    push('Plan your Wattlecab routes and service. Fleet earnings post when both players commit the quarter.');
   }
   if (extras?.arcade && !state.onlineView) {
     push('The van is out on the reserve. Run it and keep the takings.');

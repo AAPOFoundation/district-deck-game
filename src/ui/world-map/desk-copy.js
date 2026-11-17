@@ -30,7 +30,7 @@ export const DESK_BLURB = Object.freeze({
   'jakarta-timber': 'A hardwood harbour. Timber leaves; Fittings and Beef are sought.',
   'gothenburg-mod': 'Quiet luxury from the Swedish west. Modular rooms; the crates are dear.',
   'hormuz-roads': 'The strait of tankers. Crude Oil fuels the works.',
-  'starbase-texas': 'A gulf space yard. Robots, Boca Compute, and Starlink ship from Boca.',
+  'starbase-texas': 'A gulf space yard. Robots, Boca Compute, and Arclink ship from Boca.',
   'levant-roads': 'A war harbour. People, not cargo, wait upon the guns.',
   'london-city': 'The City. Gas Turbines and Bibles leave; Biotech and Wine are sought.',
   'santos-coffee': 'A Brazilian harbour. Coffee and Beef fill the inner kitchens.',

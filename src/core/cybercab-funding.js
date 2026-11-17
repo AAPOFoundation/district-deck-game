@@ -5,7 +5,7 @@ import { moneyExact } from './format.js';
 
 export function validateCybercabFundingVersion(value) {
   if (value === undefined) return;
-  if (value !== 1) throw new RangeError('Unsupported cybercab funding version.');
+  if (value !== 1) throw new RangeError('Unsupported wattlecab funding version.');
 }
 
 export function validateCybercabFundingRun(state) {
@@ -13,7 +13,7 @@ export function validateCybercabFundingRun(state) {
   for (const start of (state?.log ?? []).filter((row) => row?.type === 'run-start')) {
     validateCybercabFundingVersion(start.cybercabFundingVersion);
     if (start.cybercabFundingVersion !== state.cybercabFundingVersion) {
-      throw new Error('Run-start cybercab funding mismatch.');
+      throw new Error('Run-start wattlecab funding mismatch.');
     }
   }
 }
@@ -92,11 +92,11 @@ export function admitCybercabPayment(city, state, cashOut, seatId = actingSeat(s
   const seat = actingSeat(state, seatId);
   const cash = actingCash(state, seat);
   if (!Number.isFinite(cash)) {
-    return { ok: false, reason: 'Cybercab funding cash is not available.', unavailable: true };
+    return { ok: false, reason: 'Wattlecab funding cash is not available.', unavailable: true };
   }
   const limitNav = capturedLimitNav(state, seat);
   if (!Number.isFinite(limitNav)) {
-    return { ok: false, reason: 'Cybercab funding needs captured credit.', unavailable: true };
+    return { ok: false, reason: 'Wattlecab funding needs captured credit.', unavailable: true };
   }
   const reserved = fundingEvents(state, seat);
   if (reserved.blocked) return { ok: false, reason: reserved.blocked, unavailable: true };

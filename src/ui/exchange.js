@@ -15,6 +15,7 @@ import {
   stockExchangeOnBoard,
   tapeDayFromElapsed,
   tradeLotsForCard,
+  displaySymbol,
 } from '../core/markets.js';
 import { canPlaceOrder, isLimitMarketable } from '../core/markets-orders.js';
 import { deskWire } from '../core/markets-narrative.js';
@@ -580,7 +581,7 @@ export class ExchangeDesk {
         const tapeCash = last - lot.price;
         const tone = clsOf(tapeBp);
         return `<tr class="${on}" data-tws-asset="${escapeHtml(lot.id)}">
-          <td><span class="sym">${escapeHtml(lot.id)}</span><div class="cls">${escapeHtml(lot.name)}</div></td>
+          <td><span class="sym">${escapeHtml(displaySymbol(lot.id))}</span><div class="cls">${escapeHtml(lot.name)}</div></td>
           <td class="num" data-tws-px="${escapeHtml(lot.id)}">${formatTickerPrice(last, lot.class, lot.id)}</td>
           <td class="num ${tone}" data-tws-chgd="${escapeHtml(lot.id)}">${signedMoney(tapeCash, { exact: true })}</td>
           <td class="num ${tone}" data-tws-chg="${escapeHtml(lot.id)}">${signedPct(tapeBp)}</td>
@@ -697,7 +698,7 @@ export class ExchangeDesk {
         el.textContent = mkt.reason;
         return;
       }
-      el.textContent = `MKT ${draft.side.toUpperCase()} ${this.qty} ${this.assetId} · ${moneyExact(this.qty * mark)} mark · no action${bits.length ? ` — ${bits.join('; ')}` : ''}`;
+      el.textContent = `MKT ${draft.side.toUpperCase()} ${this.qty} ${displaySymbol(this.assetId)} · ${moneyExact(this.qty * mark)} mark · no action${bits.length ? ` — ${bits.join('; ')}` : ''}`;
       return;
     }
     if (check && !check.ok) {
@@ -705,13 +706,13 @@ export class ExchangeDesk {
       return;
     }
     if (isLimitMarketable(draft, mark)) {
-      el.textContent = `${draft.orderType.toUpperCase()} ${draft.side.toUpperCase()} ${this.qty} ${this.assetId} · fills now at mark ${moneyExact(mark)}${bits.length ? ` — ${bits.join('; ')}` : ''}`;
+      el.textContent = `${draft.orderType.toUpperCase()} ${draft.side.toUpperCase()} ${this.qty} ${displaySymbol(this.assetId)} · fills now at mark ${moneyExact(mark)}${bits.length ? ` — ${bits.join('; ')}` : ''}`;
       return;
     }
     const wait = draft.side === 'buy'
       ? `rests until last ≤ ${moneyExact(px)} at settle`
       : `rests until last ≥ ${moneyExact(px)} at settle`;
-    el.textContent = `${draft.orderType.toUpperCase()} ${draft.side.toUpperCase()} ${this.qty} ${this.assetId} · ${moneyExact(notional)} reserved, no action · ${wait}${bits.length ? ` — ${bits.join('; ')}` : ''}`;
+    el.textContent = `${draft.orderType.toUpperCase()} ${draft.side.toUpperCase()} ${this.qty} ${displaySymbol(this.assetId)} · ${moneyExact(notional)} reserved, no action · ${wait}${bits.length ? ` — ${bits.join('; ')}` : ''}`;
   }
 
   _positionsHtml() {
@@ -725,7 +726,7 @@ export class ExchangeDesk {
       const live = this._lotTapePnl(lot);
       const d = clsOf(live.bp);
       return `<tr data-tws-pos="${escapeHtml(lot.id)}">
-        <td>${escapeHtml(lot.id)}</td>
+        <td>${escapeHtml(displaySymbol(lot.id))}</td>
         <td class="num">${lot.held}</td>
         <td class="num">${formatTickerPrice(lot.avgCost, lot.class, lot.id)}</td>
         <td class="num" data-tws-pos-last>${formatTickerPrice(live.tape, lot.class, lot.id)}</td>
@@ -747,7 +748,7 @@ export class ExchangeDesk {
       </tr></thead><tbody><tr><td colspan="7" style="text-align:left;color:#5c6573">No working orders</td></tr></tbody></table>`;
     }
     const rows = orders.map((o) => `<tr>
-      <td>${escapeHtml(o.assetId)}</td>
+      <td>${escapeHtml(displaySymbol(o.assetId))}</td>
       <td>${escapeHtml(o.side)}</td>
       <td>${escapeHtml(o.orderType)}</td>
       <td>${o.units}</td>
@@ -767,7 +768,7 @@ export class ExchangeDesk {
     const wire = deskWire(this.state.seed, this.state.quarter, tape.day, this.assetId);
     const divs = this.state.markets?.lastDividends?.lines ?? [];
     const tail = divs.length
-      ? `Div ${divs[0].assetId} ${moneyExact(divs[0].amount)}${divs.length > 1 ? ` +${divs.length - 1}` : ''}`
+      ? `Div ${displaySymbol(divs[0].assetId)} ${moneyExact(divs[0].amount)}${divs.length > 1 ? ` +${divs.length - 1}` : ''}`
       : wire.focus.headline;
     el.innerHTML = `<strong>${escapeHtml(wire.year.scenario.headline)}</strong>
       · <em>${escapeHtml(wire.quarter.beat.title)} — ${escapeHtml(wire.quarter.scenario.headline)}</em>
@@ -792,7 +793,7 @@ export class ExchangeDesk {
     }
     const rows = fills.map((f) => `<tr>
       <td>Q${f.quarter}</td>
-      <td>${escapeHtml(f.assetId)}</td>
+      <td>${escapeHtml(displaySymbol(f.assetId))}</td>
       <td>${escapeHtml(f.side)}</td>
       <td>${f.units}</td>
       <td>${moneyExact(f.price)}</td>
@@ -812,7 +813,7 @@ export class ExchangeDesk {
     const d = clsOf(last - lot.price);
     const ma50 = smaValue(tape.bars, 50, tape.bars.length - 1);
     const ma200 = smaValue(tape.bars, 200, tape.bars.length - 1);
-    meta.innerHTML = `<strong>${escapeHtml(lot.id)}</strong>${escapeHtml(lot.name)}
+    meta.innerHTML = `<strong>${escapeHtml(displaySymbol(lot.id))}</strong>${escapeHtml(lot.name)}
       · ${formatTickerPrice(last, lot.class, lot.id)} / Day ${tape.day + 1}/${DAYS_PER_QUARTER}
       · <span style="color:#7dceb0">MA50 ${ma50 ? Math.round(ma50) : '—'}</span>
       / <span style="color:#9aa6ff">MA200 ${ma200 ? Math.round(ma200) : '—'}</span>

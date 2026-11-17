@@ -5802,7 +5802,7 @@ function doCybercab(city, state, action) {
   if (state.phase !== 'play') return reject(state, 'The run is over.');
   if ((state.cybercab?.economyVersion === 2 || action.type === 'UPGRADE_CAB_BOOK')
     && state.activeSeatId && state.activeSeatId !== (state.cybercab?.ownerSeatId ?? 'P1'))
-    return reject(state, `This Cybercab business belongs to ${state.cybercab?.ownerSeatId ?? 'P1'}.`);
+    return reject(state, `This Wattlecab business belongs to ${state.cybercab?.ownerSeatId ?? 'P1'}.`);
   const result = reduceCybercab(state.cybercab, action, {
     seed: state.seed, quarter: state.quarter, cash: state.cash,
   });
@@ -6197,7 +6197,7 @@ export function previewCybercabSeat(city, state, seatId = 'P1') {
   if (!state.seats?.[seatId]) return state;
   const actions = state.phase === 'play' ? state.quarterCommit?.pendingActions?.[seatId] ?? [] : [];
   const simulated = actions.length ? simulatePendingPacket(city, state, seatId, actions) : { ok: true, state };
-  if (!simulated.ok) throw new Error(`Cybercab plan unavailable: ${simulated.reason}`);
+  if (!simulated.ok) throw new Error(`Wattlecab plan unavailable: ${simulated.reason}`);
   const projected = simulated.state;
   return { ...projected, activeSeatId: seatId,
     cash: projected.seatEconomy[seatId].cash,

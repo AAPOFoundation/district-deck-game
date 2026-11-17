@@ -6,7 +6,7 @@ const EXACT = Object.freeze({
   'park-picnic-table': 'Picnic table',
   'hoddle-grid-bin': 'Street bin',
   'reserve-path-lamp': 'Street lamp',
-  'australia-post-box': 'Australia Post box',
+  'australia-post-box': 'Street post box',
   'cast-street-bollard': 'Bollard',
   'traffic-signal': 'Traffic light',
   'traffic-car': 'Car',
@@ -51,7 +51,7 @@ export function furnitureLabel(modelId, key = '') {
   if (k.includes('bollard')) return 'Bollard';
   if (k.includes('bench')) return 'Bench';
   if (k.includes('picnic')) return 'Picnic table';
-  if (k.includes('postbox') || k.includes('post-box')) return 'Australia Post box';
+  if (k.includes('postbox') || k.includes('post-box')) return 'Street post box';
   if (k.includes('bin')) return 'Bin';
   if (k.includes('lamp') || k.includes('light')) return 'Lamp';
   if (k.includes('tram-flag') || k.includes('tram-stop') || k.includes('flag')) return 'Tram stop';

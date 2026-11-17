@@ -71,7 +71,7 @@ import { VeggiePatch, communityGardenOnBoard } from './ui/veggie-patch.js';
 import { PlaygroundBuilder, playgroundOnBoard } from './ui/playground-builder.js';
 import { TownSquare, pocketParkOnBoard } from './ui/townsquare-panel.js';
 import { blockCentreGameAt } from './ui/minigame-entry.js';
-import { stockExchangeOnBoard } from './core/markets.js';
+import { stockExchangeOnBoard, displaySymbol } from './core/markets.js';
 import { openModal, isModalOpen } from './ui/modal.js';
 import { mountDiorama } from './ui/card-voxels.js';
 import { SettlementPresenter } from './ui/settlement-presenter.js';
@@ -1215,7 +1215,7 @@ class Game {
         const result = impulseConstructionTap(this.view, hit, {
           clientX: event.clientX, clientY: event.clientY,
         });
-        const name = hit.label === 'loo' ? 'Portaloo'
+        const name = hit.label === 'loo' ? 'Portable loo'
           : hit.label === 'pump' ? 'Concrete pump'
             : (hit.label || 'Works plant');
         if (result.broke && hit.parcelId) {
@@ -2986,7 +2986,7 @@ class Game {
       case 'trade':
         this.audio.play('select');
         this.hud.toast(
-          `RESULT · ${event.side === 'buy' ? 'Bought' : 'Sold'} ${event.units} ${event.assetId} @ ${fmt(event.price)}`
+          `RESULT · ${event.side === 'buy' ? 'Bought' : 'Sold'} ${event.units} ${displaySymbol(event.assetId)} @ ${fmt(event.price)}`
           + ` · NAV updated / ${this.state.actionsRemaining} actions left`,
           'good',
         );
@@ -2996,20 +2996,20 @@ class Game {
         if (row?.status === 'filled') break;
         this.hud.toast(
           event.bracket
-            ? `RESULT · Bracket parked on ${event.assetId}`
-            : `RESULT · ${event.orderType ?? 'order'} ${event.side ?? ''} ${event.units ?? ''} ${event.assetId} working`,
+            ? `RESULT · Bracket parked on ${displaySymbol(event.assetId)}`
+            : `RESULT · ${event.orderType ?? 'order'} ${event.side ?? ''} ${event.units ?? ''} ${displaySymbol(event.assetId)} working`,
           'good',
         );
         break;
       }
       case 'order-fill':
         this.hud.toast(
-          `RESULT · Filled ${event.side} ${event.units} ${event.assetId} @ ${fmt(event.price)}`,
+          `RESULT · Filled ${event.side} ${event.units} ${displaySymbol(event.assetId)} @ ${fmt(event.price)}`,
           'good',
         );
         break;
       case 'cancel-order':
-        this.hud.toast(`RESULT · Cancelled ${event.assetId ?? 'order'}`, 'good');
+        this.hud.toast(`RESULT · Cancelled ${event.assetId ? displaySymbol(event.assetId) : 'order'}`, 'good');
         break;
       case 'walk': {
         // Frame the destination on the board after a successful walk.

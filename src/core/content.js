@@ -740,7 +740,7 @@ export const ARCHETYPES = Object.freeze({
   },
   terafab: {
     id: 'terafab',
-    label: 'TeraFab',
+    label: 'Silifab',
     era: 'Industrial, silicon fab',
     sector: 'retail',
     footprint: [1, 2],
@@ -1682,7 +1682,7 @@ export const PROCESS_KIT = Object.freeze({
   steelworks: Object.freeze({ kit: 'factory-light', fascia: 'STEELWORKS' }),
   smelter: Object.freeze({ kit: 'factory-light', fascia: 'SMELTER' }),
   refinery: Object.freeze({ kit: 'factory-light', fascia: 'REFINERY' }),
-  terafab: Object.freeze({ kit: 'warehouse-datacentre', fascia: 'TERAFAB' }),
+  terafab: Object.freeze({ kit: 'warehouse-datacentre', fascia: 'SILIFAB' }),
   'works-hall': Object.freeze({ kit: 'warehouse-brick', fascia: 'WORKS HALL' }),
   kiln: Object.freeze({ kit: 'warehouse-brick', fascia: 'KILN' }),
   'pulp-mill': Object.freeze({ kit: 'warehouse-brick', fascia: 'PULP MILL' }),

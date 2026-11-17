@@ -20,10 +20,10 @@ export function onlineActionLabel(action, view = {}) {
   const bid = Number.isFinite(action.maxBid) ? `bid limit ${planMoney(action.maxBid)}` : '';
   const building = planName(action.catalogId) || 'building choice unavailable';
   switch (action.type) {
-    case 'BUY_CAB': return 'Buy a Cybercab';
-    case 'IMPORT_CAB': return 'Import a Cybercab from Shanghai';
+    case 'BUY_CAB': return 'Buy a Wattlecab';
+    case 'IMPORT_CAB': return 'Import a Wattlecab from Shanghai';
     case 'UPGRADE_DEPOT': return 'Add a depot lift and cab space';
-    case 'UPGRADE_CAB_BOOK': return 'Start quarterly Cybercab dispatch';
+    case 'UPGRADE_CAB_BOOK': return 'Start quarterly Wattlecab dispatch';
     case 'SERVICE_CAB': return planParts(`Service ${cab}`, planName(action.component) || 'component unavailable');
     case 'PATCH_SOFTWARE': return `Patch ${cab} software`;
     case 'SET_CAB_DISPATCH': return planParts(`Set ${cab} route`,

@@ -9,7 +9,7 @@ export const CYBERCAB_OPEN_EVENT = 'district-deck:card-open';
 const money = n => `${n < 0 ? '−' : ''}$${Math.abs(n ?? 0).toLocaleString('en-AU')}`;
 const labels = { virus: 'Virus attack', accident: 'Car accident', puncture: 'Tyre puncture', clientele: 'Bad clientele' };
 const components = ['tyres', 'battery', 'software'];
-const thumbnail = '<svg class="cybercab__thumb" viewBox="0 0 120 56" role="img" aria-label="Cybercab"><path d="M9 36 27 29 47 12 78 12 105 29 112 35 110 45H9Z" fill="currentColor"/><path d="m34 29 17-13h24l19 13Z" fill="var(--chrome-steel)"/><path d="M60 16v13" stroke="currentColor" stroke-width="3"/><circle cx="29" cy="44" r="9" fill="var(--chrome-steel)" stroke="currentColor" stroke-width="3"/><circle cx="91" cy="44" r="9" fill="var(--chrome-steel)" stroke="currentColor" stroke-width="3"/></svg>';
+const thumbnail = '<svg class="cybercab__thumb" viewBox="0 0 120 56" role="img" aria-label="Wattlecab"><path d="M9 36 27 29 47 12 78 12 105 29 112 35 110 45H9Z" fill="currentColor"/><path d="m34 29 17-13h24l19 13Z" fill="var(--chrome-steel)"/><path d="M60 16v13" stroke="currentColor" stroke-width="3"/><circle cx="29" cy="44" r="9" fill="var(--chrome-steel)" stroke="currentColor" stroke-width="3"/><circle cx="91" cy="44" r="9" fill="var(--chrome-steel)" stroke="currentColor" stroke-width="3"/></svg>';
 
 export function cybercabActionCheck(state, action) {
   if (state.phase !== 'play') return 'The run is over.';
@@ -22,7 +22,7 @@ export function cybercabActionCheck(state, action) {
   }
   if ((state.cybercab?.economyVersion === 2 || action.type === 'UPGRADE_CAB_BOOK')
     && state.activeSeatId && state.activeSeatId !== (state.cybercab?.ownerSeatId ?? 'P1'))
-    return `This Cybercab business belongs to ${state.cybercab?.ownerSeatId ?? 'P1'}.`;
+    return `This Wattlecab business belongs to ${state.cybercab?.ownerSeatId ?? 'P1'}.`;
   const business = reduceCybercab(state.cybercab, action, { seed: state.seed, quarter: state.quarter, cash: state.cash });
   if (business.rejected) return business.reason;
   if (!(business.cashDelta < 0)) return '';
@@ -122,7 +122,7 @@ export function cybercabPanelHtml(state, { firstOpen = true, importOpen = false 
     ${book ? `<p>Dispatch: <strong>${esc(CYBERCAB_DISPATCH[cab.dispatch].label)}</strong></p><div class="cybercab__services">${Object.entries(CYBERCAB_DISPATCH).map(([dispatch, route]) => button(state, { type: 'SET_CAB_DISPATCH', cabId: cab.id, dispatch }, route.label)).join('')}</div>` : ''}
     <div class="cybercab__services">${components.map(component => button(state, { type: component === 'software' ? 'PATCH_SOFTWARE' : 'SERVICE_CAB', cabId: cab.id, ...(component === 'software' ? {} : { component }) }, `${component === 'software' ? 'Patch' : `Service ${component}`} · ${money(rules[component])}`)).join('')}</div></article>`).join('');
   const incidents = b.incidents.slice(-8).reverse().map(row => `<li><span>${esc(labels[row.kind] ?? row.kind)} · ${esc(row.cabId)}<br>Q${row.quarter}${row.refund ? ` · refund ${money(row.refund)}` : ''}</span><strong>−${money(row.cost)}</strong>${row.dismissed ? '<span>Dismissed</span>' : button(state, { type: 'DISMISS_INCIDENT', incidentId: row.id }, 'Dismiss')}</li>`).join('');
-  return `<header class="cybercab__header"><h2 id="cybercab-title">CYBERCAB BUSINESS</h2><button type="button" data-cab-close aria-label="Close cybercab business">Close ×</button></header>
+  return `<header class="cybercab__header"><h2 id="cybercab-title">WATTLECAB BUSINESS</h2><button type="button" data-cab-close aria-label="Close wattlecab business">Close ×</button></header>
     ${firstOpen ? `<p class="cybercab__how">${book ? 'Choose dispatch → run four work blocks → settle once. Maintain above 30% to protect trip capacity. These are game-balanced quarterly contracts; city journeys are illustrative and waiting earns no extra money.' : 'Buy → carry passengers → earn fares; maintain above 30% to protect earnings.'}</p>` : ''}
     <div class="cybercab__grid"><section><h3>FLEET <span>${b.fleet.length} / ${b.depot.capacity}</span></h3><div class="cybercab__scroll">${fleet || '<p>No cabs yet. Buy at the depot or import from Shanghai.</p>'}</div></section>
     <section><h3>EARNINGS <span>RATING ${esc(b.rating)} / A–E</span></h3>${quarterPlanHtml(state, book)}${projectionHtml(book)}<p class="cybercab__fare">${book ? 'Booked fares' : 'Fares today'} <strong>${money(b.fares)}</strong></p><p>Q${b.quarter} · ${book ? `Work blocks ${b.round} / 4` : `Beat ${b.beat}`} · Cash ${money(state.cash)}</p>
@@ -162,7 +162,7 @@ function quarterlyPanelHtml(state, book, { firstOpen, importOpen }) {
       `${component==='software'?'Patch':component} · ${money(rules[component])}`)).join('')}</div></article>`).join('');
   const chart = b.weeklyChart.slice(-7), ceiling = Math.max(1,...chart.flatMap(row=>[row.fares,row.costs+(row.servicePaid??row.paidCosts)]));
   const incidents = b.incidents.slice(-8).reverse().map(row=>`<li><span>${esc(labels[row.kind]??row.kind)} · ${esc(row.cabId)} · Q${row.quarter}</span><strong>−${money(row.cost)}</strong>${row.dismissed?'Dismissed':button(state,{type:'DISMISS_INCIDENT',incidentId:row.id},'Dismiss')}</li>`).join('');
-  return `<header class="cybercab__header"><div><p class="cybercab__eyebrow">MELBOURNE · FLEET DESK</p><h2 id="cybercab-title">Cybercab business</h2></div><button type="button" data-cab-close aria-label="Close cybercab business">Close ×</button></header>
+  return `<header class="cybercab__header"><div><p class="cybercab__eyebrow">MELBOURNE · FLEET DESK</p><h2 id="cybercab-title">Wattlecab business</h2></div><button type="button" data-cab-close aria-label="Close wattlecab business">Close ×</button></header>
     ${firstOpen && !complete?'<p class="cybercab__how">Choose a route. Run a work block. Maintain your fleet and settle to collect. City journeys are illustrative; waiting earns no extra money.</p>':''}
     <section class="cybercab__command"><div><h3>Dispatch · Q${book.quarter}</h3><div class="cybercab__progress" aria-label="${book.round} of 4 work blocks complete">${[1,2,3,4].map(round=>`<span class="${round<=book.round?'is-complete':''}">${round}</span>`).join('')}</div></div><div>${dispatch}<p>${nextBlock?`${nextBlock.trips} trips · fares ${money(nextBlock.fares)} − costs ${money(nextBlock.costs)} = ${money(nextBlock.fares-nextBlock.costs)}`:complete?'Business complete. Your final quarter is settled.':'Settle the city quarter to collect and start the next dispatch.'}</p></div></section>
     <div class="cybercab__summary"><div><span>Cash balance</span><strong>${money(state.cash)}</strong></div><div><span>${complete?'Last settled receipt':'Quarter projection'}</span><p class="cybercab__fare">Operating profit <strong>${money(book.profit)}</strong></p></div><div><span>Settlement cash change</span><strong>${money(book.cashAtSettlement)}</strong><small>Paid costs are already deducted.</small></div></div>
@@ -320,7 +320,7 @@ export function syncCybercabPanel(hud, city, state) {
         launch.addEventListener('click', () => panel.open({kind:'cybercab'}));
         host.append(launch);
       }
-      launch.textContent = `Cybercab · ${count} ${count === 1 ? 'cab' : 'cabs'}`;
+      launch.textContent = `Wattlecab · ${count} ${count === 1 ? 'cab' : 'cabs'}`;
     }
   });
   const viewerSeatId = hud.lastViewerSeatId ?? 'P1';

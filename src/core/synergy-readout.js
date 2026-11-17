@@ -84,7 +84,7 @@ export const STAMP_USE_LABELS = Object.freeze({
   'remand-centre': 'Remand',
   courthouse: 'Courthouse',
   'factory-light': 'Factory',
-  hammerbarn: 'Hammerbarn',
+  hammerbarn: 'Boltbarn',
   'warehouse-brick': 'Warehouse',
   'warehouse-richmond-loft': 'Warehouse',
   'warehouse-converted': 'Warehouse',

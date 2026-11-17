@@ -3,10 +3,10 @@ import { readFrameOptions } from './frame-policy.js';
 // Player-facing Graphics choice. `auto` is today's behaviour exactly; URL parameters
 // (?quality=, ?msaa=, ?dpr=) still override every mode so the measuring tools are unchanged.
 export const GRAPHICS_KEY = 'dd.graphics';
-// Fast (the low tier) is held back: on 15 Nov the low tier drew the water and land beyond the board as flat brown
-// at station-f, airport-o2 and rod-laver-a. A stored 'fast' reads as auto until that is fixed.
-export const GRAPHICS_MODES = Object.freeze(['auto', 'full', 'balanced']);
-export const GRAPHICS_LABELS = Object.freeze({ auto: 'Auto', full: 'Full', balanced: 'Balanced' });
+// Fast is the low tier (the tier touch devices with six or fewer cores get on Auto). It was held back until the
+// low tier's land, sea and fields read correctly (#129, #130, #131); owner's word of 17 Nov 2026 offers it.
+export const GRAPHICS_MODES = Object.freeze(['auto', 'full', 'balanced', 'fast']);
+export const GRAPHICS_LABELS = Object.freeze({ auto: 'Auto', full: 'Full', balanced: 'Balanced', fast: 'Fast' });
 
 export function normaliseGraphicsMode(value) {
   return GRAPHICS_MODES.includes(value) ? value : 'auto';
@@ -36,7 +36,7 @@ export function resolveGraphics({ stored, search = '', hardwareQuality = 'high' 
   const frame = readFrameOptions(search);
   const urlQuality = new URLSearchParams(search || '').get('quality');
   if (mode === 'auto') return { mode, quality: hardwareQuality, msaa: frame.msaa, dprAuto: frame.autoDpr };
-  const quality = 'high';
+  const quality = mode === 'fast' ? 'low' : 'high';
   const msaa = mode === 'balanced' ? 0 : null;
   return {
     mode,

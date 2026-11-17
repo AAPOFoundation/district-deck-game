@@ -24,14 +24,14 @@ export const CYBERCAB_DISPATCH = Object.freeze({
 });
 export const CYBERCAB_STANDING_COST = 450;
 export function validateCybercabEconomyVersion(version) {
-  if (version !== undefined && version !== 1 && version !== 2) throw new RangeError('Unsupported Cybercab economy version.');
+  if (version !== undefined && version !== 1 && version !== 2) throw new RangeError('Unsupported Wattlecab economy version.');
 }
 export function validateCybercabState(business) {
   if (!business) return;
   validateCybercabEconomyVersion(business.economyVersion);
   if (business.economyVersion === 2 && (!Number.isInteger(business.round) || business.round < 0 || business.round > 4
     || business.fleet.some(cab => !Object.hasOwn(CYBERCAB_DISPATCH, cab.dispatch)))) {
-    throw new RangeError('Invalid Cybercab quarterly dispatch book.');
+    throw new RangeError('Invalid Wattlecab quarterly dispatch book.');
   }
 }
 // The primary book remains the renderer's compatibility surface. A second human
@@ -60,17 +60,17 @@ export function validateCybercabRun(state) {
   validateCybercabState(state?.cybercab);
   if (!state?.cybercabBySeat) {
     if (state?.cybercab?.economyVersion === 2 && state.seats?.P2?.kind !== 'policy'
-      && state.seats?.P2) throw new RangeError('Missing second-seat Cybercab book.');
+      && state.seats?.P2) throw new RangeError('Missing second-seat Wattlecab book.');
     return;
   }
   if (Object.keys(state.cybercabBySeat).join(',') !== 'P2'
     || !state.seats?.P2 || state.seats.P2.kind === 'policy'
     || state.cybercab?.economyVersion !== 2 || state.cybercab.ownerSeatId !== 'P1') {
-    throw new RangeError('Invalid Cybercab seat ownership.');
+    throw new RangeError('Invalid Wattlecab seat ownership.');
   }
   const second = state.cybercabBySeat.P2;
   validateCybercabState(second);
-  if (second?.economyVersion !== 2 || second.ownerSeatId !== 'P2') throw new RangeError('Invalid second-seat Cybercab book.');
+  if (second?.economyVersion !== 2 || second.ownerSeatId !== 'P2') throw new RangeError('Invalid second-seat Wattlecab book.');
 }
 
 const clamp = n => Math.max(0, Math.min(100, n));
@@ -273,9 +273,9 @@ export function reduceCybercab(prior, action, { seed = 0, quarter = prior?.quart
   const original = prior ?? createCybercabState({ quarter });
   const fail = reason => ({ state: original, rejected: true, reason, cashDelta: 0, events: [] });
   if (!Number.isFinite(cash)) return fail('Cash must be finite.');
-  if (!CYBERCAB_ACTIONS.includes(action?.type)) return fail('Unknown cybercab action.');
+  if (!CYBERCAB_ACTIONS.includes(action?.type)) return fail('Unknown wattlecab action.');
   try { validateCybercabState(original); } catch (error) { return fail(error.message); }
-  if (quarter !== original.quarter) return fail('Cybercab quarter is not current.');
+  if (quarter !== original.quarter) return fail('Wattlecab quarter is not current.');
   const s = structuredClone(original);
   assignCybercabYardBays(s);
   let cost = 0;
@@ -298,7 +298,7 @@ export function reduceCybercab(prior, action, { seed = 0, quarter = prior?.quart
     if (s.fleet.length >= Math.min(12, s.depot.capacity)) return fail('Depot capacity reached. Add a lift.');
     const imported = action.type === 'IMPORT_CAB';
     cost = imported ? CYBERCAB_SUPPLIER.unitPrice : CYBERCAB_RULES.price;
-    if (cash < cost) return fail('Not enough cash for a cybercab.');
+    if (cash < cost) return fail('Not enough cash for a wattlecab.');
     const id = `cab-${s.nextCabId++}`;
     s.fleet.push({ id, tyres: 100, battery: 100, software: 100, distanceM: 0,
       status: imported ? 'shipping' : 'idle', location: imported ? 'sea' : 'depot',
@@ -383,7 +383,7 @@ export function settleCybercab(prior, { seed = 0, quarter = prior?.quarter ?? 1 
   validateCybercabState(s);
   const empty = { fares: 0, costs: 0, paidCosts: 0, net: 0, cashDelta: 0 };
   if (s.lastSettledQuarter >= quarter) return { state: s, events: [], ...empty };
-  if (s.quarter !== quarter) throw new RangeError('Cybercab settlement must be sequential.');
+  if (s.quarter !== quarter) throw new RangeError('Wattlecab settlement must be sequential.');
   const events = [];
   if (quarterly(s)) { while (s.round < 4) events.push(...runBlock(s, seed)); }
   else while (s.beat < quarter * 4) events.push(...tick(s, seed));
@@ -410,7 +410,7 @@ export function settleCybercab(prior, { seed = 0, quarter = prior?.quarter ?? 1 
 export function cybercabIncomeLine(state, districtId = state.cybercab?.depot.districtId) {
   const b = state.cybercab;
   const row = b?.weeklyChart.at(-1);
-  return { id: 'cybercab-income', label: 'cybercab income', districtId,
+  return { id: 'cybercab-income', label: 'wattlecab income', districtId,
     amount: b?.depot.districtId === districtId ? (row?.fares ?? 0) - (row?.costs ?? 0) : 0,
     faresToday: b?.fares ?? 0, rating: b?.rating ?? 'A' };
 }

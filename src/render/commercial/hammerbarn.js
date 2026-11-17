@@ -714,14 +714,14 @@ function entryFront(ctx, F) {
    * verdict, so it is built rather than refused.
    */
   const maxWidth = F.bodyW - 0.55;
-  const word = F.fasciaWord ?? 'HAMMERBARN';
+  const word = F.fasciaWord ?? 'BOLTBARN';
   const fit = reliefExtent(word, { cap: bandH * 0.78, maxWidth });
   out.push(...reliefLetters({
     text: word,
     x: F.sx, y: (F.fascia0 + F.fascia1) / 2, z: bandZ + 0.17,
     cap: bandH * 0.78, maxWidth, material: p.trim,
     axis: 'z', facing: 1, depth: 0.055, embed: 0.020,
-    name: word === 'HAMMERBARN' ? 'fascia-word' : `fascia-word:${word}`,
+    name: word === 'BOLTBARN' ? 'fascia-word' : `fascia-word:${word}`,
   }));
   void fit;
 
@@ -1130,7 +1130,7 @@ function carPark(ctx, F) {
 export function buildHammerbarn(ctx, options = {}) {
   const F = {
     ...siteFrame(ctx),
-    fasciaWord: options.fasciaWord ?? 'HAMMERBARN',
+    fasciaWord: options.fasciaWord ?? 'BOLTBARN',
   };
 
   // §2.1 — the board tray first, with the lawn field left ON, so every square metre of lot the

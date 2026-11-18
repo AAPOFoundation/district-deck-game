@@ -162,7 +162,7 @@ export const QUARTER_BEAT_BODIES = Object.freeze({
     hawk: 'The Governor hikes and the mortgage belt flinches. Serviceability calculators update overnight, high-beta crypto gets sold, and the only thing holding a bid is gold. The desk that was long growth is now long regret.',
   },
   'ai-capex': {
-    beat: 'Cloud spend guides come in hot and the AI trade wakes up from its nap. NVCH leads, the ASX tech names draft behind it, and even oil catches a whisper bid on the power-demand story. The listings portals print in sympathy -- if the tech money is flowing, the inner-east listings follow.',
+    beat: 'Cloud spend guides come in hot and the AI trade wakes up from its nap. IBSI leads, the ASX tech names draft behind it, and even oil catches a whisper bid on the power-demand story. The listings portals print in sympathy -- if the tech money is flowing, the inner-east listings follow.',
     digest: 'Spend holds but Collins Street is watching margins now, not revenue. The AI complex pauses to digest the run. Nobody is selling, nobody is adding. Purgatory with a positive bias.',
     pause: 'One hyperscaler puts a cluster on hold and the whole complex trades like it is 2022 again. Multiple compression across every name with "AI" in the deck. The analyst notes from Martin Place will be brutal.',
   },
@@ -682,9 +682,9 @@ export const EVENT_EMPTY_BODY = 'Nothing hitting this quarter.';
 
 export const DAILY_TICKER_COPY = Object.freeze({
   NVDA: Object.freeze([
-    { headline: 'NVCH -- data-centre GPUs sold out through the quarter. The ASX tech basket lifts in sympathy and the listings portals\' cloud bill goes up, which the agents pass on to you.', kind: 'company' },
-    { headline: 'NVCH -- China licence rumour circulating. The book is mixed and the Collins Street desk is nervous.', kind: 'company' },
-    { headline: 'NVCH -- foundry costs guiding higher. Margins are the new story, not revenue. The AI infrastructure trade reprices from Melbourne to Mountain View.', kind: 'financials' },
+    { headline: 'IBSI -- data-centre GPUs sold out through the quarter. The ASX tech basket lifts in sympathy and the listings portals\' cloud bill goes up, which the agents pass on to you.', kind: 'company' },
+    { headline: 'IBSI -- China licence rumour circulating. The book is mixed and the Collins Street desk is nervous.', kind: 'company' },
+    { headline: 'IBSI -- foundry costs guiding higher. Margins are the new story, not revenue. The AI infrastructure trade reprices from Melbourne to Mountain View.', kind: 'financials' },
   ]),
   AAPL: Object.freeze([
     { headline: 'ORCH -- services revenue run-rate beats. The installed base keeps paying, which is a sentence Vinh has used about mortgages.', kind: 'financials' },
@@ -692,9 +692,9 @@ export const DAILY_TICKER_COPY = Object.freeze({
     { headline: 'ORCH -- EU app marketplace fine chatter. Brussels is expensive this quarter. The regulatory-risk trade has a new postcode.', kind: 'company' },
   ]),
   MSFT: Object.freeze([
-    { headline: 'MRDN -- Meridian Cloud AI attach rate printed hot. Every enterprise wants a copilot. The ASX tech names draft behind it.', kind: 'financials' },
-    { headline: 'MRDN -- lead AI partner terms reaffirmed. The partnership holds, for now.', kind: 'company' },
-    { headline: 'MRDN -- capex digestion weighing on the multiple. Spend now, earn later, hope always. Collins Street updates the models and goes for a long lunch.', kind: 'financials' },
+    { headline: 'MRDX -- Meridian Cloud AI attach rate printed hot. Every enterprise wants a copilot. The ASX tech names draft behind it.', kind: 'financials' },
+    { headline: 'MRDX -- lead AI partner terms reaffirmed. The partnership holds, for now.', kind: 'company' },
+    { headline: 'MRDX -- capex digestion weighing on the multiple. Spend now, earn later, hope always. Collins Street updates the models and goes for a long lunch.', kind: 'financials' },
   ]),
   AMZN: Object.freeze([
     { headline: 'MRRY -- cloud unit reacceleration prints. Cloud is back and Collins Street is relieved.', kind: 'financials' },
@@ -717,14 +717,14 @@ export const DAILY_TICKER_COPY = Object.freeze({
     { headline: 'WTLM -- overnight price cut in China. Margin for market share, the oldest trade in the book.', kind: 'company' },
   ]),
   BTC: Object.freeze([
-    { headline: 'DIG -- spot ETF prints a second straight inflow day. Institutional money arriving, like a Collingwood gentrifier with a deposit.', kind: 'flow' },
-    { headline: 'DIG -- miner hash-price steady. The machines keep running, and the Docklands co-working space that accepts DIG for rent keeps not mentioning it.', kind: 'company' },
-    { headline: 'DIG -- leverage flush on perps. The degens got liquidated and the spot bid held. Melbourne OTC volume spiked at the session low.', kind: 'flow' },
+    { headline: 'WMBC -- spot ETF prints a second straight inflow day. Institutional money arriving, like a Collingwood gentrifier with a deposit.', kind: 'flow' },
+    { headline: 'WMBC -- miner hash-price steady. The machines keep running, and the Docklands co-working space that accepts WMBC for rent keeps not mentioning it.', kind: 'company' },
+    { headline: 'WMBC -- leverage flush on perps. The degens got liquidated and the spot bid held. Melbourne OTC volume spiked at the session low.', kind: 'flow' },
   ]),
   ETH: Object.freeze([
-    { headline: 'LDG -- staking queue shortens. Yield compression is the quiet story, and Vinh knows yield compression when he sees it.', kind: 'flow' },
-    { headline: 'LDG -- L2 fee share in line. The rollup economy ticks over. The Collins Street crypto desk yawns and checks the staking dashboard.', kind: 'company' },
-    { headline: 'LDG -- unlock calendar weighing on the tape. Supply is not a rumour, it is a schedule, and the Melbourne OTC desks are already pricing it.', kind: 'flow' },
+    { headline: 'TLRK -- staking queue shortens. Yield compression is the quiet story, and Vinh knows yield compression when he sees it.', kind: 'flow' },
+    { headline: 'TLRK -- L2 fee share in line. The rollup economy ticks over. The Collins Street crypto desk yawns and checks the staking dashboard.', kind: 'company' },
+    { headline: 'TLRK -- unlock calendar weighing on the tape. Supply is not a rumour, it is a schedule, and the Melbourne OTC desks are already pricing it.', kind: 'flow' },
   ]),
   SOL: Object.freeze([
     { headline: 'SNNY -- DEX volumes hit a new local high. On-chain activity is real, not just noise — the Collingwood crypto crowd is minting again.', kind: 'flow' },

@@ -14,15 +14,15 @@ import { narrativeBiasBp, narrativeDailyBiasBp } from './markets-narrative.js';
  */
 export const LISTED_ASSETS = Object.freeze([
   // Spot-inspired opens (Aug 2026 tape, rounded). Engine stays integer.
-  Object.freeze({ id: 'NVDA', name: 'Novachip', class: 'equity', basePrice: 224, volBp: 4000 }),
+  Object.freeze({ id: 'NVDA', name: 'Ironbark Silicon', class: 'equity', basePrice: 224, volBp: 4000 }),
   Object.freeze({ id: 'AAPL', name: 'Orchard Devices', class: 'equity', basePrice: 302, volBp: 2000 }),
   Object.freeze({ id: 'MSFT', name: 'Meridian Software', class: 'equity', basePrice: 492, volBp: 2000 }),
   Object.freeze({ id: 'AMZN', name: 'Murray Logistics', class: 'equity', basePrice: 267, volBp: 2700 }),
   Object.freeze({ id: 'GOOGL', name: 'Southbank Search', class: 'equity', basePrice: 344, volBp: 2700 }),
   Object.freeze({ id: 'META', name: 'Mosaic Social', class: 'equity', basePrice: 579, volBp: 2700 }),
   Object.freeze({ id: 'TSLA', name: 'Wattle Motors', class: 'equity', basePrice: 328, volBp: 4000 }),
-  Object.freeze({ id: 'BTC', name: 'Digcoin', class: 'crypto', basePrice: 108_000, volBp: 7500 }),
-  Object.freeze({ id: 'ETH', name: 'Ledgerium', class: 'crypto', basePrice: 3_820, volBp: 7000 }),
+  Object.freeze({ id: 'BTC', name: 'Wombacoin', class: 'crypto', basePrice: 108_000, volBp: 7500 }),
+  Object.freeze({ id: 'ETH', name: 'Tallyrock', class: 'crypto', basePrice: 3_820, volBp: 7000 }),
   Object.freeze({ id: 'SOL', name: 'Sunnycoin', class: 'crypto', basePrice: 178, volBp: 8500 }),
   Object.freeze({ id: 'XAU', name: 'Gold', class: 'commodity', basePrice: 4376, volBp: 1800, unit: 'oz' }),
   Object.freeze({ id: 'CL', name: 'Crude oil', class: 'commodity', basePrice: 83, volBp: 3500, unit: 'bbl' }),
@@ -46,8 +46,8 @@ export const LISTED_BY_ID = Object.freeze(
  * and save data; every player-visible ticker goes through displaySymbol(id).
  */
 export const DISPLAY_SYMBOLS = Object.freeze({
-  NVDA: 'NVCH', AAPL: 'ORCH', MSFT: 'MRDN', AMZN: 'MRRY', GOOGL: 'SBNK',
-  META: 'MSAC', TSLA: 'WTLM', BTC: 'DIG', ETH: 'LDG', SOL: 'SNNY',
+  NVDA: 'IBSI', AAPL: 'ORCH', MSFT: 'MRDX', AMZN: 'MRRY', GOOGL: 'SBNK',
+  META: 'MSAC', TSLA: 'WTLM', BTC: 'WMBC', ETH: 'TLRK', SOL: 'SNNY',
 });
 
 /** Player-visible ticker for an asset id (unmapped ids, such as XAU, show as themselves). */

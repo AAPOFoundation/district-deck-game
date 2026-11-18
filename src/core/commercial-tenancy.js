@@ -56,7 +56,7 @@ export const FRANCHISE_USE_MARKETS = Object.freeze({
     capRateMaxBp: 550,
     anchorChanceBp: 3000,
     bigBrandRentBp: 10800,
-    brands: Object.freeze(['MetroFuel', 'Southern Cross Energy', 'Highway House']),
+    brands: Object.freeze(['Kerbfuel', 'Southern Cross Energy', 'Highway House']),
   }),
   'medical-centre': Object.freeze({
     label: 'Medical centre',

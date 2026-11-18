@@ -2686,7 +2686,7 @@ function redevelopmentPreviewHtml(state, parcelId, quote, tenantExitPresent = fa
 export function archetypeThumbSrc(archetypeId) {
   // Rooted, not relative: this src is also consumed through a CSS custom property,
   // and url() inside a var() resolves against the stylesheet path, not the document.
-  return `/assets/img/ui-plates/archetypes/${encodeURIComponent(archetypeId)}.png`;
+  return new URL(`assets/img/ui-plates/archetypes/${encodeURIComponent(archetypeId)}.png`, document.baseURI).href;
 }
 
 function redevelopDestLabel(quote) {

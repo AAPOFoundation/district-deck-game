@@ -48,7 +48,7 @@ export const QUARTER_BEATS = Object.freeze([
       Object.freeze({
         id: 'beat',
         headline: 'Hyperscalers raise AI spend',
-        body: 'Cloud guides up. NVCH, MRDN, MRRY, SBNK lead; power and copper chatter lifts oil a touch.',
+        body: 'Cloud guides up. IBSI, MRDX, MRRY, SBNK lead; power and copper chatter lifts oil a touch.',
         bias: { NVDA: 900, MSFT: 420, AMZN: 280, GOOGL: 260, META: 240, equity: 120, crypto: 180, CL: 70 },
       }),
       Object.freeze({
@@ -144,9 +144,9 @@ export const YEAR_BEATS = Object.freeze([
 
 const DAILY = Object.freeze({
   NVDA: [
-    { headline: 'NVCH · data-center GPU sold out through the quarter', biasBp: 90, kind: 'company' },
-    { headline: 'NVCH · China licence rumour — mixed book', biasBp: -40, kind: 'company' },
-    { headline: 'NVCH · foundry costs guide a touch higher', biasBp: -70, kind: 'financials' },
+    { headline: 'IBSI · data-center GPU sold out through the quarter', biasBp: 90, kind: 'company' },
+    { headline: 'IBSI · China licence rumour — mixed book', biasBp: -40, kind: 'company' },
+    { headline: 'IBSI · foundry costs guide a touch higher', biasBp: -70, kind: 'financials' },
   ],
   AAPL: [
     { headline: 'ORCH · services revenue run-rate beats Street', biasBp: 50, kind: 'financials' },
@@ -154,9 +154,9 @@ const DAILY = Object.freeze({
     { headline: 'ORCH · EU app marketplace fine chatter', biasBp: -45, kind: 'company' },
   ],
   MSFT: [
-    { headline: 'MRDN · Meridian Cloud AI attach rate printed hot', biasBp: 55, kind: 'financials' },
-    { headline: 'MRDN · lead AI partner terms reaffirmed', biasBp: 25, kind: 'company' },
-    { headline: 'MRDN · capex digestion — multiple compresses', biasBp: -50, kind: 'financials' },
+    { headline: 'MRDX · Meridian Cloud AI attach rate printed hot', biasBp: 55, kind: 'financials' },
+    { headline: 'MRDX · lead AI partner terms reaffirmed', biasBp: 25, kind: 'company' },
+    { headline: 'MRDX · capex digestion — multiple compresses', biasBp: -50, kind: 'financials' },
   ],
   AMZN: [
     { headline: 'MRRY · cloud unit reacceleration print', biasBp: 60, kind: 'financials' },
@@ -179,14 +179,14 @@ const DAILY = Object.freeze({
     { headline: 'WTLM · price cut in China overnight', biasBp: -90, kind: 'company' },
   ],
   BTC: [
-    { headline: 'DIG · spot ETF prints a 2nd straight inflow day', biasBp: 70, kind: 'flow' },
-    { headline: 'DIG · miner hash-price steady', biasBp: 10, kind: 'company' },
-    { headline: 'DIG · leverage flush on perps', biasBp: -80, kind: 'flow' },
+    { headline: 'WMBC · spot ETF prints a 2nd straight inflow day', biasBp: 70, kind: 'flow' },
+    { headline: 'WMBC · miner hash-price steady', biasBp: 10, kind: 'company' },
+    { headline: 'WMBC · leverage flush on perps', biasBp: -80, kind: 'flow' },
   ],
   ETH: [
-    { headline: 'LDG · staking queue shortens', biasBp: 45, kind: 'flow' },
-    { headline: 'LDG · L2 fee share in-line', biasBp: 10, kind: 'company' },
-    { headline: 'LDG · unlock calendar weighs', biasBp: -55, kind: 'flow' },
+    { headline: 'TLRK · staking queue shortens', biasBp: 45, kind: 'flow' },
+    { headline: 'TLRK · L2 fee share in-line', biasBp: 10, kind: 'company' },
+    { headline: 'TLRK · unlock calendar weighs', biasBp: -55, kind: 'flow' },
   ],
   SOL: [
     { headline: 'SNNY · DEX volumes make a new local high', biasBp: 70, kind: 'flow' },

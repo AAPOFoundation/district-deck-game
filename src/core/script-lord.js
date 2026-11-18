@@ -28,7 +28,7 @@ export const PRODUCTS = Object.freeze([
   { id: 'prozac', name: 'Brightol', lo: 8, hi: 45 },
   { id: 'ambien', name: 'Dozeon', lo: 40, hi: 180 },
   { id: 'viagra', name: 'Vigorin', lo: 80, hi: 340 },
-  { id: 'ritalin', name: 'Focusyl', lo: 140, hi: 520 },
+  { id: 'ritalin', name: 'Pexitrol', lo: 140, hi: 520 },
   { id: 'xanax', name: 'Stillax', lo: 220, hi: 980 },
   { id: 'adderall', name: 'Attendra', lo: 480, hi: 2_100 },
   { id: 'vicodin', name: 'Easedyne', lo: 900, hi: 3_800 },

@@ -608,7 +608,7 @@ export const MARKET_COMMENTARY = deepFreeze({
   bull: [
     'Everything\'s green — chips, fruit companies, the coin, even coffee, which means the traders are celebrating with the thing they\'re long. Tidy.',
     'The board\'s running hot and the barbecue talk has turned to "getting some exposure." When your uncle says exposure, the top is somewhere in the room.',
-    'NVCH up, gold up, oil up. When everything\'s up at once, someone is wrong, and the market has generously agreed to reveal who later.',
+    'IBSI up, gold up, oil up. When everything\'s up at once, someone is wrong, and the market has generously agreed to reveal who later.',
   ],
   bear: [
     'Sea of red on the board. The long-term investors have logged off to focus on their long term, which is a walk.',
